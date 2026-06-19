@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/sections/_foundation.css">
+  <title>PLISTIC — media made simPLISTIC</title>
+  <style>
+    /* ========================================================================
+       DIRECTION C — "KINETIC MARQUEE"
+       Swiss-poster-meets-broadcast on paper. Oversized Norwester, generous
+       negative space, asymmetric grid. The cycling prefix is the STAR: it is a
+       vertical channel-selector dial clipped INSIDE the azure [PLISTIC] lockup —
+       the active word is locked between the brackets while the dead channels
+       ghost past above and below. One solid azure block anchors the left edge.
+       One tall, viewfinder-framed media tile balances the giant type.
+       No cards. No chips. Type-led, art-directed.
+       ===================================================================== */
+
+    .km {
+      background: var(--paper);
+      color: var(--ink);
+      position: relative;
+      overflow: hidden;             /* the marquee bleeds; the page never scrolls sideways */
+    }
+
+    /* A single solid azure block welded to the page edge — structural anchor. */
+    .km__rail {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: clamp(7px, 1vw, 13px);
+      background: var(--azure);
+      z-index: 3;
+    }
+
+    .km__inner {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.82fr);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      column-gap: clamp(1.5rem, 4vw, 4.5rem);
+      row-gap: clamp(1.1rem, 3vh, 2rem);
+      align-items: stretch;
+      padding-block: clamp(1.4rem, 4vh, 2.75rem);
+      padding-left: clamp(1.7rem, 5vw, 4.5rem);   /* clears the azure rail */
+    }
+
+    /* ---- top band: eyebrow only (minimal) ------------------------------- */
+    .km__top {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* ---- left column: the kinetic mark ---------------------------------- */
+    .km__lead {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: center;
+      min-width: 0;
+    }
+
+    /* THE KINETIC LOCKUP -------------------------------------------------- */
+    /* The whole mark is one baseline-locked row: [ DIAL ] [ ] PLISTIC [ ].
+       The dial is a fixed-height window that clips a tall vertical word stack;
+       only the active channel shows between the fades, kerned flush against the
+       azure brackets so prefix + PLISTIC read as a single wordmark. */
+    .kmark {
+      --row: clamp(56px, 12.4vh, 158px);   /* visible cap band = one channel */
+      display: flex;
+      align-items: stretch;
+      gap: 0.1em;
+      font-family: var(--display);
+      text-transform: uppercase;
+      line-height: 0.86;
+      font-size: var(--row);
+      letter-spacing: 0.005em;
+      white-space: nowrap;
+      margin-left: -0.03em;                /* optical hang of the caps */
+    }
+
+    /* The selector window: shows exactly one row, clips prev/next. */
+    .kmark__dial {
+      position: relative;
+      height: var(--row);
+      overflow: hidden;
+      align-self: center;
+    }
+    /* fade the channels sliding in/out top & bottom */
+    .kmark__dial::before,
+    .kmark__dial::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0;
+      height: 0.42em;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .kmark__dial::before { top: 0;    background: linear-gradient(var(--paper), rgba(244, 246, 247, 0)); }
+    .kmark__dial::after  { bottom: 0; background: linear-gradient(rgba(244, 246, 247, 0), var(--paper)); }
+
+    .kmark__track {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(calc(var(--row) * -1 * var(--active, 0)));
+      transition: transform 0.6s cubic-bezier(0.16, 0.84, 0.3, 1);
+      will-change: transform;
+    }
+    .kmark__word {
+      height: var(--row);
+      display: flex;
+      align-items: center;
+      color: var(--ink);
+      opacity: 0.09;                       /* ghosted dead channel */
+      transition: opacity 0.5s ease;
+    }
+    .kmark__word.is-active { opacity: 1; }
+
+    /* The azure brackets — bigger/bolder here for the "locked-in" feel. */
+    .kmark .brk { width: 0.2em; border-width: 0.08em; align-self: center; height: 0.78em; }
+    .kmark__name { display: flex; align-items: center; color: var(--ink); }
+
+    /* the "you are here" azure focus tick, pinned to the dial's left edge */
+    .kmark__tick {
+      align-self: center;
+      width: 0.07em;
+      height: 0.44em;
+      background: var(--azure);
+      margin-right: 0.16em;
+      flex: 0 0 auto;
+    }
+
+    /* ---- tagline + subheading ------------------------------------------- */
+    .km__tag {
+      font-family: var(--display);
+      text-transform: uppercase;
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      font-size: clamp(1.45rem, 3.3vw, 2.85rem);
+      margin: clamp(1rem, 2.6vh, 1.7rem) 0 0;
+      color: var(--ink);
+    }
+    .km__tag .azu { color: var(--azure-deep); }
+
+    .km__sub {
+      max-width: 34ch;
+      margin: 0.85rem 0 0;
+      font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    /* ---- bottom row: discipline line + CTAs ----------------------------- */
+    .km__foot {
+      grid-column: 1;
+      grid-row: 3;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(1rem, 2.4vh, 1.5rem);
+    }
+    .km__disc {
+      font-family: var(--body);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-size: clamp(0.66rem, 0.85vw, 0.76rem);
+      color: var(--ink-2);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.85rem;
+      align-items: center;
+      margin: 0;
+    }
+    .km__disc .dot { color: var(--azure); }
+    .km__cta { display: flex; flex-wrap: wrap; gap: 0.85rem; }
+
+    /* ---- right column: the tall viewfinder-framed media tile ------------ */
+    .km__media {
+      grid-column: 2;
+      grid-row: 2 / 4;             /* runs tall beside headline + foot */
+      align-self: stretch;
+      min-height: 0;
+    }
+    .km__tile {
+      position: relative;
+      height: 100%;
+      min-height: clamp(340px, 58vh, 720px);
+      overflow: hidden;
+      background: var(--ink);
+    }
+    .km__tile img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 38%;                /* hold the lit fire area in frame */
+      filter: contrast(1.03) saturate(1.02);   /* keep the photo reading as a photo */
+    }
+    /* ink scrim at the foot only — keeps the REC marker legible, frame stays bright */
+    .km__tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(20, 20, 23, 0) 64%,
+        rgba(20, 20, 23, 0.58) 100%);
+      pointer-events: none;
+    }
+    .km__tilecap {
+      position: absolute;
+      left: 1rem; right: 1rem; bottom: 1rem;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .km__tilecap .rec-chip { font-size: 0.66rem; letter-spacing: 0.14em; }
+    .km__tilelabel {
+      font-family: var(--body);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.62rem;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    /* ======================================================================
+       RESPONSIVE — collapse to a single editorial column under ~900px.
+       The kinetic mark stays the star; the tile goes full-width below it.
+       ===================================================================== */
+    @media (max-width: 900px) {
+      .km__inner {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        row-gap: clamp(1.3rem, 3vh, 1.9rem);
+        padding-left: clamp(1.6rem, 7vw, 2.5rem);
+      }
+      .km__lead  { grid-column: 1; grid-row: 2; align-self: start; }
+      .km__media { grid-column: 1; grid-row: 3; }
+      .km__foot  { grid-column: 1; grid-row: 4; }
+      .km__tile  { min-height: clamp(280px, 40vh, 420px); }
+      .kmark     { --row: clamp(52px, 16vw, 104px); }
+    }
+
+    @media (max-width: 480px) {
+      .kmark   { --row: clamp(44px, 17.5vw, 76px); }
+      .km__sub { max-width: none; }
+      .km__cta { gap: 0.6rem; }
+      .km__cta .btn { flex: 1 1 auto; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="km stage" aria-labelledby="km-mark">
+    <span class="km__rail" aria-hidden="true"></span>
+
+    <div class="container km__inner">
+
+      <!-- top band: eyebrow only -->
+      <header class="km__top">
+        <p class="eyebrow">Glasgow · Made in Scotland</p>
+      </header>
+
+      <!-- the kinetic mark: prefix dial locked inside the azure brackets -->
+      <section class="km__lead">
+        <span class="kmark" id="km-mark" role="img" aria-label="Plistic">
+          <span class="kmark__tick" aria-hidden="true"></span>
+          <span class="brk brk--l" aria-hidden="true"></span>
+          <span class="kmark__dial" aria-hidden="true">
+            <span class="kmark__track" id="dial">
+              <span class="kmark__word" data-i="0">POD</span>
+              <span class="kmark__word" data-i="1">VID</span>
+              <span class="kmark__word" data-i="2">SONG</span>
+              <span class="kmark__word" data-i="3">AD</span>
+              <span class="kmark__word" data-i="4">DOC</span>
+              <span class="kmark__word" data-i="5">SIM</span>
+            </span>
+          </span>
+          <span class="brk brk--r" aria-hidden="true"></span>
+          <span class="kmark__name">PLISTIC</span>
+        </span>
+
+        <p class="km__tag">media made sim<span class="azu">PLISTIC</span></p>
+        <p class="km__sub">Scotland's home for everything media. Made in Scotland.</p>
+      </section>
+
+      <!-- tall, viewfinder-framed media tile -->
+      <aside class="km__media">
+        <div class="km__tile vf">
+          <span class="vf__c" aria-hidden="true"></span>
+          <img src="/assets/photos/music-video-fire.webp"
+               alt="Plistic crew shooting a music video lit by open flame on a Scottish set"
+               loading="eager" decoding="async" width="900" height="1200">
+          <div class="km__tilecap">
+            <span class="rec-chip"><span class="rec-dot" aria-hidden="true"></span>REC</span>
+            <span class="km__tilelabel">Music video · Glasgow</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- discipline line + CTAs -->
+      <footer class="km__foot">
+        <p class="km__disc">
+          Podcasts <span class="dot" aria-hidden="true">·</span>
+          Video <span class="dot" aria-hidden="true">·</span>
+          Documentary <span class="dot" aria-hidden="true">·</span>
+          Ads <span class="dot" aria-hidden="true">·</span>
+          Music Videos <span class="dot" aria-hidden="true">·</span>
+          Strategy
+        </p>
+        <div class="km__cta">
+          <a class="btn" href="#quote">Get a Quote</a>
+          <a class="btn btn--ghost" href="#call">Book a Call</a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    var P = ["POD", "VID", "SONG", "AD", "DOC", "SIM"];
+    var track = document.getElementById("dial");
+    if (!track) return;
+    var words = [].slice.call(track.querySelectorAll(".kmark__word"));
+
+    function setActive(i) {
+      track.style.setProperty("--active", i);
+      for (var n = 0; n < words.length; n++) {
+        words[n].classList.toggle("is-active", n === i);
+      }
+    }
+
+    setActive(0);
+
+    // Honour prefers-reduced-motion: leave the mark static on the first channel.
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    var i = 0;
+    setInterval(function () {
+      i = (i + 1) % P.length;
+      setActive(i);
+    }, 2000);
+  })();
+  </script>
+</body>
+</html>

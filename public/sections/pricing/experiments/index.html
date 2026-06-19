@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pricing Experiments</title>
+    <link rel="stylesheet" href="./pricing-experiments.css" />
+    <style>
+      .index-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+      .index-card { padding: 1.2rem; border: 1px solid var(--line-on-dark); color: var(--white); }
+      .index-card h2 { margin: 0; font-family: var(--display); text-transform: uppercase; line-height: 0.95; }
+      .index-card p { color: var(--muted-on-dark); font-weight: 700; }
+      @media (max-width: 700px) { .index-grid { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main class="experiment-shell">
+      <a class="back-link" href="/experiments">Back to experiments</a>
+      <section class="study study--dark pad">
+        <div class="topline">
+          <div>
+            <p class="eyebrow on-dark">Pricing experiments</p>
+            <h1 class="display section-title">Choose a calculator direction</h1>
+          </div>
+        </div>
+        <div class="index-grid">
+          <a class="index-card" href="./broadcast-console.html">
+            <h2>Broadcast console</h2>
+            <p>Dark production-console tool with a big live estimate monitor.</p>
+          </a>
+          <a class="index-card" href="./rate-deck.html">
+            <h2>Rate deck</h2>
+            <p>Light, editorial price deck with tier cards and a clean quote panel.</p>
+          </a>
+          <a class="index-card" href="./viewfinder-stepper.html">
+            <h2>Viewfinder stepper</h2>
+            <p>Guided multi-step flow with a camera-frame result panel.</p>
+          </a>
+          <a class="index-card" href="./producer-brief.html">
+            <h2>Producer brief</h2>
+            <p>Brief-first layout that feels more like a production intake slate.</p>
+          </a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

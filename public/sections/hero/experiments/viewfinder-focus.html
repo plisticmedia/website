@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/sections/_foundation.css" />
+  <title>PLISTIC — Viewfinder Focus</title>
+  <style>
+    /* ====================================================================
+       DIRECTION A — VIEWFINDER FOCUS
+       The hero IS a camera viewfinder. A bright, precise studio ground
+       (white falling to pale cool-grey — never mint), with the azure
+       bracket motif doing the real compositional work: LARGE corner
+       brackets frame the optical centre where the wordmark racks focus,
+       and a framed live showreel tile sits to one side like the shot the
+       finder is composing. Faint technical chrome (baseline rule, ticks,
+       crosshair, REC chip) sells the instrument. Lots of light.
+       ==================================================================== */
+
+    .vf-stage {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      /* studio light: white core falling to a pale cool grey at the edges */
+      background:
+        radial-gradient(125% 100% at 38% 34%, var(--white) 0%, var(--white) 40%, var(--paper) 100%);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* faint focusing-screen grid — barely there, masked toward the centre */
+    .vf-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(20,20,23,0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20,20,23,0.035) 1px, transparent 1px);
+      background-size: 68px 68px;
+      mask-image: radial-gradient(125% 105% at 42% 36%, #000 30%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---- Top instrument bar: format readout + REC chip ----------------- */
+    .vf-bar {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-top: clamp(1.1rem, 2.4vw, 1.9rem);
+    }
+    .vf-bar .eyebrow { color: var(--azure-deep); }
+
+    /* dark REC chip so the foundation's white rec-chip text reads on light */
+    .vf-rec {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: var(--ink);
+      color: var(--white);
+      padding: 0.5rem 0.85rem;
+      border-radius: 999px;
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.66rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ---- The optical core: a two-column compose — finder left, shot right */
+    .vf-core {
+      position: relative;
+      z-index: 2;
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.32fr) minmax(0, 0.88fr);
+      align-items: center;
+      gap: clamp(1.5rem, 4vw, 3.4rem);
+      padding-block: clamp(1.6rem, 4vw, 3rem);
+    }
+
+    /* ---- The viewfinder frame around the live lockup ------------------- */
+    .finder {
+      position: relative;
+      width: 100%;
+      padding: clamp(2.6rem, 6vw, 5rem) clamp(1.4rem, 4vw, 3.4rem) clamp(2.2rem, 5vw, 4rem);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: clamp(0.85rem, 1.8vw, 1.25rem);
+    }
+    /* thin azure baseline rule beneath the lockup — finder horizon line */
+    .finder::after {
+      content: "";
+      position: absolute;
+      left: clamp(1.4rem, 4vw, 3.4rem);
+      right: clamp(1.4rem, 4vw, 3.4rem);
+      top: clamp(2.6rem, 6vw, 5rem);
+      height: 1px;
+      background: var(--azure);
+      opacity: 0.28;
+      pointer-events: none;
+    }
+    /* LARGE, confident foundation corner brackets framing the lockup block */
+    .finder.vf::before,
+    .finder.vf::after,
+    .finder .vf__c::before,
+    .finder .vf__c::after {
+      width: clamp(48px, 8vw, 96px);
+      height: clamp(48px, 8vw, 96px);
+      border-width: clamp(4px, 0.55vw, 7px);
+    }
+    .finder.vf::after { background: transparent; height: clamp(48px, 8vw, 96px); top: auto; }
+
+    /* corner readouts — coordinates / format, like a real finder gate */
+    .finder__tick {
+      position: absolute;
+      z-index: 2;
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .finder__tick--tr { top: clamp(0.7rem, 1.6vw, 1.15rem); right: clamp(0.9rem, 2vw, 1.5rem); }
+    .finder__tick--bl { bottom: clamp(0.7rem, 1.6vw, 1.15rem); left: clamp(0.9rem, 2vw, 1.5rem); }
+    .finder__tick b { color: var(--azure-deep); font-weight: 700; }
+
+    /* centre crosshair behind the wordmark — the optical axis */
+    .finder__cross {
+      position: absolute;
+      top: clamp(2.6rem, 6vw, 5rem);
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translate(-50%, -55%);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .finder__cross::before,
+    .finder__cross::after {
+      content: "";
+      position: absolute;
+      background: var(--azure);
+    }
+    .finder__cross::before { left: 50%; top: 0; width: 1.5px; height: 100%; transform: translateX(-50%); }
+    .finder__cross::after  { top: 50%; left: 0; height: 1.5px; width: 100%; transform: translateY(-50%); }
+
+    /* ---- The wordmark, performing the rack focus ----------------------- */
+    .vf-mark {
+      position: relative;
+      z-index: 3;
+      font-size: clamp(2.9rem, 11vw, 9.4rem);
+      color: var(--ink);
+      letter-spacing: 0.005em;
+      /* azure frame "snaps" scale on lock */
+      transition: transform 0.3s cubic-bezier(.2,.9,.2,1);
+      max-width: 100%;
+    }
+    .vf-mark .brk { border-color: var(--azure); }
+    .vf-mark.is-locking { transform: scale(1.014); }
+
+    /* rack-focus prefix — exaggerated lens pull: blur out then sharpen in */
+    .vf-mark .focus-prefix.is-swapping {
+      filter: blur(11px);
+      opacity: 0;
+      transform: scale(0.88) translateY(2px);
+    }
+
+    .vf-tagline {
+      font-family: var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      line-height: 0.9;
+      font-size: clamp(1.15rem, 3.2vw, 1.95rem);
+      color: var(--ink-2);
+      margin: 0;
+    }
+    .vf-tagline b { color: var(--azure-deep); font-weight: 400; }
+
+    .vf-sub {
+      max-width: 40ch;
+      margin: 0.15rem 0 0;
+      color: var(--muted);
+      font-size: clamp(0.98rem, 1.5vw, 1.12rem);
+      line-height: 1.5;
+    }
+
+    /* discipline line */
+    .vf-disc {
+      margin: clamp(0.4rem, 1.4vw, 0.9rem) 0 0;
+      font-family: var(--body);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: clamp(0.6rem, 1.2vw, 0.72rem);
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.7rem;
+      align-items: center;
+    }
+    .vf-disc span[aria-hidden] { color: var(--azure); }
+
+    /* ---- CTAs ---------------------------------------------------------- */
+    .vf-cta {
+      margin-top: clamp(1.2rem, 2.6vw, 1.9rem);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    /* ---- The framed live shot: showreel tile to one side -------------- */
+    .vf-shot {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      background: var(--ink);
+      overflow: hidden;
+    }
+    /* generous brackets on the shot too — it is "the shot" being composed */
+    .vf-shot.vf::before,
+    .vf-shot.vf::after,
+    .vf-shot .vf__c::before,
+    .vf-shot .vf__c::after {
+      width: clamp(34px, 4vw, 54px);
+      height: clamp(34px, 4vw, 54px);
+      border-width: clamp(3px, 0.4vw, 5px);
+      z-index: 4;
+    }
+    .vf-shot video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* scrim so any overlaid chrome stays legible over the footage */
+    .vf-shot::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(180deg, rgba(20,20,23,0.42) 0%, rgba(20,20,23,0) 26%,
+                                          rgba(20,20,23,0) 62%, rgba(20,20,23,0.6) 100%);
+      pointer-events: none;
+    }
+    .vf-shot__top {
+      position: absolute;
+      z-index: 3;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: clamp(0.7rem, 1.4vw, 1rem);
+    }
+    .vf-shot__rec {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    .vf-shot__tc {
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--white);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    .vf-shot__bottom {
+      position: absolute;
+      z-index: 3;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: clamp(0.7rem, 1.4vw, 1rem);
+    }
+    .vf-shot__cap {
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.55);
+    }
+    /* sound toggle styled for legibility over footage (foundation base) */
+    .vf-shot .sound-toggle { font-weight: 700; cursor: pointer; }
+    .vf-shot .sound-toggle:focus-visible { outline: 2px solid var(--azure); outline-offset: 2px; }
+
+    /* ---- Responsive ---------------------------------------------------- */
+    @media (max-width: 900px) {
+      .vf-core {
+        grid-template-columns: 1fr;
+        gap: clamp(1.6rem, 5vw, 2.4rem);
+        padding-block: clamp(1.4rem, 5vw, 2.4rem);
+      }
+      .finder { align-items: center; text-align: center; }
+      .finder::after { display: none; }
+      .vf-disc, .vf-cta { justify-content: center; }
+      .vf-sub { margin-left: auto; margin-right: auto; }
+      .vf-shot { aspect-ratio: 16 / 10; max-height: 46svh; }
+      .vf-shot video { object-position: center; }
+    }
+    @media (max-width: 520px) {
+      .finder { padding-left: 0.6rem; padding-right: 0.6rem; }
+      .finder.vf::before, .finder.vf::after,
+      .finder .vf__c::before, .finder .vf__c::after {
+        width: 38px; height: 38px; border-width: 4px;
+      }
+      .finder__tick { display: none; }   /* avoid crowding the gate on mobile */
+      .vf-cta .btn { flex: 1 1 auto; justify-content: center; }
+      .vf-bar .eyebrow { font-size: 0.62rem; letter-spacing: 0.12em; }
+      .vf-bar .eyebrow::before { width: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="vf-stage">
+    <div class="container vf-bar">
+      <p class="eyebrow">Glasgow · Made in Scotland</p>
+      <span class="vf-rec">
+        <span class="rec-dot" aria-hidden="true"></span> REC
+      </span>
+    </div>
+
+    <div class="container vf-core">
+      <!-- The viewfinder framing the optical centre where the mark racks focus -->
+      <div class="finder vf">
+        <span class="vf__c"></span>
+        <span class="finder__cross" aria-hidden="true"></span>
+        <span class="finder__tick finder__tick--tr">4K <b>·</b> 24 FPS</span>
+        <span class="finder__tick finder__tick--bl">ISO 200 <b>·</b> f/2.8</span>
+
+        <span class="lockup vf-mark" role="img" aria-label="Plistic">
+          <span class="lockup__prefix focus-prefix" data-prefix>POD</span>
+          <span class="brk brk--l" aria-hidden="true"></span>
+          <span class="lockup__name">PLISTIC</span>
+          <span class="brk brk--r" aria-hidden="true"></span>
+        </span>
+
+        <p class="vf-tagline">media made sim<b>PLISTIC</b></p>
+        <p class="vf-sub">Scotland's home for everything media. Made in Scotland.</p>
+
+        <p class="vf-disc">
+          Podcasts <span aria-hidden="true">·</span> Video <span aria-hidden="true">·</span> Documentary
+          <span aria-hidden="true">·</span> Ads <span aria-hidden="true">·</span> Music Videos
+          <span aria-hidden="true">·</span> Strategy
+        </p>
+
+        <div class="vf-cta">
+          <a class="btn" href="#quote">Get a Quote</a>
+          <a class="btn btn--ghost" href="#call">Book a Call</a>
+        </div>
+      </div>
+
+      <!-- The shot the finder is composing: framed live showreel tile -->
+      <figure class="vf-shot vf">
+        <span class="vf__c"></span>
+        <video
+          id="reel"
+          src="/assets/showreel/showreel-web.mp4"
+          poster="/assets/showreel/showreel-poster.jpg"
+          muted autoplay loop playsinline preload="metadata"
+          aria-label="PLISTIC showreel"></video>
+        <div class="vf-shot__top">
+          <span class="vf-shot__rec">
+            <span class="rec-dot" aria-hidden="true"></span> REC
+          </span>
+          <span class="vf-shot__tc">00:00:24:12</span>
+        </div>
+        <div class="vf-shot__bottom">
+          <figcaption class="vf-shot__cap">Showreel</figcaption>
+          <button type="button" class="sound-toggle" id="soundBtn" aria-pressed="false">
+            <span id="soundLabel">Sound off</span>
+          </button>
+        </div>
+      </figure>
+    </div>
+  </main>
+
+  <script>
+    /* Animated prefix — rack focus through pod/vid/song/ad/doc/sim */
+    (function () {
+      var P = ["POD", "VID", "SONG", "AD", "DOC", "SIM"];
+      var el = document.querySelector("[data-prefix]");
+      var mark = document.querySelector(".vf-mark");
+      var i = 0;
+      if (!el) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // leave static
+
+      setInterval(function () {
+        el.classList.add("is-swapping");            // lens pulls focus off
+        setTimeout(function () {
+          i = (i + 1) % P.length;
+          el.textContent = P[i];
+          el.classList.remove("is-swapping");        // sharpen onto the new prefix
+          if (mark) {                                // azure frame "snaps" on lock
+            mark.classList.add("is-locking");
+            setTimeout(function () { mark.classList.remove("is-locking"); }, 200);
+          }
+        }, 280);
+      }, 2000);
+    })();
+
+    /* Sound toggle for the framed showreel — starts muted, autoplay-safe */
+    (function () {
+      var vid = document.getElementById("reel");
+      var btn = document.getElementById("soundBtn");
+      var label = document.getElementById("soundLabel");
+      if (!vid || !btn || !label) return;
+      btn.addEventListener("click", function () {
+        vid.muted = !vid.muted;
+        var on = !vid.muted;
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        label.textContent = on ? "Sound on" : "Sound off";
+        if (on) { var p = vid.play(); if (p && p.catch) { p.catch(function () {}); } }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+.proof {
+  margin-top: -1px;
+  padding-block-start: clamp(3rem, 6vw, 5rem);
+  background: var(--p-ink);
+}
+
+.head { max-width: 760px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+.stat { border-top: 2px solid var(--p-azure); padding-top: 1.1rem; }
+.value {
+  font-family: var(--p-display);
+  text-transform: uppercase;
+  font-size: clamp(3.4rem, 7vw, 6rem);
+  line-height: 0.86;
+  color: var(--p-white);
+}
+.label {
+  margin: 0.7rem 0 0;
+  font-family: var(--p-body);
+  color: var(--p-muted-dark);
+  font-size: 0.96rem;
+  line-height: 1.45;
+  max-width: 24ch;
+}
+
+.trust { margin-top: clamp(3rem, 6vw, 5rem); }
+.trustLabel {
+  margin: 0 0 1.2rem;
+  font-family: var(--p-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.marquee {
+  --logo-gap: clamp(0.72rem, 1.2vw, 1rem);
+  --logo-tile-width: clamp(144px, 14vw, 196px);
+  position: relative;
+  display: grid;
+  gap: var(--logo-gap);
+  overflow: hidden;
+  padding: 0.95rem 0;
+  border-top: 1px solid rgba(79, 182, 255, 0.28);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+}
+.logoRow {
+  position: relative;
+  inline-size: 100%;
+  min-block-size: 68px;
+  overflow: hidden;
+}
+.logoTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  inline-size: max-content;
+  animation: marqueeLeft 32s linear infinite;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+.reverse .logoTrack {
+  animation-name: marqueeRight;
+  animation-duration: 36s;
+}
+.logoSet {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--logo-gap);
+  min-inline-size: max-content;
+  padding-inline-end: var(--logo-gap);
+}
+.logoTile {
+  position: relative;
+  display: flex;
+  flex: 0 0 var(--logo-tile-width);
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--logo-tile-width);
+  block-size: 68px;
+  overflow: hidden;
+  padding: 0.82rem 1rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.logoTile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(79, 182, 255, 0.08), transparent);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.logoTile:hover::before { opacity: 1; }
+.logo {
+  position: relative;
+  inline-size: auto;
+  max-inline-size: 86%;
+  max-block-size: 38px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0) invert(1);
+  opacity: 0.58;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+.logoTile:hover .logo {
+  opacity: 0.88;
+  filter: grayscale(1) brightness(0) invert(1) drop-shadow(0 0 14px rgba(79, 182, 255, 0.12));
+}
+.marquee:hover .logoTrack { animation-play-state: paused; }
+
+@keyframes marqueeLeft {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marqueeRight {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+@media (max-width: 900px) {
+  .stats { grid-template-columns: 1fr; gap: 1.6rem; }
+  .marquee {
+    --logo-tile-width: 148px;
+    margin-inline: -0.25rem;
+  }
+  .logoRow { min-block-size: 64px; }
+  .logoTile { block-size: 64px; }
+  .logo { max-block-size: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logoTrack { animation-duration: 80s; }
+  .reverse .logoTrack { animation-duration: 90s; }
+}

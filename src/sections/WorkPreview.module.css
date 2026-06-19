@@ -1,0 +1,85 @@
+.work { background: var(--p-ink); }
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.headText { max-width: 640px; }
+.headLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--p-azure);
+  font-family: var(--p-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.6rem);
+  margin-top: clamp(2.5rem, 5vw, 3.6rem);
+}
+.tile { position: relative; display: block; overflow: hidden; border-radius: 4px; }
+.linkTile { cursor: pointer; }
+.media { position: relative; aspect-ratio: 16 / 10; }
+.media :global(img) { object-fit: cover; transition: transform 0.5s ease; }
+.tile:hover .media :global(img),
+.tile:focus-visible .media :global(img) { transform: scale(1.04); }
+.linkTile:focus-visible {
+  outline: 3px solid var(--p-azure);
+  outline-offset: 4px;
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 16, 19, 0) 38%, rgba(15, 16, 19, 0.92) 100%);
+  pointer-events: none;
+}
+.copy { position: absolute; left: 0; right: 0; bottom: 0; padding: clamp(1.2rem, 2.2vw, 2rem); z-index: 2; }
+.tag {
+  margin: 0 0 0.45rem;
+  font-family: var(--p-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  color: var(--p-azure);
+}
+.client {
+  margin: 0;
+  font-family: var(--p-display);
+  text-transform: uppercase;
+  font-size: clamp(1.35rem, 2.4vw, 2.1rem);
+  line-height: 0.95;
+  color: var(--p-white);
+}
+.desc {
+  margin: 0.55rem 0 0;
+  max-width: 48ch;
+  font-family: var(--p-body);
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.readMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  margin-top: 0.85rem;
+  font-family: var(--p-body);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-white);
+}
+.readMore svg { color: var(--p-azure); }
+
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }

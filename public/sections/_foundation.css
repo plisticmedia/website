@@ -1,0 +1,253 @@
+/* ============================================================================
+   PLISTIC — shared experiment foundation
+   The brand in code: ink + azure + white, real Norwester / Glacial Indifference,
+   and the camera "viewfinder" bracket as a structural motif.
+   Every hero experiment links this file, then adds its own art direction.
+   ========================================================================== */
+
+/* ---- Brand fonts (self-hosted, OFL) ------------------------------------- */
+@font-face {
+  font-family: "Norwester";
+  src: url("/assets/fonts/norwester.woff") format("woff"),
+       url("/assets/fonts/norwester.ttf") format("truetype");
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Glacial Indifference";
+  src: url("/assets/fonts/glacialindifference-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Glacial Indifference";
+  src: url("/assets/fonts/glacialindifference-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Tokens ------------------------------------------------------------- */
+:root {
+  /* Core brand — disciplined, three notes only */
+  --ink: #141417;            /* near-black studio ground */
+  --ink-2: #333333;          /* brand dark grey (wordmark) */
+  --azure: #1faae9;          /* brand Vivid Azure — the one accent */
+  --azure-deep: #0c6f9e;     /* AA-safe azure on white */
+  --white: #ffffff;
+  --paper: #f4f6f7;          /* barely-there off white */
+  --rec: #ff3b30;            /* recording red — REC dots only, used sparingly */
+
+  /* Neutral support */
+  --line: rgba(20, 20, 23, 0.12);
+  --line-on-dark: rgba(255, 255, 255, 0.16);
+  --muted: #5d6b71;
+  --muted-on-dark: rgba(255, 255, 255, 0.72);
+
+  /* Type */
+  --display: "Norwester", "Arial Narrow", "Haettenschweiler", Impact, sans-serif;
+  --body: "Glacial Indifference", "Segoe UI", system-ui, Arial, sans-serif;
+
+  /* Geometry — precise, not pillowy. Minimal radius. */
+  --r: 3px;
+  --maxw: 1240px;
+}
+
+/* ---- Reset -------------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--body);
+  color: var(--ink);
+  background: var(--white);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+
+/* ---- Display type ------------------------------------------------------- */
+.display {
+  font-family: var(--display);
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  font-weight: 400; /* Norwester is single-weight; weight comes from size/colour */
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: var(--body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--azure-deep);
+}
+.on-dark .eyebrow,
+.eyebrow.on-dark { color: var(--azure); }
+
+/* A thin azure tick that precedes an eyebrow */
+.eyebrow::before {
+  content: "";
+  width: 1.6rem;
+  height: 2px;
+  background: currentColor;
+  display: inline-block;
+}
+
+/* ============================================================================
+   THE WORDMARK LOCKUP  —  prefix [ PLISTIC ]
+   Brackets are azure; the type stays ink (light bg) or white (dark bg).
+   Faithful to the asset pack: the prefix sits OUTSIDE the left bracket.
+   ========================================================================== */
+.lockup {
+  font-family: var(--display);
+  text-transform: uppercase;
+  line-height: 0.86;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0.14em;
+  white-space: nowrap;
+}
+.lockup__prefix { color: inherit; }
+.lockup__name { color: inherit; }
+
+/* the [ and ] — azure, scale with font-size */
+.brk {
+  display: inline-block;
+  width: 0.26em;
+  align-self: stretch;
+  border: 0.09em solid var(--azure);
+}
+.brk--l { border-right: 0; margin-right: 0.06em; }
+.brk--r { border-left: 0; margin-left: 0.06em; }
+
+/* Optional: highlight the changing prefix in azure ("active focus") instead of
+   ink — opt in per variant with .lockup--accent-prefix */
+.lockup--accent-prefix .lockup__prefix { color: var(--azure); }
+
+/* ============================================================================
+   VIEWFINDER  —  azure corner brackets framing any box (media, tiles)
+   <div class="vf"> ...content... </div>
+   ========================================================================== */
+.vf { position: relative; }
+.vf::before,
+.vf::after {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--azure);
+  pointer-events: none;
+}
+.vf::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.vf::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+/* second pair via a child .vf__c for the other two corners */
+.vf__c::before,
+.vf__c::after {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--azure);
+  pointer-events: none;
+}
+.vf__c::before { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.vf__c::after { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+
+/* ---- Buttons ------------------------------------------------------------ */
+.btn {
+  --btn-bg: var(--azure);
+  --btn-fg: var(--white);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+  padding: 0.95rem 1.4rem;
+  border: 2px solid var(--btn-bg);
+  border-radius: var(--r);
+  min-height: 52px;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink);
+  border-color: currentColor;
+}
+.on-dark .btn--ghost,
+.btn--ghost.on-dark { --btn-fg: var(--white); }
+.btn--ghost:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.on-dark .btn--ghost:hover { background: var(--white); color: var(--ink); border-color: var(--white); }
+
+/* ---- REC / sound chips (media-production affordances) ------------------- */
+.rec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.rec-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--rec);
+  box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6);
+  animation: rec-pulse 1.8s infinite;
+}
+@keyframes rec-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.55); }
+  70% { box-shadow: 0 0 0 9px rgba(255, 59, 48, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+}
+
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line-on-dark);
+  color: var(--white);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+/* ---- Layout helpers ----------------------------------------------------- */
+.container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: clamp(1.25rem, 5vw, 4rem); }
+.stage { min-height: 100svh; display: flex; flex-direction: column; }
+
+/* ---- The prefix "focus pull" animation (shared option) ------------------ */
+/* Apply to the changing prefix node; toggle .is-swapping in JS for the blur. */
+.focus-prefix { display: inline-block; transition: filter 0.28s ease, opacity 0.28s ease, transform 0.28s ease; }
+.focus-prefix.is-swapping { filter: blur(7px); opacity: 0; transform: scale(0.94); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PLISTIC — Split Stage / Made in Scotland</title>
+    <link rel="stylesheet" href="/sections/_foundation.css" />
+    <style>
+      /* ====================================================================
+         DIRECTION D — SPLIT STAGE / MADE IN SCOTLAND
+         Two-column full-height stage. LEFT = ink copy panel (.on-dark),
+         RIGHT = azure viewfinder-framed media tile that crossfades real
+         Scottish work. Warm, work-forward, credibility-led. On-brand:
+         ink + azure + white only; Norwester display; brackets do the work.
+         ==================================================================== */
+
+      .splitstage {
+        min-height: 100svh;
+        display: grid;
+        grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+        background: var(--ink);
+        overflow: hidden; /* belt-and-braces against any sub-pixel overflow */
+      }
+
+      /* ---- LEFT: copy panel ------------------------------------------- */
+      .panel {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0; /* let the grid track shrink instead of pushing width */
+        /* deep azure-tinted ink — reads near-black with a faint cool cast */
+        background:
+          radial-gradient(125% 95% at 0% 0%, rgba(31, 170, 233, 0.12), transparent 58%),
+          linear-gradient(180deg, #16181d 0%, var(--ink) 52%, #0f1015 100%);
+        padding: clamp(2.25rem, 5vw, 4.5rem) clamp(1.5rem, 4.5vw, 4.5rem);
+        overflow: hidden;
+      }
+      /* azure hairline marking the seam — like the edge of a frame */
+      .panel::after {
+        content: "";
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, transparent, var(--azure) 16%, var(--azure) 84%, transparent);
+        opacity: 0.6;
+      }
+
+      .panel__inner {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(1.05rem, 2.3vw, 1.6rem);
+      }
+
+      /* ---- Eyebrow: GLASGOW · MADE IN SCOTLAND ------------------------ */
+      .kicker { display: inline-flex; align-items: center; gap: 0.55rem; }
+
+      /* ---- Wordmark lockup -------------------------------------------- */
+      .hero-mark {
+        font-size: clamp(3rem, 8.4vw, 7.25rem);
+        color: var(--white);
+        margin: 0;
+        letter-spacing: 0.005em;
+        max-width: 100%;
+      }
+      .hero-mark .lockup {
+        max-width: 100%;
+        flex-wrap: nowrap;
+      }
+      /* reserve room for the widest prefix so cycling never shifts the brackets */
+      .hero-mark .lockup__prefix {
+        display: inline-block;
+        min-width: 1.85em;
+        text-align: right;
+      }
+      .hero-mark .brk { border-width: 0.08em; }
+
+      .tagline {
+        font-family: var(--display);
+        text-transform: uppercase;
+        line-height: 0.9;
+        font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+        color: var(--white);
+        margin: 0;
+        letter-spacing: 0.02em;
+      }
+      .tagline .sim { color: var(--azure); }
+
+      .subhead {
+        color: var(--muted-on-dark);
+        font-size: clamp(1rem, 1.4vw, 1.12rem);
+        max-width: 40ch;
+        margin: 0;
+        line-height: 1.55;
+      }
+
+      .disciplines {
+        font-family: var(--body);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0;
+        line-height: 1.7;
+      }
+      .disciplines i { color: var(--azure); font-style: normal; }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 0.15rem;
+      }
+
+      /* ---- Trusted-by row -------------------------------------------- */
+      .trust {
+        margin-top: clamp(0.6rem, 1.8vw, 1.4rem);
+        padding-top: clamp(1rem, 2.2vw, 1.5rem);
+        border-top: 1px solid var(--line-on-dark);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.8rem 1.15rem;
+      }
+      .trust__label {
+        font-family: var(--body);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.62rem;
+        color: rgba(255, 255, 255, 0.55);
+        white-space: nowrap;
+      }
+      .trust__logos { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border-radius: var(--r);
+        height: 44px;
+        padding: 0 0.85rem;
+        box-shadow: inset 0 0 0 1px rgba(20, 20, 23, 0.07);
+      }
+      .chip img {
+        height: 22px;
+        width: auto;
+        max-width: 116px;
+        object-fit: contain;
+        display: block;
+      }
+
+      /* ---- RIGHT: media tile ----------------------------------------- */
+      .media {
+        position: relative;
+        background:
+          radial-gradient(140% 120% at 100% 0%, rgba(31, 170, 233, 0.10), transparent 55%),
+          #0c0d11;
+        overflow: hidden;
+        display: flex;
+        min-width: 0;
+      }
+      .media__frame {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        margin: clamp(1.25rem, 2.4vw, 2.25rem);
+      }
+      .media__shots {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: var(--ink);
+      }
+      .media__shots img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1.1s ease;
+        will-change: opacity;
+      }
+      .media__shots img.is-active { opacity: 1; }
+      /* cinematic top + bottom scrim so REC chip + caption always read */
+      .media__frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          180deg,
+          rgba(12, 13, 17, 0.45) 0%,
+          rgba(12, 13, 17, 0.05) 20%,
+          transparent 50%,
+          rgba(12, 13, 17, 0.72) 100%
+        );
+      }
+
+      /* REC chip — top-left inside the frame */
+      .media__rec {
+        position: absolute;
+        top: 1rem; left: 1rem;
+        z-index: 3;
+      }
+
+      /* azure discipline caption — bottom-left, swaps with the photo */
+      .shot-tag {
+        position: absolute;
+        left: 1rem; bottom: 1rem;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--azure);
+        color: var(--white);
+        font-family: var(--body);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: var(--r);
+      }
+      .shot-tag::before {
+        content: "";
+        width: 6px; height: 6px;
+        background: var(--white);
+        border-radius: 1px;
+      }
+      .shot-tag__text {
+        display: inline-block;
+        transition: filter 0.28s ease, opacity 0.28s ease;
+      }
+      .shot-tag__text.is-swapping { filter: blur(5px); opacity: 0; }
+
+      /* frame counter — bottom-right, a quiet production affordance */
+      .shot-index {
+        position: absolute;
+        right: 1rem; bottom: 1.05rem;
+        z-index: 3;
+        font-family: var(--display);
+        text-transform: uppercase;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 0.08em;
+      }
+      .shot-index b { color: var(--azure); }
+
+      /* ====================================================================
+         RESPONSIVE — stack at the column breakpoint, then tune for phones
+         ==================================================================== */
+      @media (max-width: 880px) {
+        .splitstage {
+          grid-template-columns: 1fr;
+          min-height: auto;
+        }
+        .panel { min-height: auto; padding-block: clamp(3rem, 9vw, 4rem); }
+        .panel::after { display: none; }
+        .panel__inner { margin-inline: auto; max-width: 560px; }
+        .media {
+          min-height: 54svh;
+          border-top: 2px solid var(--azure);
+        }
+        .media__frame { margin: clamp(1rem, 5vw, 1.75rem); }
+      }
+
+      @media (max-width: 420px) {
+        .hero-mark { font-size: clamp(2.6rem, 13vw, 3.4rem); }
+        .hero-mark .lockup__prefix { min-width: 1.7em; }
+        .trust { gap: 0.7rem; }
+        .trust__logos { gap: 0.45rem; }
+        .chip { height: 40px; padding: 0 0.7rem; }
+        .chip img { height: 19px; max-width: 98px; }
+        .cta-row .btn { flex: 1 1 auto; justify-content: center; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="splitstage">
+      <!-- ============================ LEFT: COPY ======================= -->
+      <section class="panel on-dark">
+        <div class="panel__inner">
+          <p class="eyebrow kicker">Glasgow · Made in Scotland</p>
+
+          <h1 class="hero-mark">
+            <span class="lockup" role="img" aria-label="Plistic">
+              <span class="lockup__prefix focus-prefix" data-prefix>POD</span>
+              <span class="brk brk--l" aria-hidden="true"></span>
+              <span class="lockup__name">PLISTIC</span>
+              <span class="brk brk--r" aria-hidden="true"></span>
+            </span>
+          </h1>
+
+          <p class="tagline">media made <span class="sim">sim</span>PLISTIC</p>
+
+          <p class="subhead">Scotland's home for everything media. Made in Scotland.</p>
+
+          <p class="disciplines">
+            Podcasts <i>·</i> Video <i>·</i> Documentary <i>·</i> Ads <i>·</i> Music Videos <i>·</i> Strategy
+          </p>
+
+          <div class="cta-row">
+            <a class="btn" href="#quote">Get a Quote</a>
+            <a class="btn btn--ghost" href="#call">Book a Call</a>
+          </div>
+
+          <div class="trust">
+            <span class="trust__label">Trusted by</span>
+            <div class="trust__logos">
+              <span class="chip"><img src="/assets/logos/king-s-trust-logo-svg.png" alt="King's Trust" /></span>
+              <span class="chip"><img src="/assets/logos/rgu-logo.png" alt="Robert Gordon University" /></span>
+              <span class="chip"><img src="/assets/logos/techscaler-logo.png" alt="Techscaler" /></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ RIGHT: MEDIA ===================== -->
+      <section class="media" aria-label="Selected work in Scotland">
+        <div class="media__frame vf">
+          <span class="vf__c"></span>
+
+          <div class="media__shots" id="shots">
+            <img class="is-active" src="/assets/photos/podcast-table.webp" alt="Podcast recording session in Scotland" />
+            <img src="/assets/photos/music-video-fire.webp" alt="Music video shoot lit by fire" />
+            <img src="/assets/photos/documentary-set.webp" alt="Documentary production set" />
+            <img src="/assets/photos/drum-studio.webp" alt="Drum recording in studio" />
+          </div>
+
+          <span class="rec-chip media__rec"><span class="rec-dot"></span>REC</span>
+
+          <span class="shot-tag"><span class="shot-tag__text" id="shotTag">Podcast</span></span>
+          <span class="shot-index"><b id="shotNum">01</b> / 04</span>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      /* ---- Cycling wordmark prefix (rack-focus blur) -------------------- */
+      (function () {
+        var P = ["POD", "VID", "SONG", "AD", "DOC", "SIM"],
+          el = document.querySelector("[data-prefix]"),
+          i = 0;
+        if (!el) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // leave static
+        setInterval(function () {
+          el.classList.add("is-swapping");
+          setTimeout(function () {
+            i = (i + 1) % P.length;
+            el.textContent = P[i];
+            el.classList.remove("is-swapping");
+          }, 280);
+        }, 2000);
+      })();
+
+      /* ---- Media crossfade + synced discipline caption ----------------- */
+      (function () {
+        var shots = Array.prototype.slice.call(
+          document.querySelectorAll("#shots img")
+        );
+        var labels = ["Podcast", "Music Video", "Documentary", "Studio"];
+        var tagEl = document.getElementById("shotTag");
+        var numEl = document.getElementById("shotNum");
+        if (shots.length < 2) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // show one, static
+
+        var i = 0;
+        setInterval(function () {
+          var next = (i + 1) % shots.length;
+          shots[i].classList.remove("is-active");
+          shots[next].classList.add("is-active");
+
+          // swap the azure caption + frame counter with a short blur beat
+          tagEl.classList.add("is-swapping");
+          setTimeout(function () {
+            tagEl.textContent = labels[next];
+            numEl.textContent = (next + 1 < 10 ? "0" : "") + (next + 1);
+            tagEl.classList.remove("is-swapping");
+          }, 280);
+
+          i = next;
+        }, 3500);
+      })();
+    </script>
+  </body>
+</html>

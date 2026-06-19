@@ -1,0 +1,26 @@
+{
+  "name": "plistic",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "vercel:preview": "pnpm dlx vercel",
+    "vercel:prod": "pnpm dlx vercel --prod"
+  },
+  "dependencies": {
+    "@radix-ui/react-navigation-menu": "^1.2.16",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}

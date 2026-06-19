@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/sections/_foundation.css" />
+  <title>PLISTIC — Showreel Cinema</title>
+  <style>
+    /* ========================================================================
+       DIRECTION B — "SHOWREEL CINEMA"
+       The 720p showreel IS the hero. The viewport becomes a camera's-eye view:
+       an azure VIEWFINDER frame inset from the edges does the composing —
+       it frames the whole shot AND its inner gutter is the rule the lower-left
+       wordmark/copy snap to. REC + live timecode top-left, white Norwester
+       wordmark with cycling prefix lower-left, sound toggle bottom-right.
+       Palette discipline: every dark wash is keyed off --ink, nothing else.
+       Moody, filmic, premium — this one screams "we make video".
+       ===================================================================== */
+
+    /* viewfinder inset is THE layout grid — share it as a custom property so the
+       frame, the HUD and the copy block all align to the same camera gutter. */
+    .reel {
+      --vf-inset: clamp(16px, 2.6vw, 34px);
+      --gutter: clamp(22px, 5.2vw, 76px);
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      background: var(--ink);
+      isolation: isolate;
+    }
+
+    /* ---- The showreel: full-bleed background -------------------------- */
+    .reel__video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      /* a restrained filmic grade — moody, never muddy */
+      filter: contrast(1.05) saturate(0.94) brightness(0.9);
+    }
+
+    /* ---- Scrim: deep INK gradient, weighted to the lower-left -------- *
+       Keyed entirely off --ink (#141417) so no stray fourth grey enters. */
+    .reel__scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        /* directional weight into the lower-left where the copy lives */
+        radial-gradient(125% 115% at 6% 102%,
+          rgba(20, 20, 23, 0.94) 0%,
+          rgba(20, 20, 23, 0.66) 32%,
+          rgba(20, 20, 23, 0.12) 62%,
+          rgba(20, 20, 23, 0) 80%),
+        /* gentle top/bottom bars so the REC bar + toggle read */
+        linear-gradient(180deg,
+          rgba(20, 20, 23, 0.58) 0%,
+          rgba(20, 20, 23, 0) 22%,
+          rgba(20, 20, 23, 0) 68%,
+          rgba(20, 20, 23, 0.5) 100%);
+    }
+    /* faint cinematic vignette around all edges */
+    .reel__vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      box-shadow: inset 0 0 240px 44px rgba(20, 20, 23, 0.55);
+    }
+
+    /* ---- VIEWFINDER FRAME: the structural motif ----------------------- *
+       Four azure corner brackets inset from the edges turn the viewport into
+       a framed shot. Its inset (--vf-inset) is the same rule the copy block
+       indents to, so the frame is doing real compositional work, not decor. */
+    .reel__vf {
+      position: absolute;
+      inset: var(--vf-inset);
+      z-index: 3;
+      pointer-events: none;
+    }
+    .reel__vf::before,
+    .reel__vf::after,
+    .reel__vf > .vf__c::before,
+    .reel__vf > .vf__c::after {
+      content: "";
+      position: absolute;
+      width: clamp(30px, 5vw, 58px);
+      height: clamp(30px, 5vw, 58px);
+      border: 2.5px solid var(--azure);
+    }
+    .reel__vf::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+    .reel__vf::after { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+    .reel__vf > .vf__c::before { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+    .reel__vf > .vf__c::after { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+
+    /* centre framing crosshair — every real viewfinder has one */
+    .reel__crosshair {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 30px; height: 30px;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .reel__crosshair::before,
+    .reel__crosshair::after {
+      content: "";
+      position: absolute;
+      background: var(--azure);
+    }
+    .reel__crosshair::before { top: 50%; left: 0; right: 0; height: 1.5px; transform: translateY(-50%); }
+    .reel__crosshair::after  { left: 50%; top: 0; bottom: 0; width: 1.5px; transform: translateX(-50%); }
+
+    /* ---- Camera HUD: REC chip + live timecode, top-left -------------- *
+       Pinned to the viewfinder gutter so it reads as on-frame camera UI.   */
+    .reel__hud {
+      position: absolute;
+      z-index: 4;
+      top: calc(var(--vf-inset) + clamp(14px, 2.4vw, 30px));
+      left: calc(var(--vf-inset) + clamp(14px, 2.4vw, 30px));
+      right: calc(var(--vf-inset) + clamp(14px, 2.4vw, 30px));
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .tc {
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+      opacity: 0.9;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .tc__label { color: var(--azure); }
+    .reel__hud .eyebrow { margin-left: auto; color: var(--white); }
+
+    /* ---- Content block, lower-left, snapped to the viewfinder gutter -- */
+    .reel__inner {
+      position: relative;
+      z-index: 4;
+      min-height: 100svh;
+      max-width: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      /* indent to the frame, not the page edge — the frame composes the copy */
+      padding-left: calc(var(--vf-inset) + var(--gutter));
+      padding-right: calc(var(--vf-inset) + var(--gutter));
+      padding-top: clamp(110px, 18vw, 150px);
+      padding-bottom: calc(var(--vf-inset) + clamp(54px, 9vw, 104px));
+    }
+    .reel__copy { max-width: 48rem; }
+
+    .reel__copy .eyebrow {
+      color: var(--azure);
+      margin-bottom: clamp(1rem, 2.6vw, 1.5rem);
+    }
+
+    /* ---- The wordmark lockup, scaled cinematic ----------------------- */
+    .reel__mark {
+      font-size: clamp(3.1rem, 13vw, 10.5rem);
+      color: var(--white);
+      margin: 0;
+      line-height: 0.86;
+    }
+    .reel__mark .lockup {
+      filter: drop-shadow(0 10px 34px rgba(20, 20, 23, 0.5));
+    }
+    .reel__mark .lockup__prefix { color: var(--azure); }
+    /* fatten the lockup brackets a touch so they read as the same azure motif
+       as the viewfinder corners — bracket-around-the-mark, by design */
+    .reel__mark .brk { border-width: 0.08em; width: 0.24em; }
+
+    /* tagline — Norwester caps, the joined "simPLISTIC" carried in azure */
+    .reel__tag {
+      font-family: var(--display);
+      text-transform: uppercase;
+      line-height: 0.9;
+      letter-spacing: 0.012em;
+      color: var(--white);
+      font-size: clamp(1.45rem, 4.6vw, 2.9rem);
+      margin: clamp(1rem, 2.8vw, 1.6rem) 0 0;
+    }
+    .reel__tag b { color: var(--azure); font-weight: inherit; }
+
+    .reel__sub {
+      font-family: var(--body);
+      color: var(--muted-on-dark);
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      max-width: 35rem;
+      margin: clamp(0.85rem, 2.2vw, 1.25rem) 0 0;
+      line-height: 1.45;
+    }
+
+    /* discipline line — one filmic row of small caps with azure separators */
+    .reel__disciplines {
+      font-family: var(--body);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.82);
+      margin: clamp(1.1rem, 2.8vw, 1.6rem) 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.8rem;
+    }
+    .reel__disciplines span { white-space: nowrap; }
+    .reel__disciplines i {
+      color: var(--azure);
+      font-style: normal;
+      transform: translateY(-1px);
+    }
+
+    /* ---- CTAs -------------------------------------------------------- */
+    .reel__cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: clamp(1.7rem, 3.8vw, 2.4rem);
+    }
+    .reel__cta .btn--ghost {
+      backdrop-filter: blur(4px);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ---- Sound toggle: bottom-right, on the viewfinder gutter --------- */
+    .reel__sound {
+      position: absolute;
+      z-index: 5;
+      right: calc(var(--vf-inset) + clamp(14px, 2.4vw, 30px));
+      bottom: calc(var(--vf-inset) + clamp(14px, 2.4vw, 30px));
+    }
+    .sound-toggle:hover { background: rgba(255, 255, 255, 0.18); }
+    /* little equaliser bars that "play" when sound is on */
+    .sound-toggle__eq {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .sound-toggle__eq i {
+      width: 2.5px;
+      background: var(--azure);
+      height: 30%;
+    }
+    .sound-toggle.is-on .sound-toggle__eq i { animation: eq 0.9s ease-in-out infinite; }
+    .sound-toggle.is-on .sound-toggle__eq i:nth-child(2) { animation-delay: 0.18s; }
+    .sound-toggle.is-on .sound-toggle__eq i:nth-child(3) { animation-delay: 0.36s; }
+    .sound-toggle.is-on .sound-toggle__eq i:nth-child(4) { animation-delay: 0.54s; }
+    @keyframes eq {
+      0%, 100% { height: 25%; }
+      50% { height: 100%; }
+    }
+
+    /* ---- Responsive ---------------------------------------------------- */
+    @media (max-width: 560px) {
+      .reel__hud { gap: 0.55rem; }
+      .reel__hud .eyebrow { display: none; }   /* avoid crowding the camera bar */
+      .reel__crosshair { display: none; }
+      .reel__disciplines { gap: 0.4rem 0.6rem; font-size: 0.66rem; }
+      .reel__cta .btn { flex: 1 1 auto; justify-content: center; }
+    }
+
+    @media (max-width: 390px) {
+      .reel { --gutter: 14px; }
+      /* keep the lockup inside 390px even at SONG[PLISTIC] width */
+      .reel__mark { font-size: clamp(2.55rem, 12vw, 3.4rem); }
+      .reel__tag { font-size: clamp(1.25rem, 6.5vw, 1.7rem); }
+    }
+  </style>
+</head>
+<body>
+  <main class="reel on-dark">
+    <!-- The showreel as full-bleed background -->
+    <video
+      class="reel__video"
+      src="/assets/showreel/showreel-web.mp4"
+      poster="/assets/showreel/showreel-poster.jpg"
+      muted autoplay loop playsinline preload="metadata"
+      aria-hidden="true"></video>
+
+    <!-- Legibility scrim + vignette (deep ink, lower-left weighted) -->
+    <div class="reel__scrim" aria-hidden="true"></div>
+    <div class="reel__vignette" aria-hidden="true"></div>
+
+    <!-- The viewport-as-camera viewfinder frame + centre crosshair -->
+    <div class="reel__vf" aria-hidden="true"><span class="vf__c"></span></div>
+    <div class="reel__crosshair" aria-hidden="true"></div>
+
+    <!-- Camera HUD: REC + live timecode, top-left -->
+    <div class="reel__hud">
+      <span class="rec-chip"><span class="rec-dot"></span>REC</span>
+      <span class="tc"><span class="tc__label">TC</span><span data-tc>00:00:14:08</span></span>
+      <p class="eyebrow">Glasgow · Made in Scotland</p>
+    </div>
+
+    <!-- Content, lower-left, indented to the viewfinder gutter -->
+    <div class="reel__inner">
+      <div class="reel__copy">
+        <p class="eyebrow">Made in Scotland</p>
+
+        <h1 class="reel__mark">
+          <span class="lockup" role="img" aria-label="Plistic">
+            <span class="lockup__prefix focus-prefix" data-prefix>POD</span>
+            <span class="brk brk--l" aria-hidden="true"></span>
+            <span class="lockup__name">PLISTIC</span>
+            <span class="brk brk--r" aria-hidden="true"></span>
+          </span>
+        </h1>
+
+        <p class="reel__tag">media made sim<b>PLISTIC</b></p>
+
+        <p class="reel__sub">Scotland's home for everything media. Made in Scotland.</p>
+
+        <p class="reel__disciplines">
+          <span>Podcasts</span><i>·</i><span>Video</span><i>·</i><span>Documentary</span><i>·</i><span>Ads</span><i>·</i><span>Music Videos</span><i>·</i><span>Strategy</span>
+        </p>
+
+        <div class="reel__cta">
+          <a class="btn" href="#quote">Get a Quote</a>
+          <a class="btn btn--ghost" href="#call">Book a Call</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sound toggle, bottom-right -->
+    <div class="reel__sound">
+      <button type="button" class="sound-toggle" data-sound aria-pressed="false">
+        <span class="sound-toggle__eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span data-sound-label>Sound On</span>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    /* ---- Cycling prefix: pod → vid → song → ad → doc → sim ---------- */
+    (function () {
+      var P = ["POD", "VID", "SONG", "AD", "DOC", "SIM"],
+          el = document.querySelector("[data-prefix]"), i = 0;
+      if (!el) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // leave static
+      setInterval(function () {
+        el.classList.add("is-swapping");
+        setTimeout(function () {
+          i = (i + 1) % P.length;
+          el.textContent = P[i];
+          el.classList.remove("is-swapping");
+        }, 280);
+      }, 2000);
+    })();
+
+    /* ---- Sound toggle: unmute the showreel on click ----------------- */
+    (function () {
+      var btn = document.querySelector("[data-sound]"),
+          video = document.querySelector(".reel__video"),
+          label = document.querySelector("[data-sound-label]");
+      if (!btn || !video) return;
+      btn.addEventListener("click", function () {
+        video.muted = !video.muted;
+        var on = !video.muted;
+        if (on) {
+          // a user gesture is present, so audio playback is permitted
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+        }
+        btn.classList.toggle("is-on", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        if (label) label.textContent = on ? "Sound Off" : "Sound On";
+      });
+    })();
+
+    /* ---- Live timecode: an authentic ticking 24fps HUD readout ------ */
+    (function () {
+      var node = document.querySelector("[data-tc]");
+      if (!node) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // keep static
+      var f = 14 * 24 + 8; // start at 00:00:14:08, count in 24fps
+      function pad(n) { return n < 10 ? "0" + n : "" + n; }
+      setInterval(function () {
+        f = (f + 1) % (60 * 60 * 24); // wrap within an hour
+        var frames = f % 24,
+            totalSec = (f - frames) / 24,
+            s = totalSec % 60,
+            m = Math.floor(totalSec / 60) % 60,
+            h = Math.floor(totalSec / 3600);
+        node.textContent = pad(h) + ":" + pad(m) + ":" + pad(s) + ":" + pad(frames);
+      }, 1000 / 24);
+    })();
+  </script>
+</body>
+</html>

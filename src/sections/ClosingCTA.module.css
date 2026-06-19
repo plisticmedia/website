@@ -1,0 +1,47 @@
+.closing { background: var(--p-azure); color: var(--p-white); }
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--p-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+.eyebrow::before { content: ""; width: 1.7rem; height: 2px; background: currentColor; }
+
+.h {
+  margin: 0.7rem 0 0;
+  font-family: var(--p-display);
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  color: var(--p-white);
+}
+.sub {
+  margin: 1.1rem 0 0;
+  max-width: 50ch;
+  font-family: var(--p-body);
+  font-size: clamp(1rem, 1.3vw, 1.16rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+}
+.actions { display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: center; margin-top: clamp(1.6rem, 3vw, 2.4rem); }
+
+.btnWhite { background: var(--p-white); color: var(--p-azure-deep); border-color: var(--p-white); }
+.btnWhite:hover { background: var(--p-ink); color: var(--p-white); border-color: var(--p-ink); }
+.btnOutline { background: transparent; color: var(--p-white); border-color: rgba(255, 255, 255, 0.7); }
+.btnOutline:hover { background: var(--p-white); color: var(--p-azure-deep); border-color: var(--p-white); }

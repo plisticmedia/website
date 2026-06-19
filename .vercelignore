@@ -1,0 +1,6 @@
+.claude
+.next
+.vercel
+node_modules
+tmp
+*.tsbuildinfo
