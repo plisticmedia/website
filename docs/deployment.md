@@ -17,9 +17,9 @@ Set these in Vercel for Production before launch:
 
 - `RESEND_API_KEY`: required for `/api/earn` to send notification and confirmation emails.
 - `EARN_NOTIFY_EMAIL`: optional comma-separated internal recipient list. Defaults to `hello@plistic.media`.
-- `EARN_FROM_EMAIL`: optional Resend-verified sender, for example `Plistic <hello@plistic.media>`.
+- `EARN_FROM_EMAIL`: required in Production. Use a sender on a Resend-verified domain, for example `Plistic <hello@plistic.media>`.
 
-The earn form route intentionally returns a `503` in production when `RESEND_API_KEY` is missing, so configure it before sharing the production URL.
+The earn form route intentionally returns a `503` in production when `RESEND_API_KEY` or `EARN_FROM_EMAIL` is missing, so configure both before sharing the production URL. Resend also requires the sender domain to be verified before you can send to real recipients.
 
 ## First Deploy
 

@@ -13,6 +13,16 @@ type EmailPayload = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+class EmailSendError extends Error {
+  constructor(
+    readonly label: string,
+    readonly status: number,
+    readonly details: string,
+  ) {
+    super(`Resend rejected the ${label} email (${status}): ${details}`);
+  }
+}
+
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -40,7 +50,8 @@ export async function POST(request: Request) {
 
   const notifyTo = getRecipients(process.env.EARN_NOTIFY_EMAIL ?? brand.email);
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EARN_FROM_EMAIL ?? `Plistic <${brand.email}>`;
+  const configuredFrom = clean(process.env.EARN_FROM_EMAIL, 240);
+  const from = configuredFrom || (process.env.NODE_ENV === "production" ? "" : `Plistic <${brand.email}>`);
 
   if (notifyTo.length === 0) {
     return jsonError("The notification email is not configured.", 503);
@@ -59,18 +70,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, emailConfigured: false });
   }
 
+  if (!from) {
+    console.error("[earn-form] Email sender is not configured.", { type });
+    return jsonError(`Email is not configured yet. Please email ${brand.email} directly.`, 503);
+  }
+
   try {
     await Promise.all([
-      sendEmail(apiKey, from, {
+      sendEmail("internal notification", apiKey, from, {
         to: notifyTo,
         subject: result.internalSubject,
         text: result.internalText,
       }),
-      sendEmail(apiKey, from, result.confirmationEmail),
+      sendEmail("confirmation", apiKey, from, result.confirmationEmail),
     ]);
   } catch (error) {
-    console.error("[earn-form] Email send failed.", error);
-    return jsonError("We could not send the confirmation email. Please try again.", 502);
+    console.error("[earn-form] Email send failed.", emailErrorLog(error, type));
+    return jsonError(emailFailureMessage(error), 502);
   }
 
   return NextResponse.json({ ok: true, emailConfigured: true });
@@ -183,7 +199,7 @@ function buildPartnerEmails(body: Record<string, unknown>) {
   };
 }
 
-async function sendEmail(apiKey: string, from: string, payload: EmailPayload) {
+async function sendEmail(label: string, apiKey: string, from: string, payload: EmailPayload) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -201,7 +217,7 @@ async function sendEmail(apiKey: string, from: string, payload: EmailPayload) {
 
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`Resend returned ${response.status}: ${details}`);
+    throw new EmailSendError(label, response.status, truncate(details, 1000));
   }
 }
 
@@ -230,4 +246,29 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function jsonError(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status });
+}
+
+function emailFailureMessage(error: unknown) {
+  if (process.env.NODE_ENV !== "production" && error instanceof EmailSendError) {
+    return error.message;
+  }
+
+  return `We could not send the automatic emails yet. Please email ${brand.email} directly.`;
+}
+
+function emailErrorLog(error: unknown, type: EarnType) {
+  if (error instanceof EmailSendError) {
+    return {
+      type,
+      label: error.label,
+      status: error.status,
+      details: error.details,
+    };
+  }
+
+  return { type, error };
+}
+
+function truncate(value: string, maxLength: number) {
+  return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
 }

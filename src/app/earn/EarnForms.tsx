@@ -9,6 +9,11 @@ type FormState = {
   message: string;
 };
 
+type SubmitResult = {
+  emailConfigured?: boolean;
+  error?: string;
+};
+
 const initialState: FormState = { status: "idle", message: "" };
 
 async function submitEarnForm(form: HTMLFormElement, type: "referral" | "partner") {
@@ -24,7 +29,7 @@ async function submitEarnForm(form: HTMLFormElement, type: "referral" | "partner
     body: JSON.stringify(payload),
   });
 
-  const result = (await response.json().catch(() => null)) as { error?: string } | null;
+  const result = (await response.json().catch(() => null)) as SubmitResult | null;
 
   if (!response.ok) {
     throw new Error(result?.error ?? "Something went wrong. Please try again.");
@@ -43,11 +48,14 @@ export function ReferralForm() {
     setFormState({ status: "submitting", message: "Sending referral..." });
 
     try {
-      await submitEarnForm(form, "referral");
+      const result = await submitEarnForm(form, "referral");
       form.reset();
       setFormState({
         status: "success",
-        message: "Referral received. We have sent confirmation and Jessie will follow up within 24 hours.",
+        message:
+          result?.emailConfigured === false
+            ? "Referral received locally. Email sending is not configured in this environment."
+            : "Referral received. We have sent confirmation and Jessie will follow up within 24 hours.",
       });
     } catch (error) {
       setFormState({

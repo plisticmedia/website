@@ -1534,17 +1534,15 @@ textarea {
 
   .launch-banner-shell {
     align-items: start;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.45rem 0.7rem;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
     min-height: 0;
+    padding-right: 2.35rem;
+    position: relative;
   }
 
   .launch-banner-copy {
     justify-content: flex-start;
-  }
-
-  .launch-banner-icon {
-    display: none;
   }
 
   .launch-banner-description {
@@ -1552,20 +1550,21 @@ textarea {
   }
 
   .launch-banner-actions {
-    display: contents;
+    align-items: flex-start;
+    display: flex;
+    gap: 0;
+    justify-content: flex-start;
   }
 
   .launch-banner-actions a {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: start;
     margin-top: 0.25rem;
     padding-block: 0.34rem;
   }
 
   .launch-banner-actions button {
-    grid-column: 2;
-    grid-row: 1;
+    position: absolute;
+    right: 0;
+    top: 0;
   }
 
   .site-header {
