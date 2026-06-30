@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { brand } from "@/data/site";
 import styles from "../legal/Legal.module.css";
 
 export const metadata: Metadata = {
-  title: "Terms | Plistic",
-  description: "Terms of use for Plistic's website, services and partner directory.",
+  title: "Terms & Conditions | Plistic",
+  description: "Terms and conditions of service for Plistic (Songplistic Ltd), including the partner directory.",
 };
 
 export default function TermsPage() {
@@ -16,80 +15,308 @@ export default function TermsPage() {
       <main className={styles.page}>
         <section className={`p-container ${styles.inner}`}>
           <p className={styles.kicker}>Legal</p>
-          <h1>Terms of use</h1>
-          <p className={styles.updated}>Last updated 30 June 2026</p>
-
-          <p>
-            These terms govern your use of the Plistic website, our production services, and the Plistic partner
-            directory (the &ldquo;Directory&rdquo;). By using the site you agree to them. Plistic is a media
-            production company based in Glasgow, Scotland.
+          <h1>Terms &amp; Conditions of Service</h1>
+          <p className={styles.updated}>
+            A trading name of Songplistic Ltd, a company registered in Scotland · Last updated 30 June 2026 — Version 7
           </p>
 
-          <h2>1. The Directory is an introduction service</h2>
-          <div className={styles.callout}>
-            The Directory lists independent creative and media providers (&ldquo;Sellers&rdquo;). Plistic simply
-            introduces buyers and Sellers. <strong>Plistic is not a party to any contract, agreement, or
-            transaction between a buyer and a Seller</strong>, takes no commission on those transactions, and is
-            not responsible for the work, conduct, pricing, or deliverables of any Seller. Any agreement you make
-            with a Seller is solely between you and that Seller.
-          </div>
-
-          <h2>2. Listings and pricing</h2>
+          <h2>1. Who We Are</h2>
           <p>
-            Prices shown on listings are indicative and provided by Sellers for information only. They are not
-            offers capable of acceptance and do not create a contract. Buyers should confirm all scope, pricing,
-            and terms directly with the Seller.
+            These Terms and Conditions (&ldquo;Terms&rdquo;) govern all work undertaken by Plistic, the trading name
+            of Songplistic Ltd (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;, or &ldquo;Plistic&rdquo;), a
+            company registered in Scotland under company number SC699049, with its registered office at 2 West Drive
+            Cottage, Stracathro, Brechin, Scotland, DD9 7QF.
+          </p>
+          <p>
+            These Terms apply to every project, booking, and engagement between Plistic and any client
+            (&ldquo;you&rdquo;, &ldquo;your&rdquo;, or &ldquo;the Client&rdquo;), whether confirmed through our
+            website, by email, verbally, or by any other means. By confirming a booking, paying a deposit, or
+            instructing us to begin work, you agree to be bound by these Terms.
+          </p>
+          <p>
+            These Terms are governed by the law of Scotland, and any dispute arising from them is subject to the
+            exclusive jurisdiction of the Scottish courts.
           </p>
 
-          <h2>3. Seller accounts and responsibilities</h2>
-          <p>By creating a Seller account you agree that:</p>
+          <h2>2. Our Services</h2>
+          <p>
+            Plistic provides media production and related services, including but not limited to: podcast production
+            (full service and post-production only), video production, documentary production, event filming, music
+            video production, advertising production and campaign management, content research and strategy, project
+            management for media production, presenting and performance coaching, podcast SEO, multi-platform
+            distribution, and analytics reporting.
+          </p>
+          <p>
+            The specific scope of services for any individual project is confirmed in writing before work begins, in
+            the form of a Project Confirmation (see Section 3.4). Any service, deliverable, or feature not explicitly
+            included in the Project Confirmation is not included in the agreed price and may be chargeable as
+            additional work.
+          </p>
+
+          <h2>3. How a Project is Booked</h2>
+          <p>
+            <strong>3.1 Quote and Call Route.</strong> Most podcast, video production, and event filming enquiries
+            begin with an estimate generated through our website quote tool, followed by a free discovery call to
+            confirm scope, requirements, and final pricing. No payment or card details are required to book this call.
+          </p>
+          <p>
+            <strong>3.2 Bespoke Enquiry Route.</strong> For projects that do not suit a fixed calculator — including
+            documentaries and other bespoke commissions — you can leave your details and some initial information
+            about your project through our website, and book a call directly into our calendar without needing to
+            speak to anyone first. This route does not require a prior brief review or any gatekeeping step — the call
+            itself is where scope is established.
+          </p>
+          <p>
+            <strong>3.3 Self-Serve Route.</strong> For simple, clearly defined jobs (such as post-production work
+            submitted through our upload portal) and for coaching sessions, which are offered at a fixed rate, you may
+            be able to confirm and pay for a booking without a prior call.
+          </p>
+          <p>
+            <strong>3.4 Project Confirmation.</strong> Regardless of route, a project is only confirmed once you have
+            received a written Project Confirmation from us, setting out the agreed scope, price, timeline, and any
+            specific terms for that project, and the applicable deposit (see Section 5) has been paid. We reserve the
+            right to decline any project before this point, including after a discovery call has taken place. A quote
+            generated by our online estimator is an indicative range only and does not constitute a binding offer. The
+            final price is confirmed in the Project Confirmation.
+          </p>
+
+          <h2>4. Project Briefs and Client Responsibilities</h2>
+          <p>To deliver your project on time and to the standard you expect, we rely on you to:</p>
           <ul>
-            <li>The information in your profile and listings is accurate and not misleading.</li>
-            <li>You own or are licensed to use all content (text, images, video) you upload, and it does not infringe anyone&rsquo;s rights.</li>
-            <li>You will respond to buyer enquiries honestly and lawfully, and deal with buyers in good faith.</li>
-            <li>You will not post unlawful, offensive, or fraudulent content.</li>
-            <li>Plistic may review, pause, edit, or remove any listing, and suspend any account, at its discretion — for example to keep the Directory accurate and trustworthy.</li>
+            <li>Complete any project brief or questionnaire we provide, accurately and within a reasonable timeframe.</li>
+            <li>Provide any assets, footage, audio, or materials required for production in the formats and by the deadlines we specify.</li>
+            <li>Respond to requests for feedback, approval, or clarification within the timeframes set out in your Project Confirmation.</li>
+            <li>Connect us with any contacts relevant to the project — such as guests, contributors, or colleagues within your organisation — that we reasonably need in order to complete the work.</li>
+            <li>Make appropriate time and space available to engage with the production process, including responding to scheduling requests and attending agreed sessions.</li>
+            <li>Ensure you have the right to use any third-party material (music, footage, images, branding, or otherwise) that you ask us to incorporate into your project.</li>
           </ul>
-
-          <h2>4. Trusted Partner / featured status</h2>
           <p>
-            Plistic may highlight selected listings as &ldquo;Trusted Partner&rdquo; or featured entries. Featured
-            placement may be offered free at Plistic&rsquo;s discretion or as a paid subscription. Featured status
-            is editorial promotion within the Directory only and does not imply Plistic endorses, guarantees, or is
-            responsible for that Seller&rsquo;s work.
+            If delays on your part affect our ability to deliver on the agreed timeline, the delivery date will be
+            adjusted accordingly, and we reserve the right to charge for any additional costs reasonably incurred as a
+            result (including rescheduled studio time, crew, or third-party costs).
           </p>
 
-          <h2>5. Enquiries</h2>
+          <h2>5. Payment Terms</h2>
           <p>
-            When you submit an enquiry on a listing, your name, email, and message are shared with the relevant
-            Seller (and with Plistic) so the Seller can respond to you directly. Do not include sensitive personal
-            information in an enquiry.
+            <strong>5.1 Deposit and Final Payment.</strong> Unless otherwise agreed in writing, payment for
+            full-service production projects is structured as follows: 50% of the total project value is payable as a
+            deposit before production work begins; the remaining 50% is payable on delivery of the final agreed
+            deliverables, before final files are released for your unrestricted use.
+          </p>
+          <p>
+            <strong>5.2 Self-Serve, Portal, and Coaching Bookings.</strong> For projects booked and paid through our
+            self-serve upload portal, and for coaching sessions, full payment is taken at the point of booking, before
+            work begins.
+          </p>
+          <p>
+            <strong>5.3 Invoicing and Payment Deadlines.</strong> Following a discovery call, we issue a deposit
+            invoice by email with a payment link. The quoted price is valid for 7 days from the date of the Project
+            Confirmation. If the deposit is not received within this window, we reserve the right to requote before
+            accepting the booking. Final invoices are issued on completion of the agreed deliverables and are payable
+            within 7 days of the invoice date, unless otherwise agreed in writing.
+          </p>
+          <p>
+            <strong>5.4 Late Payment.</strong> If an invoice is not paid by its due date, we are entitled to charge
+            statutory interest under the Late Payment of Commercial Debts (Interest) Act 1998, which applies in full in
+            Scotland. The rate is 8% per annum above the Bank of England base rate in force on the date payment became
+            overdue, calculated daily on the outstanding amount from the due date until paid. In addition to interest,
+            we are entitled to a fixed compensation sum under the Late Payment of Commercial Debts (Scotland)
+            Regulations 2002: £40 for a debt of less than £1,000; £70 for a debt of £1,000 or more but less than
+            £10,000; £100 for a debt of £10,000 or more. These charges apply automatically by law to qualifying
+            business-to-business debts. We reserve the right to suspend work on any project where payment is overdue.
+          </p>
+          <p>
+            <strong>5.5 VAT.</strong> Plistic (Songplistic Ltd) is not currently registered for VAT. All prices quoted
+            are therefore the total amount payable, with no VAT added. If this changes, we will update our pricing and
+            these Terms accordingly and notify clients in advance.
           </p>
 
-          <h2>6. Referrals</h2>
+          <h2>6. Referral Programme</h2>
           <p>
-            Where Plistic operates a referral arrangement, a referral fee (currently 10% of the confirmed, paid
-            project value) is payable only once the referred client&rsquo;s invoice with Plistic is settled, subject
-            to any separate referral terms agreed in writing.
+            If you refer a new client to Plistic — someone who has not worked with us before — and that referral
+            results in a confirmed, paid project, we will pay you a referral fee on the following basis:
+          </p>
+          <ul>
+            <li>The referral fee is 10% of the total value of the referred client&rsquo;s first project with Plistic.</li>
+            <li>It applies only to a new client&rsquo;s first project with us. It is a thank you for the introduction, not an ongoing share of any future work that client books with us.</li>
+            <li>The fee is paid once the client&rsquo;s final invoice for that first project has been settled in full.</li>
+            <li>To be eligible, the referral must be submitted through our official referral form on our website before the prospective client first contacts us by any other means.</li>
+            <li>We do not pay referral fees based on a claim made after a project has already been agreed or signed. If we have no record of a referral submitted through our official form before the client first made contact, no referral fee is payable.</li>
+            <li>Simply mentioning Plistic to someone in conversation, without submitting the referral through our form, does not qualify for a referral fee.</li>
+          </ul>
+          <p>
+            We reserve the right to decline a referral fee, or to request further information, where it is unclear
+            whether a genuine introduction has taken place, or where the prospective client was already known to us.
+            This referral programme may be amended or withdrawn at any time. The terms in effect at the time a referral
+            is submitted will apply to that referral.
           </p>
 
-          <h2>7. Limitation of liability</h2>
+          <h2>7. Cancellations, Rescheduling, and Changes</h2>
           <p>
-            To the fullest extent permitted by law, Plistic is not liable for any loss arising from your dealings
-            with a Seller or buyer, from reliance on listing content, or from use of the Directory. Nothing in these
-            terms limits liability that cannot be limited under law (for example, for death or personal injury caused
-            by negligence, or for fraud).
+            <strong>7.1 Cancellation of the Whole Project by the Client.</strong> Once a deposit has been paid and
+            production work has begun, the deposit becomes non-refundable. This reflects the time, resources, and
+            third-party costs committed on your behalf once production starts, and is a genuine pre-estimate of loss —
+            not a penalty. If you cancel before production work has begun, your deposit will be refunded in full, less
+            any costs we have already reasonably and necessarily incurred on your behalf. If a project is cancelled
+            after more than 50% of the agreed work has been completed, we reserve the right to charge an additional fee
+            reflecting the proportion of work completed beyond the deposit amount, up to the full project value, set out
+            in writing before invoicing.
+          </p>
+          <p>
+            <strong>7.2 Rescheduling or Cancelling a Specific Filming or Recording Day.</strong> With at least 5
+            working days&rsquo; notice we will find a new date at no additional charge. With less than 5 working
+            days&rsquo; notice we reserve the right to charge the full agreed rate for that filming day, plus any
+            third-party costs already committed on your behalf, confirmed in writing.
+          </p>
+          <p>
+            <strong>7.3 Cancellation or Postponement by Plistic.</strong> If we need to cancel or postpone a confirmed
+            project, we will notify you as soon as possible and either reschedule at no additional cost or refund any
+            payments made for work not yet delivered.
+          </p>
+          <p>
+            <strong>7.4 Changes to Scope.</strong> If you wish to change the scope after the Project Confirmation, we
+            will provide a revised quote for the additional work. Changes in scope may affect the delivery timeline.
           </p>
 
-          <h2>8. Changes and governing law</h2>
+          <h2>8. Revisions and Feedback</h2>
           <p>
-            We may update these terms from time to time; the current version always applies. These terms are
-            governed by the law of Scotland, and the Scottish courts have exclusive jurisdiction.
+            Unless otherwise stated in your Project Confirmation, the price for full-service production projects
+            includes up to two rounds of revisions on delivered work. Please make feedback specific, referencing exact
+            timestamps and clear instructions. Any request beyond the included rounds, or amounting to a substantial
+            change in direction, is treated as additional work and charged at the relevant rate, confirmed in writing
+            before that work begins. Revision requests should be submitted within 5 working days of delivery unless a
+            different timeframe is agreed. If we do not receive feedback within 10 working days of delivery, having made
+            reasonable attempts to contact you, we will treat the project as approved and proceed to final invoicing.
           </p>
 
-          <h2>9. Contact</h2>
+          <h2>9. Recording and Filming Time</h2>
           <p>
-            Questions about these terms? Email <a href={`mailto:${brand.email}`}>{brand.email}</a>.
+            Your Project Confirmation sets out the time allocated for any recording, filming, or event coverage
+            session. If a session runs beyond the allocated time, additional time is charged at 1.5 times the pro-rata
+            rate for that booking. Where practical, we will let you know during the session if it looks likely to run
+            over. Overage charges will be confirmed and invoiced alongside the final invoice.
+          </p>
+
+          <h2>10. Turnaround Times</h2>
+          <p>
+            Estimated turnaround times are confirmed in your Project Confirmation, beginning from the point we have
+            received all necessary assets, briefs, and information from you. Where a project is booked through our
+            self-serve portal, turnaround tiers and timeframes are stated at the point of booking. If we expect to miss
+            an agreed deadline for reasons within our control, we will tell you as early as possible and agree a new
+            date with you directly.
+          </p>
+
+          <h2>11. Ownership and Usage</h2>
+          <p>
+            <strong>11.1 Ownership of Final Deliverables.</strong> On payment in full, ownership of the final agreed
+            deliverables transfers to you outright, free to use, reproduce, and distribute for the purposes agreed at
+            the outset, without further payment to us.
+          </p>
+          <p>
+            <strong>11.2 What Plistic Retains.</strong> Unless raw footage delivery has been specifically agreed and
+            paid for, raw footage, unedited audio, project files, working materials, and alternative cuts not delivered
+            as final deliverables remain the property of Plistic. We also retain a permanent, royalty-free licence to
+            use the final deliverables (and stills, excerpts, and behind-the-scenes content) in our own portfolio,
+            website, case studies, and promotional materials, unless you tell us otherwise in writing before or at the
+            start of your project.
+          </p>
+          <p>
+            <strong>11.3 Third-Party Material.</strong> You are responsible for ensuring you hold the necessary rights
+            for any third-party material you provide or direct us to use. We are not liable for any third-party
+            intellectual property claim arising from material you have supplied or specifically directed us to use.
+          </p>
+
+          <h2>12. Confidentiality</h2>
+          <p>
+            We treat all client information, briefs, business plans, and unreleased content as confidential, and will
+            not disclose it to third parties without your consent, except where required by law. If your project
+            requires a specific non-disclosure agreement, please let us know before work begins.
+          </p>
+
+          <h2>13. Liability</h2>
+          <p>
+            We will perform our services with reasonable skill and care. We are not liable for any indirect,
+            consequential, or special loss, including loss of profit, business, or opportunity, except where such
+            liability cannot be excluded by law. Our total liability for any claim arising from a project is limited to
+            the total fees paid by you for that specific project. Nothing in these Terms excludes or limits our
+            liability for death or personal injury caused by our negligence, or for any other liability that cannot be
+            excluded under Scots law.
+          </p>
+
+          <h2>14. Insurance</h2>
+          <p>Plistic holds professional indemnity insurance appropriate to the scale and nature of our work. Details are available on request.</p>
+
+          <h2>15. Force Majeure</h2>
+          <p>
+            Neither party is liable for any failure or delay in performing their obligations where that results from
+            circumstances beyond their reasonable control, including acts of God, fire, flood, extreme weather,
+            strikes, pandemic, government restriction, or failure of third-party suppliers.
+          </p>
+
+          <h2>16. General</h2>
+          <p>
+            <strong>16.1 Entire Agreement.</strong> These Terms, together with the relevant Project Confirmation,
+            constitute the entire agreement for that project. <strong>16.2 Variation.</strong> These Terms may be
+            updated from time to time; the version in effect on the date a Project Confirmation is issued applies to
+            that project. <strong>16.3 Severability.</strong> If any provision is unenforceable, it will be limited or
+            eliminated to the minimum extent necessary. <strong>16.4 No Waiver.</strong> A failure to enforce any
+            provision is not a waiver of it. <strong>16.5 Governing Law.</strong> These Terms are governed by the law
+            of Scotland, with the exclusive jurisdiction of the Scottish courts.
+          </p>
+
+          <h2>17. Partner Directory</h2>
+          <div className={styles.callout}>
+            This section governs the Plistic partner directory (the &ldquo;Directory&rdquo;), which is separate from
+            the production services described above. It was added when the Directory launched and should be read
+            alongside the rest of these Terms.
+          </div>
+          <p>
+            <strong>17.1 An introduction service.</strong> The Directory lists independent creative and media providers
+            (&ldquo;Sellers&rdquo; or &ldquo;Partners&rdquo;) so that potential buyers can find and contact them.
+            Plistic simply introduces buyers and Sellers. <strong>Plistic is not a party to any contract, agreement, or
+            transaction between a buyer and a Seller</strong>, takes no commission on those transactions, and is not
+            responsible for the work, conduct, pricing, deliverables, or any act or omission of any Seller or buyer. Any
+            agreement you enter into with a Seller (or buyer) is solely between you and that other party.
+          </p>
+          <p>
+            <strong>17.2 Listings and pricing.</strong> Prices and packages shown on a listing are indicative,
+            provided by the Seller for information only. They are not offers capable of acceptance and do not create a
+            contract. Buyers should confirm all scope, pricing, and terms directly with the Seller.
+          </p>
+          <p>
+            <strong>17.3 Seller accounts and responsibilities.</strong> By creating a Seller account you agree that:
+            the information in your profile and listings is accurate and not misleading; you own or are licensed to use
+            all content you upload and it does not infringe anyone&rsquo;s rights; you will respond to buyer enquiries
+            honestly, lawfully, and in good faith; you will not post unlawful, offensive, or fraudulent content; and
+            that Plistic may review, edit, pause, or remove any listing, and suspend any account, at its discretion to
+            keep the Directory accurate and trustworthy.
+          </p>
+          <p>
+            <strong>17.4 Trusted Partner and featured status.</strong> Plistic may highlight selected listings as
+            &ldquo;Trusted Partner&rdquo; or featured entries. Featured placement may be offered free at
+            Plistic&rsquo;s discretion or as a paid subscription. Featured status is editorial promotion within the
+            Directory only and does not mean Plistic endorses, guarantees, or is responsible for that Seller&rsquo;s
+            work.
+          </p>
+          <p>
+            <strong>17.5 Enquiries.</strong> When a buyer submits an enquiry on a listing, their name, email, and
+            message are shared with the relevant Seller (and with Plistic) so the Seller can respond directly. See our
+            Privacy Policy for how this data is handled.
+          </p>
+          <p>
+            <strong>17.6 Liability.</strong> To the fullest extent permitted by law, and subject to Section 13, Plistic
+            is not liable for any loss arising from your dealings with a Seller or buyer, from reliance on listing
+            content, or from use of the Directory.
+          </p>
+
+          <h2>18. Contact</h2>
+          <p>
+            If you have any questions about these Terms, please contact us at{" "}
+            <a href="mailto:hello@plisticmedia.com">hello@plisticmedia.com</a>.
+          </p>
+          <p>
+            Plistic is the trading name of Songplistic Ltd, a company registered in Scotland under company number
+            SC699049. Registered office: 2 West Drive Cottage, Stracathro, Brechin, Scotland, DD9 7QF.
           </p>
         </section>
       </main>
