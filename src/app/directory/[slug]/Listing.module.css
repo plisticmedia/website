@@ -53,6 +53,16 @@
 .by {
   margin: 0.7rem 0 0;
   color: var(--p-muted);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.metaLoc {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .featured {

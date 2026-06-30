@@ -83,6 +83,27 @@ In the Supabase dashboard, once the project exists:
 > (low hourly limit, may land in spam). Swapping in Resend SMTP for auth emails
 > is a Phase 9 polish item.
 
+## Directory launch — run these (after 0005)
+
+1. **Run migration `0006_listing_website.sql`** in the Supabase SQL editor (adds a
+   per-listing website field). Idempotent.
+2. **Run `supabase/seed_trusted_partners.sql`** — adds the web-development /
+   music-video / venues categories and creates the two launch Trusted Partners
+   (Thornwick Consulting, Lockie Media), published + featured.
+3. **Bulk import the sign-up businesses** (hundreds+): export the Google Sheet to
+   CSV, then run the importer locally (it needs the service-role key — never
+   commit it):
+   ```bash
+   export NEXT_PUBLIC_SUPABASE_URL="https://<ref>.supabase.co"
+   export SUPABASE_SERVICE_ROLE_KEY="sb_secret_..."
+   node scripts/import-listings.mjs path/to/listings.csv          # imports as 'pending'
+   node scripts/import-listings.mjs path/to/listings.csv --publish # imports live
+   ```
+   It auto-creates any missing service/location categories from the sheet, matches
+   columns flexibly (name, services, description, location, website, logo, address,
+   postcode, socials, founding-partner), and is idempotent by listing slug.
+   Geocoding (map) and Google Place-ID matching are added in the fast-follow phase.
+
 ## Build progress
 
 - [x] **Phase 0 — Foundation (partial)**: dependencies installed

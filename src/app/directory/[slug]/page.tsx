@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock3, Check, Sparkles } from "lucide-react";
+import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getServiceBySlug } from "@/lib/services";
@@ -48,11 +48,24 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </p>
           <div className={styles.header}>
             <div>
-              {service.categories?.name && <span className={styles.cat}>{service.categories.name}</span>}
+              {(() => {
+                const tags = service.listing_services
+                  .map((ls) => ls.categories?.name)
+                  .filter((n): n is string => !!n);
+                const display = tags.length ? tags : service.categories?.name ? [service.categories.name] : [];
+                return display.length ? <span className={styles.cat}>{display.join(" · ")}</span> : null;
+              })()}
               <h1>{service.title}</h1>
               {service.summary && <p className={styles.summary}>{service.summary}</p>}
               <p className={styles.by}>
-                by <strong>{seller?.display_name ?? "Plistic partner"}</strong>
+                {seller?.display_name ? (
+                  <>by <strong>{seller.display_name}</strong></>
+                ) : null}
+                {service.locations?.name ? (
+                  <span className={styles.metaLoc}>
+                    <MapPin aria-hidden="true" size={14} /> {service.locations.name}
+                  </span>
+                ) : null}
               </p>
             </div>
             {service.is_featured && (
@@ -140,6 +153,26 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 )}
               </div>
             )}
+            {(() => {
+              const website = service.website_url ?? seller?.website_url ?? null;
+              const socials = Object.entries(service.social_links ?? {}).filter(([, v]) => !!v);
+              if (!website && socials.length === 0) return null;
+              return (
+                <div className={styles.sellerCard}>
+                  <h3>Links</h3>
+                  {website && (
+                    <a href={website} target="_blank" rel="noopener noreferrer nofollow">
+                      <ExternalLink aria-hidden="true" size={14} /> Visit website
+                    </a>
+                  )}
+                  {socials.map(([net, href]) => (
+                    <a key={net} href={href} target="_blank" rel="noopener noreferrer nofollow" style={{ display: "block", marginTop: "0.4rem", textTransform: "capitalize" }}>
+                      {net}
+                    </a>
+                  ))}
+                </div>
+              );
+            })()}
             <p className={styles.disclaimer}>
               Plistic introduces buyers and sellers but is not a party to any agreement between them.
             </p>
