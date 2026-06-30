@@ -140,3 +140,13 @@
 .btnDanger {
   background: var(--p-coral, #f06d45);
 }
+
+.btnTrust {
+  background: var(--p-azure-deep);
+}
+
+.badgeTrusted {
+  background: var(--p-lemon, #f5c84b);
+  border-color: var(--p-lemon, #f5c84b);
+  color: var(--p-ink);
+}

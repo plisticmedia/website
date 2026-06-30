@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { moderateService } from "./actions";
+import { moderateService, setFeatured } from "./actions";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -22,7 +22,7 @@ export default async function AdminPage() {
   // Admin RLS policies grant full read access across these tables.
   const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships] =
     await Promise.all([
-      supabase.from("services").select("id, title, slug, status, created_at, profiles(display_name)").order("created_at", { ascending: false }),
+      supabase.from("services").select("id, title, slug, status, is_featured, created_at, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("enquiries").select("id, buyer_name, buyer_email, status, created_at, services(title)").order("created_at", { ascending: false }),
       supabase.from("referrals").select("id, referrer_name, referrer_email, referred_name, status, created_at").order("created_at", { ascending: false }),
       supabase.from("partnerships").select("id, partner_name, partner_email, partner_discipline, status, created_at").order("created_at", { ascending: false }),
@@ -32,7 +32,7 @@ export default async function AdminPage() {
       supabase.from("sponsorships").select("id, seller_id, status, current_period_end").order("created_at", { ascending: false }),
     ]);
 
-  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; created_at: string; profiles: { display_name: string | null } | null }>;
+  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; created_at: string; profiles: { display_name: string | null } | null }>;
   const enq = (enquiries.data ?? []) as unknown as Array<{ id: string; buyer_name: string; buyer_email: string; status: string; created_at: string; services: { title: string } | null }>;
   const refs = (referrals.data ?? []) as Array<Record<string, string>>;
   const parts = (partnerships.data ?? []) as Array<Record<string, string>>;
@@ -63,15 +63,16 @@ export default async function AdminPage() {
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
-                <tr><th>Title</th><th>Seller</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+                <tr><th>Title</th><th>Seller</th><th>Status</th><th>Trusted</th><th>Created</th><th>Actions</th></tr>
               </thead>
               <tbody>
-                {svc.length === 0 && <tr><td colSpan={5} className={styles.emptyCell}>No listings yet.</td></tr>}
+                {svc.length === 0 && <tr><td colSpan={6} className={styles.emptyCell}>No listings yet.</td></tr>}
                 {svc.map((s) => (
                   <tr key={s.id}>
                     <td><Link href={`/directory/${s.slug}`} target="_blank">{s.title}</Link></td>
                     <td>{s.profiles?.display_name ?? "—"}</td>
                     <td><span className={styles.badge}>{s.status}</span></td>
+                    <td>{s.is_featured ? <span className={`${styles.badge} ${styles.badgeTrusted}`}>Trusted</span> : "—"}</td>
                     <td>{fmt(s.created_at)}</td>
                     <td className={styles.actions}>
                       {s.status !== "published" && (
@@ -82,6 +83,15 @@ export default async function AdminPage() {
                       {s.status !== "removed" && (
                         <form action={moderateService.bind(null, s.id, "removed")}>
                           <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove</button>
+                        </form>
+                      )}
+                      {s.is_featured ? (
+                        <form action={setFeatured.bind(null, s.id, false)}>
+                          <button className={styles.btnSmall} type="submit">Un-trust</button>
+                        </form>
+                      ) : (
+                        <form action={setFeatured.bind(null, s.id, true)}>
+                          <button className={`${styles.btnSmall} ${styles.btnTrust}`} type="submit">Make trusted</button>
                         </form>
                       )}
                     </td>

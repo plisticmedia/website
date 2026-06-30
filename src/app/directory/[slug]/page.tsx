@@ -57,7 +57,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             </div>
             {service.is_featured && (
               <span className={styles.featured}>
-                <Sparkles aria-hidden="true" size={14} /> Featured partner
+                <Sparkles aria-hidden="true" size={14} /> Trusted partner
               </span>
             )}
           </div>

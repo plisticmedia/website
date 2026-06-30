@@ -113,7 +113,7 @@ export default async function DirectoryPage({
                         )}
                         {s.is_featured && (
                           <span className={styles.featured}>
-                            <Sparkles aria-hidden="true" size={13} /> Featured
+                            <Sparkles aria-hidden="true" size={13} /> Trusted partner
                           </span>
                         )}
                       </div>
