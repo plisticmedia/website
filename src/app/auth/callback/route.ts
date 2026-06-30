@@ -28,6 +28,13 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(new URL(next, url.origin));
   }
 
+  // Fallback: if Supabase already established the session (e.g. it set cookies
+  // during its own verify step), just proceed.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) return NextResponse.redirect(new URL(next, url.origin));
+
   return NextResponse.redirect(new URL("/login?error=auth", url.origin));
 }
 
