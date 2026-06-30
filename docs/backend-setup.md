@@ -114,8 +114,16 @@ In the Supabase dashboard, once the project exists:
   Plistic, with an auto-reply to the buyer. Seller **enquiry inbox** at
   `/dashboard/enquiries` lists enquiries, links a pre-filled email reply, and
   marks them responded/closed.
-- [ ] **Phase 5 — Sponsored listings** (Stripe Billing + webhooks + cron)
-- [ ] **Phase 6 — Seller dashboard**
+- [ ] **Phase 5 — Sponsored listings** (Stripe Billing + webhooks + cron).
+  *Needs a Stripe account + two decisions: monthly price, and per-listing vs
+  per-seller.*
+- [x] **Phase 6 — Seller dashboard (code complete)**: dashboard hub linking
+  My listings, Enquiries inbox, and a **Profile editor** (`/dashboard/profile`:
+  display name, bio, website, avatar upload). Sponsorship/billing card lands
+  with Phase 5.
 - [ ] **Phase 7 — Agency booking & deposits** (Cal.com webhook, Stripe deposit)
-- [ ] **Phase 8 — Admin dashboard**
+- [x] **Phase 8 — Admin dashboard (code complete)**: `/admin` (role-gated)
+  with stats, listing moderation (publish/remove), and tables for enquiries,
+  referrals, partnerships, quotes, bookings, other leads, and sponsorships.
+  *Promote yourself to admin via the SQL snippet above.*
 - [ ] **Phase 9 — Hardening & launch** (rate limits, monitoring, legal, e2e)

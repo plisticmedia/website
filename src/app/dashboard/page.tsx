@@ -57,7 +57,7 @@ export default async function DashboardPage() {
               icon={<UserRound aria-hidden="true" size={20} />}
               title="Profile"
               body="Your public seller profile, bio, and avatar."
-              soon
+              href="/dashboard/profile"
             />
           </div>
 
