@@ -39,7 +39,7 @@ export default async function DashboardPage() {
               icon={<ClipboardList aria-hidden="true" size={20} />}
               title="My listings"
               body="Create and manage the services you offer in the directory."
-              soon
+              href="/dashboard/listings"
             />
             <DashboardCard
               icon={<Inbox aria-hidden="true" size={20} />}
@@ -78,18 +78,30 @@ function DashboardCard({
   title,
   body,
   soon,
+  href,
 }: {
   icon: React.ReactNode;
   title: string;
   body: string;
   soon?: boolean;
+  href?: string;
 }) {
-  return (
-    <article className={styles.card}>
+  const inner = (
+    <>
       <span className={styles.cardIcon}>{icon}</span>
       <h2>{title}</h2>
       <p>{body}</p>
       {soon && <span className={styles.badge}>Coming soon</span>}
-    </article>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={`${styles.card} ${styles.cardLink}`}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return <article className={styles.card}>{inner}</article>;
 }

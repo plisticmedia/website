@@ -57,6 +57,17 @@
   border-radius: 16px;
 }
 
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.cardLink:hover {
+  border-color: var(--p-azure);
+  transform: translateY(-2px);
+}
+
 .cardIcon {
   display: inline-flex;
   align-items: center;

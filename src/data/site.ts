@@ -21,6 +21,7 @@ export const launchOffer = {
 export const navItems = [
   { label: "Home", href: "/#top" },
   { label: "Services", href: "/#services" },
+  { label: "Directory", href: "/directory" },
   { label: "Our Work", href: "/#work" },
   { label: "Pricing", href: "/pricing" },
   { label: "Earn With Us", href: "/earn" },

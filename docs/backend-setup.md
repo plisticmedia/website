@@ -95,8 +95,18 @@ In the Supabase dashboard, once the project exists:
   now persists submissions to the `referrals` / `partnerships` tables (service
   role) in addition to sending Resend emails. Contact + quote endpoints follow
   when those forms exist.
-- [ ] **Phase 3 — Directory listings** (seller CRUD, media uploads, browse/detail)
-- [ ] **Phase 4 — Enquiries** (enquiry form → email + seller inbox)
+- [x] **Phase 3 — Directory listings (code complete)**: seller listing CRUD
+  (create / edit / publish / pause / delete) with display-pricing packages and
+  Supabase Storage photo uploads; public directory at **`/directory`** (search,
+  category filter, pagination, featured-first) and listing detail at
+  **`/directory/[slug]`** (gallery, packages, seller profile, enquiry CTA).
+  Added a "Directory" link to the main nav. *(Listings live at `/directory`
+  rather than `/services` to avoid clashing with the existing agency service
+  pages.)*
+- [~] **Phase 4 — Enquiries (buyer flow done; seller inbox pending)**: enquiry
+  form on each listing → `/api/enquiries` saves the lead (honeypot-protected)
+  and emails the seller + Plistic, with an auto-reply to the buyer. Still to do:
+  the seller's enquiry inbox in the dashboard.
 - [ ] **Phase 5 — Sponsored listings** (Stripe Billing + webhooks + cron)
 - [ ] **Phase 6 — Seller dashboard**
 - [ ] **Phase 7 — Agency booking & deposits** (Cal.com webhook, Stripe deposit)
