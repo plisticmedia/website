@@ -126,4 +126,8 @@ In the Supabase dashboard, once the project exists:
   with stats, listing moderation (publish/remove), and tables for enquiries,
   referrals, partnerships, quotes, bookings, other leads, and sponsorships.
   *Promote yourself to admin via the SQL snippet above.*
-- [ ] **Phase 9 — Hardening & launch** (rate limits, monitoring, legal, e2e)
+- [~] **Phase 9 — Hardening & launch (in progress)**: legal pages live —
+  `/terms` (introductions-only / not-a-party-to-the-sale seller terms) and
+  `/privacy` (UK GDPR notice naming Supabase/Resend/Vercel/Cal.com); footer
+  links now resolve. Enquiry form has a honeypot. Still to do: rate limiting,
+  honeypot on the earn forms, monitoring, solicitor review of the legal text.

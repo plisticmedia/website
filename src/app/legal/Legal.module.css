@@ -1,0 +1,71 @@
+.page {
+  overflow-x: clip;
+  background: var(--p-paper);
+  color: var(--p-ink);
+  min-height: 70vh;
+}
+
+.inner {
+  max-width: 780px;
+  padding-block: clamp(2.6rem, 6vw, 4.6rem);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--p-azure);
+  font-family: var(--p-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.inner h1 {
+  margin: 0.6rem 0 0.3rem;
+  font-family: var(--p-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  line-height: 1;
+}
+
+.updated {
+  margin: 0 0 2rem;
+  font-size: 0.85rem;
+  color: var(--p-muted);
+}
+
+.inner h2 {
+  margin: 2rem 0 0.6rem;
+  font-family: var(--p-display);
+  font-size: 1.4rem;
+}
+
+.inner p,
+.inner li {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--p-ink);
+}
+
+.inner ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inner a {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+}
+
+.callout {
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.3rem;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-left: 3px solid var(--p-azure);
+  border-radius: 10px;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
