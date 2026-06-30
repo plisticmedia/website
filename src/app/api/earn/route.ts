@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { brand } from "@/data/site";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -48,6 +49,10 @@ export async function POST(request: Request) {
     return jsonError(result.error, 400);
   }
 
+  // Capture the submission in the database first, so a lead is never lost even
+  // if email delivery is not configured or fails. Never blocks the response.
+  await persistEarnSubmission(type, result.logSafePayload);
+
   const notifyTo = getRecipients(process.env.EARN_NOTIFY_EMAIL ?? brand.email);
   const apiKey = process.env.RESEND_API_KEY;
   const configuredFrom = clean(process.env.EARN_FROM_EMAIL, 240);
@@ -90,6 +95,46 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true, emailConfigured: true });
+}
+
+/**
+ * Persists a referral/partnership submission to Supabase via the service role.
+ * No-ops if Supabase is not configured yet, and never throws — capturing the
+ * lead must not break the form response.
+ */
+async function persistEarnSubmission(
+  type: EarnType,
+  payload: Record<string, string>,
+) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return;
+  }
+
+  try {
+    const supabase = createSupabaseServiceRoleClient();
+
+    if (type === "referral") {
+      await supabase.from("referrals").insert({
+        referrer_name: payload.referrerName,
+        referrer_email: payload.referrerEmail,
+        referred_name: payload.referredName,
+        referred_email: payload.referredEmail,
+        project_description: payload.projectDescription || null,
+        payload,
+      });
+    } else {
+      await supabase.from("partnerships").insert({
+        partner_name: payload.partnerName,
+        partner_email: payload.partnerEmail,
+        partner_company: payload.partnerCompany || null,
+        partner_discipline: payload.partnerDiscipline,
+        partner_message: payload.partnerMessage,
+        payload,
+      });
+    }
+  } catch (error) {
+    console.error("[earn-form] Failed to persist submission.", { type, error });
+  }
 }
 
 function buildReferralEmails(body: Record<string, unknown>) {

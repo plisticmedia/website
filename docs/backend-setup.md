@@ -57,6 +57,26 @@ order (via the Supabase SQL editor or the Supabase CLI):
 3. `0003_seed.sql` — seed the service categories
 4. `0004_storage.sql` — the public `service-media` storage bucket + policies
 
+## Supabase Auth configuration (needed for Phase 1 to work)
+
+In the Supabase dashboard, once the project exists:
+
+1. **Authentication → URL Configuration**
+   - Site URL: `https://www.plisticmedia.com`
+   - Redirect URLs: add `https://www.plisticmedia.com/auth/callback`,
+     `https://www.plisticmedia.com/auth/confirm`, and the Vercel preview
+     equivalents, plus `http://localhost:3000/auth/callback` and
+     `http://localhost:3000/auth/confirm` for local dev.
+2. **Authentication → Providers → Email**: enable. (Magic-link sign-in.)
+3. **Authentication → Providers → Google**: enable and paste a Google OAuth
+   client ID + secret (create these in Google Cloud Console; set the authorized
+   redirect URI to `https://<your-project-ref>.supabase.co/auth/v1/callback`).
+4. **Authentication → Email Templates → Magic Link**: set the link to
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email` so the
+   confirmation hits our SSR handler.
+5. To make yourself an **admin**: after your first sign-in, run in the SQL
+   editor: `update profiles set role = 'admin' where id = (select id from auth.users where email = 'you@plisticmedia.com');`
+
 ## Build progress
 
 - [x] **Phase 0 — Foundation (partial)**: dependencies installed
@@ -65,8 +85,16 @@ order (via the Supabase SQL editor or the Supabase CLI):
   schema + RLS + seed + storage migrations; expanded `.env.example`.
 - [ ] **Phase 0 (remaining)**: create the live Supabase/Stripe accounts, run
   migrations, populate env vars. *(needs owner accounts)*
-- [ ] **Phase 1 — Auth & accounts** (Supabase Auth, profiles, route protection)
-- [ ] **Phase 2 — Agency lead capture** (wire forms → DB + Resend)
+- [x] **Phase 1 — Auth & accounts (code complete)**: Supabase Auth with email
+  magic-link + Google OAuth; open self-signup; `/login` page; session refresh +
+  route protection via `src/proxy.ts`; auth route handlers
+  (`/auth/callback`, `/auth/confirm`, `/auth/signout`); `requireUser` /
+  `requireAdmin` helpers; gated `/dashboard` shell. *(activates once Supabase
+  keys + auth config below are in place)*
+- [x] **Phase 2 — Agency lead capture (referral + partnership)**: `/api/earn`
+  now persists submissions to the `referrals` / `partnerships` tables (service
+  role) in addition to sending Resend emails. Contact + quote endpoints follow
+  when those forms exist.
 - [ ] **Phase 3 — Directory listings** (seller CRUD, media uploads, browse/detail)
 - [ ] **Phase 4 — Enquiries** (enquiry form → email + seller inbox)
 - [ ] **Phase 5 — Sponsored listings** (Stripe Billing + webhooks + cron)
