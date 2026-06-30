@@ -315,7 +315,51 @@ export const termsDocument: LegalDocumentData = {
       ],
     },
     {
-      title: "17. Contact",
+      title: "17. Partner Directory",
+      paragraphs: [
+        "This section governs the Plistic partner directory (the \"Directory\"), which is separate from the production services described above and was added when the Directory launched.",
+      ],
+      subsections: [
+        {
+          title: "17.1 An introduction service",
+          paragraphs: [
+            "The Directory lists independent creative and media providers (\"Sellers\" or \"Partners\") so potential buyers can find and contact them. Plistic simply introduces buyers and Sellers. Plistic is not a party to any contract, agreement, or transaction between a buyer and a Seller, takes no commission on those transactions, and is not responsible for the work, conduct, pricing, deliverables, or any act or omission of any Seller or buyer. Any agreement you enter into with a Seller (or buyer) is solely between you and that other party.",
+          ],
+        },
+        {
+          title: "17.2 Listings and pricing",
+          paragraphs: [
+            "Prices and packages shown on a listing are indicative, provided by the Seller for information only. They are not offers capable of acceptance and do not create a contract. Buyers should confirm all scope, pricing, and terms directly with the Seller.",
+          ],
+        },
+        {
+          title: "17.3 Seller accounts and responsibilities",
+          paragraphs: [
+            "By creating a Seller account you agree that: the information in your profile and listings is accurate and not misleading; you own or are licensed to use all content you upload and it does not infringe anyone's rights; you will respond to buyer enquiries honestly, lawfully, and in good faith; you will not post unlawful, offensive, or fraudulent content; and that Plistic may review, edit, pause, or remove any listing, and suspend any account, at its discretion to keep the Directory accurate and trustworthy.",
+          ],
+        },
+        {
+          title: "17.4 Trusted Partner and featured status",
+          paragraphs: [
+            "Plistic may highlight selected listings as \"Trusted Partner\" or featured entries. Featured placement may be offered free at Plistic's discretion or as a paid subscription. Featured status is editorial promotion within the Directory only and does not mean Plistic endorses, guarantees, or is responsible for that Seller's work.",
+          ],
+        },
+        {
+          title: "17.5 Enquiries",
+          paragraphs: [
+            "When a buyer submits an enquiry on a listing, their name, email, and message are shared with the relevant Seller (and with Plistic) so the Seller can respond directly. See our Privacy Policy for how this data is handled.",
+          ],
+        },
+        {
+          title: "17.6 Liability",
+          paragraphs: [
+            "To the fullest extent permitted by law, and subject to Section 13, Plistic is not liable for any loss arising from your dealings with a Seller or buyer, from reliance on listing content, or from use of the Directory.",
+          ],
+        },
+      ],
+    },
+    {
+      title: "18. Contact",
       paragraphs: [
         `If you have any questions about these Terms, please contact us at ${legalEmail}.`,
         "Plistic is the trading name of Songplistic Ltd, a company registered in Scotland under company number SC699049. Registered office: 2 West Drive Cottage, Stracathro, Brechin, Scotland, DD9 7QF.",
@@ -379,6 +423,12 @@ export const privacyDocument: LegalDocumentData = {
             "We use Google Analytics to understand how visitors use our website - for example, which pages are viewed and how people generally arrive at our site. This data is aggregated and does not identify you personally. See Section 6 for more on Google as a third party.",
           ],
         },
+        {
+          title: "2.7 Partner Directory",
+          paragraphs: [
+            "If you create a Seller account in our partner directory, we collect the email address you sign in with and the profile and listing details you choose to publish (including any images or media you upload). If you submit an enquiry on a Seller's listing, we collect your name, email, and message - and share these with the relevant Seller so they can reply to you directly (see Sections 6 and 7).",
+          ],
+        },
       ],
     },
     {
@@ -424,14 +474,18 @@ export const privacyDocument: LegalDocumentData = {
         "Calendly - to manage bookings for discovery calls.",
         "Google - for website analytics (Google Analytics).",
         "Mailchimp - to manage our CRM and send email communications to existing contacts.",
+        "Supabase - the database, sign-in, and file storage that power the partner directory and our website forms.",
+        "Resend - to send transactional emails such as enquiry notifications, confirmations, and sign-in links.",
+        "Vercel - website and application hosting.",
         "Our accountant - for invoicing, tax, and financial record-keeping.",
         "Any freelancer or third party we bring onto a specific project (for example, a guest researcher or specialist) - only where relevant to delivering that project, and only the information they need.",
+        "Directory Sellers - when you submit an enquiry on a listing, your enquiry details are shared with that Seller so they can respond to you.",
       ],
       subsections: [
         {
           title: "",
           paragraphs: [
-            "Calendly, Google, and Mailchimp are based in the United States, so using them involves transferring some personal data outside the UK. Each of these providers safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
+            "Several of these providers (including Calendly, Google, Mailchimp, Resend, and Vercel) are based in or transfer data to the United States, so using them involves transferring some personal data outside the UK. Each safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
           ],
         },
       ],
