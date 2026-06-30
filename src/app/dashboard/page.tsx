@@ -45,7 +45,7 @@ export default async function DashboardPage() {
               icon={<Inbox aria-hidden="true" size={20} />}
               title="Enquiries"
               body="Buyer enquiries about your listings will arrive here and by email."
-              soon
+              href="/dashboard/enquiries"
             />
             <DashboardCard
               icon={<Sparkles aria-hidden="true" size={20} />}

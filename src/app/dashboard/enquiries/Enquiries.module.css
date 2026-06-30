@@ -1,0 +1,142 @@
+.page {
+  overflow-x: clip;
+  background: var(--p-paper);
+  color: var(--p-ink);
+  min-height: 70vh;
+}
+
+.inner {
+  max-width: 820px;
+  padding-block: clamp(2.4rem, 5vw, 4rem);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.kicker a {
+  color: var(--p-azure-deep);
+  text-decoration: none;
+}
+
+.inner h1 {
+  margin: 0.4rem 0 0;
+  font-family: var(--p-display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.sub {
+  margin: 0.4rem 0 1.6rem;
+  color: var(--p-muted);
+}
+
+.empty {
+  margin-top: 2rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--p-white);
+  border: 1px dashed var(--p-line);
+  border-radius: 16px;
+  color: var(--p-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.3rem 1.4rem;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+}
+
+.cardNew {
+  border-color: var(--p-azure);
+  box-shadow: 0 0 0 1px var(--p-azure) inset;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.email {
+  color: var(--p-azure-deep);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.meta {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--p-muted);
+}
+
+.message {
+  margin: 0.9rem 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.status {
+  flex-shrink: 0;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--p-paper);
+  border: 1px solid var(--p-line);
+  color: var(--p-muted);
+}
+
+.status_new {
+  background: #e7f1fb;
+  border-color: #bcdcf6;
+  color: var(--p-azure-deep);
+}
+
+.status_responded {
+  background: #e7f7ef;
+  border-color: #bfe8d4;
+  color: #0f7a52;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.closeBtn {
+  padding: 0.6rem 1rem;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--p-muted);
+  background: transparent;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  border-color: var(--p-muted);
+}

@@ -109,10 +109,11 @@ In the Supabase dashboard, once the project exists:
   Added a "Directory" link to the main nav. *(Listings live at `/directory`
   rather than `/services` to avoid clashing with the existing agency service
   pages.)*
-- [~] **Phase 4 — Enquiries (buyer flow done; seller inbox pending)**: enquiry
-  form on each listing → `/api/enquiries` saves the lead (honeypot-protected)
-  and emails the seller + Plistic, with an auto-reply to the buyer. Still to do:
-  the seller's enquiry inbox in the dashboard.
+- [x] **Phase 4 — Enquiries (complete)**: enquiry form on each listing →
+  `/api/enquiries` saves the lead (honeypot-protected) and emails the seller +
+  Plistic, with an auto-reply to the buyer. Seller **enquiry inbox** at
+  `/dashboard/enquiries` lists enquiries, links a pre-filled email reply, and
+  marks them responded/closed.
 - [ ] **Phase 5 — Sponsored listings** (Stripe Billing + webhooks + cron)
 - [ ] **Phase 6 — Seller dashboard**
 - [ ] **Phase 7 — Agency booking & deposits** (Cal.com webhook, Stripe deposit)
