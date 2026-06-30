@@ -28,7 +28,7 @@ export function LoginForm({ next }: { next: string }) {
         email,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: `${redirectBase}/auth/confirm?next=${encodeURIComponent(next)}`,
+          emailRedirectTo: `${redirectBase}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
       if (error) throw error;

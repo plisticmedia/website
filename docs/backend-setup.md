@@ -63,19 +63,25 @@ In the Supabase dashboard, once the project exists:
 
 1. **Authentication → URL Configuration**
    - Site URL: `https://www.plisticmedia.com`
-   - Redirect URLs: add `https://www.plisticmedia.com/auth/callback`,
-     `https://www.plisticmedia.com/auth/confirm`, and the Vercel preview
-     equivalents, plus `http://localhost:3000/auth/callback` and
-     `http://localhost:3000/auth/confirm` for local dev.
-2. **Authentication → Providers → Email**: enable. (Magic-link sign-in.)
-3. **Authentication → Providers → Google**: enable and paste a Google OAuth
-   client ID + secret (create these in Google Cloud Console; set the authorized
-   redirect URI to `https://<your-project-ref>.supabase.co/auth/v1/callback`).
-4. **Authentication → Email Templates → Magic Link**: set the link to
-   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email` so the
-   confirmation hits our SSR handler.
-5. To make yourself an **admin**: after your first sign-in, run in the SQL
+   - Redirect URLs (use wildcards so every Vercel preview works without
+     reconfiguring): add
+     - `https://www.plisticmedia.com/**`
+     - `https://*-hello-78393625s-projects.vercel.app/**` (all your Vercel previews)
+     - `http://localhost:3000/**` (local dev)
+2. **Authentication → Providers → Email**: enabled by default — magic-link
+   sign-in works out of the box. **No email-template edit is required**: the
+   `/auth/callback` route accepts both the PKCE `code` and `token_hash` styles.
+3. *(Optional)* **Authentication → Providers → Google**: enable and paste a
+   Google OAuth client ID + secret (create these in Google Cloud Console; set
+   the authorized redirect URI to
+   `https://<your-project-ref>.supabase.co/auth/v1/callback`). Magic-link works
+   without this, so Google can wait.
+4. To make yourself an **admin**: after your first sign-in, run in the SQL
    editor: `update profiles set role = 'admin' where id = (select id from auth.users where email = 'you@plisticmedia.com');`
+
+> Note: during testing, magic-link emails are sent by Supabase's built-in mailer
+> (low hourly limit, may land in spam). Swapping in Resend SMTP for auth emails
+> is a Phase 9 polish item.
 
 ## Build progress
 
