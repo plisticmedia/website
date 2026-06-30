@@ -35,3 +35,63 @@ export async function setFeatured(id: string, featured: boolean) {
   revalidatePath("/admin");
   revalidatePath("/directory");
 }
+
+// ---------------------------------------------------------------------------
+// Editable taxonomy: service categories + locations (no deploy needed)
+// ---------------------------------------------------------------------------
+type Taxon = "categories" | "locations";
+
+function taxonSlug(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
+function str(form: FormData, key: string, max = 120) {
+  const v = form.get(key);
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
+}
+
+export async function createTaxon(kind: Taxon, formData: FormData) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const name = str(formData, "name", 120);
+  if (!name) throw new Error("A name is required.");
+  const sortRaw = str(formData, "sort_order", 8);
+  const sort_order = sortRaw ? parseInt(sortRaw, 10) || 0 : 0;
+
+  const { error } = await supabase
+    .from(kind)
+    .insert({ name, slug: taxonSlug(name), sort_order });
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/taxonomy");
+  revalidatePath("/directory");
+}
+
+export async function renameTaxon(kind: Taxon, id: string, formData: FormData) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const name = str(formData, "name", 120);
+  if (!name) throw new Error("A name is required.");
+  const sortRaw = str(formData, "sort_order", 8);
+  const update: { name: string; sort_order?: number } = { name };
+  if (sortRaw) update.sort_order = parseInt(sortRaw, 10) || 0;
+
+  const { error } = await supabase.from(kind).update(update).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/taxonomy");
+  revalidatePath("/directory");
+}
+
+export async function deleteTaxon(kind: Taxon, id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  // FKs are ON DELETE SET NULL / CASCADE, so listings simply lose this tag.
+  const { error } = await supabase.from(kind).delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/taxonomy");
+  revalidatePath("/directory");
+}

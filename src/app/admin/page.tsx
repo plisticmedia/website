@@ -48,6 +48,11 @@ export default async function AdminPage() {
         <section className={`p-container ${styles.inner}`}>
           <p className={styles.kicker}>Admin</p>
           <h1>Admin dashboard</h1>
+          <p style={{ marginTop: "0.5rem" }}>
+            <Link href="/admin/taxonomy" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
+              Manage services &amp; locations →
+            </Link>
+          </p>
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />

@@ -145,6 +145,39 @@
   background: var(--p-azure-deep);
 }
 
+.inlineInput,
+.inlineInputNarrow {
+  padding: 0.4rem 0.55rem;
+  font-family: var(--p-body);
+  font-size: 0.85rem;
+  color: var(--p-ink);
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  outline: none;
+}
+
+.inlineInput {
+  min-width: 12rem;
+}
+
+.inlineInputNarrow {
+  width: 4.5rem;
+}
+
+.inlineInput:focus,
+.inlineInputNarrow:focus {
+  border-color: var(--p-azure);
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
 .badgeTrusted {
   background: var(--p-lemon, #f5c84b);
   border-color: var(--p-lemon, #f5c84b);

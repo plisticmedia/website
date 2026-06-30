@@ -22,7 +22,7 @@ export const termsDocument: LegalDocumentData = {
   heroDescription: "Plistic's current terms and conditions of service.",
   documentTitle: "Terms and Conditions of Service",
   companyLine: "A trading name of Songplistic Ltd, a company registered in Scotland",
-  lastUpdated: "23 June 2026",
+  lastUpdated: "30 June 2026 (Version 7)",
   pdfPath: "/assets/legal/plistic-terms-and-conditions-v5.pdf",
   sections: [
     {
