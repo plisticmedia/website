@@ -9,11 +9,6 @@ type FormState = {
   message: string;
 };
 
-type SubmitResult = {
-  emailConfigured?: boolean;
-  error?: string;
-};
-
 const initialState: FormState = { status: "idle", message: "" };
 
 async function submitEarnForm(form: HTMLFormElement, type: "referral" | "partner") {
@@ -29,7 +24,7 @@ async function submitEarnForm(form: HTMLFormElement, type: "referral" | "partner
     body: JSON.stringify(payload),
   });
 
-  const result = (await response.json().catch(() => null)) as SubmitResult | null;
+  const result = (await response.json().catch(() => null)) as { error?: string } | null;
 
   if (!response.ok) {
     throw new Error(result?.error ?? "Something went wrong. Please try again.");
@@ -48,14 +43,11 @@ export function ReferralForm() {
     setFormState({ status: "submitting", message: "Sending referral..." });
 
     try {
-      const result = await submitEarnForm(form, "referral");
+      await submitEarnForm(form, "referral");
       form.reset();
       setFormState({
         status: "success",
-        message:
-          result?.emailConfigured === false
-            ? "Referral received locally. Email sending is not configured in this environment."
-            : "Referral received. We have sent confirmation and Jessie will follow up within 24 hours.",
+        message: "Referral received. We have sent confirmation and our team has the details.",
       });
     } catch (error) {
       setFormState({
@@ -70,8 +62,15 @@ export function ReferralForm() {
       <div className={styles.formHeader}>
         <span>Referral form</span>
         <h3>Introduce us to the project.</h3>
-        <p>We will confirm receipt automatically and notify the Plistic team.</p>
+        <p>
+          We receive your details, the referred contact&apos;s details, and any project note. You also get a confirmation
+          email.
+        </p>
       </div>
+      <p className={styles.formNote}>
+        Referral fees only apply to new clients on their first project with Plistic, and only when the referral is
+        submitted through this form before the person contacts us by any other route.
+      </p>
       <div className={styles.formGrid}>
         <label className={styles.field}>
           <span>Your name</span>

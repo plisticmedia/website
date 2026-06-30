@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Film, RefreshCw, School, Scissors } from "lucide-react";
+import { ArrowRight, CalendarDays, Film, RefreshCw, School, Scissors } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -115,10 +115,6 @@ export default function ConnectEdNetworkCaseStudyPage() {
         <section className={styles.hero} aria-labelledby="case-study-title">
           <div className={`p-container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <Link className={styles.backLink} href="/#work">
-                <ArrowLeft aria-hidden="true" size={15} />
-                Selected work
-              </Link>
               <p className={styles.kicker}>Case study - event capture and series production</p>
               <h1 id="case-study-title">
                 The EiR <span>Podcast Series</span>
@@ -126,7 +122,8 @@ export default function ConnectEdNetworkCaseStudyPage() {
               <p className={styles.heroLead}>
                 Connect-Ed ran eight live events bringing together practitioners, academics, and institutional leaders
                 around entrepreneurship in higher education. We helped turn the value in those rooms into an evergreen
-                podcast series, social clips, and a resource still being discovered across platforms.
+                podcast series, social clips, and a resource still being discovered across platforms. EiR stands for
+                Entrepreneur in Residence: the practitioners embedded across Scotland&apos;s universities and colleges.
               </p>
               <div className={styles.heroActions}>
                 <Link className="p-btn" href="/pricing">
@@ -140,7 +137,7 @@ export default function ConnectEdNetworkCaseStudyPage() {
               </div>
             </div>
 
-            <div className={`${styles.heroMedia} p-vf`}>
+            <div className={`${styles.heroMedia} ${styles.connectHeroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
                 src="/assets/photos/connect-ed.png"
@@ -148,6 +145,7 @@ export default function ConnectEdNetworkCaseStudyPage() {
                 fill
                 priority
                 sizes="(max-width: 900px) 100vw, 52vw"
+                style={{ objectFit: "cover", objectPosition: "56% center" }}
               />
               <div className={styles.mediaCaption}>
                 <div>

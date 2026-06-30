@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useMemo, useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from "react";
 import Link from "next/link";
 import { CalendarDays, Check, ClipboardList, CreditCard, Film, Mic2, Sparkles } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
-import { coachingRates, documentaryRates, podcastAddOns } from "@/data/pricing";
+import { podcastAddOns } from "@/data/pricing";
 import {
   estimateCoaching,
   estimateDocumentary,
@@ -30,6 +30,7 @@ const currency = new Intl.NumberFormat("en-GB", {
 const serviceOptions: Array<{ id: ServiceChoice; label: string; detail: string }> = [
   { id: "podcast", label: "Podcast", detail: "Series scope" },
   { id: "event", label: "Event", detail: "Capture package" },
+  { id: "musicVideo", label: "Music video", detail: "Creative scope" },
   { id: "documentary", label: "Doc", detail: "Story brief" },
   { id: "coaching", label: "Coaching", detail: "Prep session" },
   { id: "other", label: "Other", detail: "Open brief" },
@@ -37,8 +38,8 @@ const serviceOptions: Array<{ id: ServiceChoice; label: string; detail: string }
 
 const podcastDefaults: PodcastEstimateInput = {
   need: "full",
-  episodes: "six",
-  episodeLength: "thirtyFortyFive",
+  episodes: "sixEight",
+  episodeLength: "twentyForty",
   location: "glasgowOffice",
   cadence: "regular",
   productionDepth: "standard",
@@ -53,7 +54,6 @@ const eventDefaults: EventEstimateInput = {
   duration: "full",
   location: "glasgow",
   cameras: "oneCamera",
-  usePromo: true,
   addGimbal: false,
   complexEdit: false,
   overviewVideo: false,
@@ -89,15 +89,20 @@ const otherDefaults: OtherEstimateInput = {
   extraNotes: "",
 };
 
+const musicVideoDefaults: OtherEstimateInput = {
+  ...otherDefaults,
+  category: "musicVideo",
+};
+
 const podcastNeedLabels: Record<PodcastEstimateInput["need"], string> = {
   full: "Full service",
   post: "Post-production only",
 };
 
 const podcastEpisodeLabels: Record<PodcastEstimateInput["episodes"], string> = {
-  three: "3 episodes",
-  six: "6 episodes",
-  eightTen: "8-10 episodes",
+  threeFive: "3-5 episodes",
+  sixEight: "6-8 episodes",
+  nineEleven: "9-11 episodes",
   twelvePlus: "12+ episodes",
   ongoing: "Ongoing",
   unsure: "To confirm",
@@ -105,9 +110,8 @@ const podcastEpisodeLabels: Record<PodcastEstimateInput["episodes"], string> = {
 
 const episodeLengthLabels: Record<PodcastEstimateInput["episodeLength"], string> = {
   under20: "Under 20 mins",
-  twentyThirty: "20-30 mins",
-  thirtyFortyFive: "30-45 mins",
-  fortyFiveSixty: "45-60 mins",
+  twentyForty: "20-40 mins",
+  fortySixty: "40-60 mins",
   sixtyPlus: "60+ mins",
   unsure: "To confirm",
 };
@@ -132,7 +136,7 @@ const podcastBudgetLabels: Record<PodcastEstimateInput["budget"], string> = {
   sixTwelve: "£6k-£12k",
   twelveTwenty: "£12k-£20k",
   twentyPlus: "£20k+",
-  unsure: "Don't know yet",
+  unsure: "Not sure yet",
 };
 
 const timelineLabels: Record<PodcastEstimateInput["timeline"], string> = {
@@ -189,7 +193,7 @@ const documentaryBudgetLabels: Record<DocumentaryEstimateInput["budget"], string
   twelveTwenty: "£12k-£20k",
   twentyForty: "£20k-£40k",
   fortyPlus: "£40k+",
-  unsure: "Don't know yet",
+  unsure: "Not sure yet",
 };
 
 const coachingFormatLabels: Record<CoachingEstimateInput["format"], string> = {
@@ -237,17 +241,6 @@ type DetailRow = {
   label: string;
   value: string;
 };
-
-type RateRow = {
-  label: string;
-  range: string;
-};
-
-function formatRange(low: number, high: number, qualifier?: string) {
-  const suffix = qualifier ? ` ${qualifier}` : "";
-  if (low === high) return `${currency.format(low)}${suffix}`;
-  return `${currency.format(low)} - ${currency.format(high)}${suffix}`;
-}
 
 function Field({
   label,
@@ -299,7 +292,7 @@ function PriceRange({ result }: { result: EstimateResult }) {
   if (low === high) {
     return (
       <div className={styles.slateRange}>
-        <span>{currency.format(low)}</span>
+        <span className={styles.priceLine}>{currency.format(low)}</span>
         {qualifier ? <small>{qualifier}</small> : null}
       </div>
     );
@@ -307,9 +300,11 @@ function PriceRange({ result }: { result: EstimateResult }) {
 
   return (
     <div className={styles.slateRange}>
-      <span>{currency.format(low)}</span>
-      <span className={styles.rangeDash}>-</span>
-      <span>{currency.format(high)}</span>
+      <span className={styles.priceLine}>
+        <span>{currency.format(low)}</span>
+        <span className={styles.rangeDash}>-</span>
+        <span>{currency.format(high)}</span>
+      </span>
       {qualifier ? <small>{qualifier}</small> : null}
     </div>
   );
@@ -319,9 +314,9 @@ function QuoteSlate({
   title,
   result,
   rows,
-  rates,
   ctaLabel,
   intro,
+  briefOnly = false,
 }: {
   title: string;
   rows: DetailRow[];
@@ -329,7 +324,7 @@ function QuoteSlate({
   ctaLabel: string;
   intro: string;
   result?: EstimateResult;
-  rates?: RateRow[];
+  briefOnly?: boolean;
 }) {
   return (
     <aside className={styles.quoteSlate} aria-live="polite">
@@ -339,30 +334,18 @@ function QuoteSlate({
 
       <p className={styles.slateIntro}>{intro}</p>
 
-      <div className={styles.slateRows}>
-        {rows.map((row) => (
-          <div key={row.label}>
-            <span>{row.label}</span>
-            <strong>{row.value}</strong>
-          </div>
-        ))}
-      </div>
-
-      {rates && rates.length > 0 ? (
-        <div className={styles.slateBlock}>
-          <strong>Starting points</strong>
-          <div className={styles.rateList}>
-            {rates.map((rate) => (
-              <div key={rate.label}>
-                <span>{rate.label}</span>
-                <strong>{rate.range}</strong>
-              </div>
-            ))}
-          </div>
+      {!briefOnly ? (
+        <div className={styles.slateRows}>
+          {rows.map((row) => (
+            <div key={row.label}>
+              <span>{row.label}</span>
+              <strong>{row.value}</strong>
+            </div>
+          ))}
         </div>
       ) : null}
 
-      {result && result.includes.length > 0 ? (
+      {!briefOnly && result && result.includes.length > 0 ? (
         <div className={styles.slateBlock}>
           <strong>In scope</strong>
           <ul className={styles.slateList}>
@@ -376,7 +359,7 @@ function QuoteSlate({
         </div>
       ) : null}
 
-      {result && result.flags.length > 0 ? (
+      {!briefOnly && result && result.flags.length > 0 ? (
         <div className={`${styles.slateBlock} ${styles.warningBlock}`}>
           <strong>Call notes</strong>
           <ul className={styles.noteList}>
@@ -387,7 +370,7 @@ function QuoteSlate({
         </div>
       ) : null}
 
-      {result && result.notIncluded.length > 0 ? (
+      {!briefOnly && result && result.notIncluded.length > 0 ? (
         <div className={styles.slateBlock}>
           <strong>Not included yet</strong>
           <ul className={styles.noteList}>
@@ -398,13 +381,15 @@ function QuoteSlate({
         </div>
       ) : null}
 
-      {result && result.notes.length > 0 ? (
+      {!briefOnly && result && result.notes.length > 0 ? (
         <div className={styles.slateNotes}>
           {result.notes.map((note) => (
             <p key={note}>{note}</p>
           ))}
         </div>
       ) : null}
+
+      <EstimateLeadForm title={title} result={result} rows={rows} variant={briefOnly ? "brief" : "estimate"} />
 
       <div className={styles.slateActions}>
         <Link className="p-btn" href={bookingPagePath}>
@@ -422,16 +407,130 @@ function QuoteSlate({
   );
 }
 
+function EstimateLeadForm({
+  title,
+  result,
+  rows,
+  variant = "estimate",
+}: {
+  title: string;
+  result?: EstimateResult;
+  rows: DetailRow[];
+  variant?: "estimate" | "brief";
+}) {
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const isBrief = variant === "brief";
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    setStatus("submitting");
+    setMessage("Sending estimate...");
+
+    const payload = {
+      serviceTitle: title,
+      rangeText: getRangeText(result),
+      rows,
+      includes: result?.includes ?? [],
+      flags: result?.flags ?? [],
+      notes: result?.notes ?? [],
+      notIncluded: result?.notIncluded ?? [],
+      name: String(formData.get("name") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      organisation: String(formData.get("organisation") ?? ""),
+      projectNote: String(formData.get("projectNote") ?? ""),
+    };
+
+    try {
+      const response = await fetch("/api/pricing-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const responseBody = (await response.json().catch(() => null)) as { error?: string } | null;
+
+      if (!response.ok) {
+        throw new Error(responseBody?.error ?? "We could not send this estimate. Please try again.");
+      }
+
+      form.reset();
+      setStatus("success");
+      setMessage(isBrief ? "Brief sent. Next step: book your call." : "Estimate sent. Our team now has your calculator details.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "We could not send this estimate. Please try again.");
+    }
+  }
+
+  return (
+    <form className={styles.leadForm} onSubmit={handleSubmit}>
+      <div className={styles.leadHeader}>
+        <strong>{isBrief ? "Send this brief to Plistic" : "Send this estimate to Plistic"}</strong>
+        <p>
+          {isBrief
+            ? "Share your details and we will receive your answers before the call."
+            : "Share your details and we will receive the service, range, calculator selections, and your note."}
+        </p>
+      </div>
+      <div className={styles.leadFields}>
+        <label>
+          <span>Name</span>
+          <input name="name" type="text" autoComplete="name" required />
+        </label>
+        <label>
+          <span>Email</span>
+          <input name="email" type="email" autoComplete="email" required />
+        </label>
+        <label className={styles.fullLeadField}>
+          <span>Organisation</span>
+          <input name="organisation" type="text" autoComplete="organization" />
+        </label>
+        <label className={styles.fullLeadField}>
+          <span>Project note</span>
+          <textarea name="projectNote" rows={3} placeholder="Anything useful before the call?" />
+        </label>
+      </div>
+      {status === "success" || status === "error" ? (
+        <p
+          className={`${styles.leadStatus} ${status === "success" ? styles.leadSuccess : styles.leadError}`}
+          aria-live="polite"
+        >
+          {message}
+        </p>
+      ) : null}
+      <button className="p-btn" type="submit" disabled={status === "submitting"}>
+        {status === "submitting" ? "Sending..." : "Send estimate"}
+      </button>
+    </form>
+  );
+}
+
+function getRangeText(result?: EstimateResult) {
+  if (!result?.range) {
+    return "Scoped on call";
+  }
+
+  const { low, high, qualifier } = result.range;
+  const base = low === high ? currency.format(low) : `${currency.format(low)} - ${currency.format(high)}`;
+
+  return qualifier ? `${base} ${qualifier}` : base;
+}
+
 export function PricingCalculator() {
   const [service, setService] = useState<ServiceChoice>("podcast");
   const [podcast, setPodcast] = useState<PodcastEstimateInput>(podcastDefaults);
   const [event, setEvent] = useState<EventEstimateInput>(eventDefaults);
+  const [musicVideo, setMusicVideo] = useState<OtherEstimateInput>(musicVideoDefaults);
   const [documentary, setDocumentary] = useState<DocumentaryEstimateInput>(documentaryDefaults);
   const [coaching, setCoaching] = useState<CoachingEstimateInput>(coachingDefaults);
   const [other, setOther] = useState<OtherEstimateInput>(otherDefaults);
 
   const podcastResult = useMemo(() => estimatePodcast(podcast), [podcast]);
   const eventResult = useMemo(() => estimateEvent(event), [event]);
+  const musicVideoResult = useMemo(() => estimateOther(musicVideo), [musicVideo]);
   const documentaryResult = useMemo(() => estimateDocumentary(documentary), [documentary]);
   const coachingResult = useMemo(() => estimateCoaching(coaching), [coaching]);
   const otherResult = useMemo(() => estimateOther(other), [other]);
@@ -445,8 +544,8 @@ export function PricingCalculator() {
 
   const activeSlate = getActiveSlate(
     service,
-    { podcast, event, documentary, coaching, other },
-    { podcastResult, eventResult, documentaryResult, coachingResult, otherResult },
+    { podcast, event, musicVideo, documentary, coaching, other },
+    { podcastResult, eventResult, musicVideoResult, documentaryResult, coachingResult, otherResult },
   );
 
   return (
@@ -481,6 +580,10 @@ export function PricingCalculator() {
 
             {service === "event" ? <EventIntake event={event} setEvent={setEvent} /> : null}
 
+            {service === "musicVideo" ? (
+              <MusicVideoIntake musicVideo={musicVideo} setMusicVideo={setMusicVideo} />
+            ) : null}
+
             {service === "documentary" ? (
               <DocumentaryIntake documentary={documentary} setDocumentary={setDocumentary} />
             ) : null}
@@ -506,6 +609,7 @@ function getActiveSlate(
   inputs: {
     podcast: PodcastEstimateInput;
     event: EventEstimateInput;
+    musicVideo: OtherEstimateInput;
     documentary: DocumentaryEstimateInput;
     coaching: CoachingEstimateInput;
     other: OtherEstimateInput;
@@ -513,13 +617,14 @@ function getActiveSlate(
   results: {
     podcastResult: EstimateResult;
     eventResult: EstimateResult;
+    musicVideoResult: EstimateResult;
     documentaryResult: EstimateResult;
     coachingResult: EstimateResult;
     otherResult: EstimateResult;
   },
 ): Parameters<typeof QuoteSlate>[0] {
-  const { podcast, event, documentary, coaching, other } = inputs;
-  const { podcastResult, eventResult, documentaryResult, coachingResult, otherResult } = results;
+  const { podcast, event, musicVideo, documentary, coaching, other } = inputs;
+  const { podcastResult, eventResult, musicVideoResult, documentaryResult, coachingResult, otherResult } = results;
 
   if (service === "podcast") {
     return {
@@ -556,14 +661,30 @@ function getActiveSlate(
     };
   }
 
+  if (service === "musicVideo") {
+    return {
+      title: "Music video",
+      result: musicVideoResult,
+      status: "Call first",
+      ctaLabel: musicVideoResult.primaryCta,
+      intro: "Music videos are shaped around the creative idea, location, crew, edit, and delivery needs.",
+      rows: [
+        { label: "Category", value: "Music video" },
+        { label: "Outputs", value: musicVideo.outputs.trim() ? "Added" : "To define" },
+        { label: "Budget", value: podcastBudgetLabels[musicVideo.budget] },
+        { label: "Timing", value: timelineLabels[musicVideo.timeline] },
+      ],
+    };
+  }
+
   if (service === "documentary") {
     return {
       title: "Documentary",
       result: documentaryResult,
       status: "Call first",
-      ctaLabel: documentaryResult.primaryCta,
-      intro: "Documentary work starts at the workbook minimum and is always confirmed through a production call.",
-      rates: documentaryRates,
+      ctaLabel: "Book a call",
+      intro: "Documentary pricing is always confirmed through a production call after the vision and production shape are clearer.",
+      briefOnly: true,
       rows: [
         { label: "Length", value: documentaryScaleLabels[documentary.scale] },
         { label: "Location", value: documentaryLocationLabels[documentary.location] },
@@ -578,9 +699,9 @@ function getActiveSlate(
       title: "Coaching",
       result: coachingResult,
       status: "Call first",
-      ctaLabel: coachingResult.primaryCta,
-      intro: "The workbook keeps standalone coaching call-scoped, with rates shown as starting points.",
-      rates: coachingRates,
+      ctaLabel: "Book a call",
+      intro: "Coaching is confirmed on a call once we understand who is preparing, what they are preparing for, and the format needed.",
+      briefOnly: true,
       rows: [
         { label: "Format", value: coachingFormatLabels[coaching.format] },
         { label: "Context", value: coachingContextLabels[coaching.context] },
@@ -594,8 +715,9 @@ function getActiveSlate(
     title: "Open brief",
     result: otherResult,
     status: "Call first",
-    ctaLabel: otherResult.primaryCta,
+    ctaLabel: "Book a call",
     intro: "Plistic will shape the right route once the production goal is clearer.",
+    briefOnly: true,
     rows: [
       { label: "Category", value: otherCategoryLabels[other.category] },
       { label: "Outputs", value: other.outputs.trim() ? "Added" : "To define" },
@@ -652,9 +774,9 @@ function PodcastIntake({
               }))
             }
           >
-            <option value="three">3</option>
-            <option value="six">6</option>
-            <option value="eightTen">8-10</option>
+            <option value="threeFive">3-5</option>
+            <option value="sixEight">6-8</option>
+            <option value="nineEleven">9-11</option>
             <option value="twelvePlus">12+</option>
             <option value="ongoing">Ongoing / per episode</option>
             <option value="unsure">Not sure yet</option>
@@ -672,9 +794,8 @@ function PodcastIntake({
             }
           >
             <option value="under20">Under 20 mins</option>
-            <option value="twentyThirty">20-30 mins</option>
-            <option value="thirtyFortyFive">30-45 mins</option>
-            <option value="fortyFiveSixty">45-60 mins</option>
+            <option value="twentyForty">20-40 mins</option>
+            <option value="fortySixty">40-60 mins</option>
             <option value="sixtyPlus">60+ mins</option>
             <option value="unsure">Not sure yet</option>
           </select>
@@ -750,7 +871,7 @@ function PodcastIntake({
             <option value="sixTwelve">£6k-£12k</option>
             <option value="twelveTwenty">£12k-£20k</option>
             <option value="twentyPlus">£20k+</option>
-            <option value="unsure">Don't know yet</option>
+            <option value="unsure">Not sure yet</option>
           </select>
         </Field>
 
@@ -924,11 +1045,6 @@ function EventIntake({
         <h4>Outputs and add-ons</h4>
         <div className={styles.addonGrid}>
           <Checkbox
-            checked={event.usePromo}
-            label="Use launch promo event rate"
-            onChange={(checked) => setEvent((current) => ({ ...current, usePromo: checked }))}
-          />
-          <Checkbox
             checked={event.addGimbal}
             label="Add a gimbal"
             onChange={(checked) => setEvent((current) => ({ ...current, addGimbal: checked }))}
@@ -949,6 +1065,9 @@ function EventIntake({
             onChange={(checked) => setEvent((current) => ({ ...current, rawFootage: checked }))}
           />
         </div>
+        <p className={styles.helperNote}>
+          A camera gimbal allows for motion shots that will create a dynamic tone for any of your event content.
+        </p>
 
         <div className={styles.inlineFields}>
           <Field label="Social clips">
@@ -984,6 +1103,97 @@ function EventIntake({
   );
 }
 
+function MusicVideoIntake({
+  musicVideo,
+  setMusicVideo,
+}: {
+  musicVideo: OtherEstimateInput;
+  setMusicVideo: Dispatch<SetStateAction<OtherEstimateInput>>;
+}) {
+  return (
+    <div className={styles.intakePanel}>
+      <div className={styles.panelHeading}>
+        <span className={styles.iconFrame}>
+          <Film aria-hidden="true" size={22} />
+        </span>
+        <div>
+          <h3>Music video brief</h3>
+          <p>Start with the creative idea, delivery needs, budget band, and timeline.</p>
+        </div>
+      </div>
+
+      <div className={styles.fields}>
+        <Field label="Budget">
+          <select
+            value={musicVideo.budget}
+            onChange={(eventChange) =>
+              setMusicVideo((current) => ({
+                ...current,
+                category: "musicVideo",
+                budget: eventChange.target.value as OtherEstimateInput["budget"],
+              }))
+            }
+          >
+            <option value="under3">Under &pound;3k</option>
+            <option value="threeSix">&pound;3k-&pound;6k</option>
+            <option value="sixTwelve">&pound;6k-&pound;12k</option>
+            <option value="twelveTwenty">&pound;12k-&pound;20k</option>
+            <option value="twentyPlus">&pound;20k+</option>
+            <option value="unsure">Not sure yet</option>
+          </select>
+        </Field>
+
+        <Field label="Timeline">
+          <select
+            value={musicVideo.timeline}
+            onChange={(eventChange) =>
+              setMusicVideo((current) => ({
+                ...current,
+                category: "musicVideo",
+                timeline: eventChange.target.value as OtherEstimateInput["timeline"],
+              }))
+            }
+          >
+            <option value="withinTwo">Within 2 months</option>
+            <option value="twoFour">2-4 months</option>
+            <option value="fourSix">4-6 months</option>
+            <option value="later">Later this year</option>
+            <option value="flexible">Flexible</option>
+          </select>
+        </Field>
+
+        <Field label="Outputs" hint="What do you need delivered?" wide>
+          <textarea
+            value={musicVideo.outputs}
+            onChange={(eventChange) =>
+              setMusicVideo((current) => ({
+                ...current,
+                category: "musicVideo",
+                outputs: eventChange.target.value,
+              }))
+            }
+            placeholder="For example: a main music video, teasers, vertical clips, behind-the-scenes edits..."
+          />
+        </Field>
+
+        <Field label="Anything else?" hint="Passed to the team with the brief." wide>
+          <textarea
+            value={musicVideo.extraNotes}
+            onChange={(eventChange) =>
+              setMusicVideo((current) => ({
+                ...current,
+                category: "musicVideo",
+                extraNotes: eventChange.target.value,
+              }))
+            }
+            placeholder="Concept, references, locations, cast, choreography, special effects, deadlines..."
+          />
+        </Field>
+      </div>
+    </div>
+  );
+}
+
 function DocumentaryIntake({
   documentary,
   setDocumentary,
@@ -999,7 +1209,11 @@ function DocumentaryIntake({
         </span>
         <div>
           <h3>Documentary brief</h3>
-          <p>Start with the vision, length, contributors, locations and timeline.</p>
+          <p>
+            Tell us a bit about your vision for your documentary using the form below to give us an idea about your
+            project before your kick off call. If you aren&apos;t sure yet, that&apos;s fine - we can work these out together
+            on call.
+          </p>
         </div>
       </div>
 
@@ -1069,7 +1283,7 @@ function DocumentaryIntake({
             <option value="twelveTwenty">£12k-£20k</option>
             <option value="twentyForty">£20k-£40k</option>
             <option value="fortyPlus">£40k+</option>
-            <option value="unsure">Don't know yet</option>
+            <option value="unsure">Not sure yet</option>
           </select>
         </Field>
 
@@ -1267,7 +1481,6 @@ function OtherIntake({
           >
             <option value="video">Video production</option>
             <option value="ads">Ads / campaign</option>
-            <option value="musicVideo">Music video</option>
             <option value="strategy">Strategy</option>
             <option value="mixed">Mixed media</option>
             <option value="unsure">Not sure yet</option>
@@ -1289,7 +1502,7 @@ function OtherIntake({
             <option value="sixTwelve">£6k-£12k</option>
             <option value="twelveTwenty">£12k-£20k</option>
             <option value="twentyPlus">£20k+</option>
-            <option value="unsure">Don't know yet</option>
+            <option value="unsure">Not sure yet</option>
           </select>
         </Field>
 

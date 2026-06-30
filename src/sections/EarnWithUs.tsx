@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Handshake, Percent, UsersRound } from "lucide-react";
+import { ArrowRight, Banknote, Handshake, UsersRound } from "lucide-react";
 
 export function EarnWithUs() {
   return (
@@ -9,15 +9,16 @@ export function EarnWithUs() {
           <p className="eyebrow">Earn With Us</p>
           <h2 id="earn-title">A simple network for referrals and creative partners.</h2>
           <p>
-            The launch page can explain the 10% referral programme and invite photographers, agencies,
-            animators, PR teams, paid media specialists, and other collaborators to start a conversation.
+            Refer a new client and receive 10% of their first paid Plistic project if it qualifies. Photographers,
+            agencies, animators, PR teams, paid media specialists, and other collaborators can also start a longer-term
+            partner conversation with us.
           </p>
         </div>
         <div className="earn-cards">
           <article>
-            <Percent aria-hidden="true" size={26} />
+            <Banknote aria-hidden="true" size={26} />
             <h3>Referral programme</h3>
-            <p>Refer a confirmed paid project and receive 10% of the project value once the invoice is settled.</p>
+            <p>Receive 10% of a qualifying new client's first paid project. A &pound;5,000 project would mean &pound;500.</p>
             <Link href="/earn#referral">
               Submit a referral
               <ArrowRight aria-hidden="true" size={16} />
@@ -26,7 +27,7 @@ export function EarnWithUs() {
           <article>
             <Handshake aria-hidden="true" size={26} />
             <h3>Partner programme</h3>
-            <p>Build a trusted Scottish creative ecosystem before the full partner directory goes live.</p>
+            <p>Build a considered creative relationship with Plistic when our services naturally complement each other.</p>
             <Link href="/earn#partners">
               Become a partner
               <ArrowRight aria-hidden="true" size={16} />
@@ -34,8 +35,8 @@ export function EarnWithUs() {
           </article>
           <article>
             <UsersRound aria-hidden="true" size={26} />
-            <h3>24-hour follow-up</h3>
-            <p>Referral submissions can trigger confirmation and internal notifications for Jessie to follow up.</p>
+            <h3>Clean tracking</h3>
+            <p>Referral submissions trigger confirmation and internal notifications so our team can track the introduction.</p>
             <Link href="/earn#referral">
               See the workflow
               <ArrowRight aria-hidden="true" size={16} />

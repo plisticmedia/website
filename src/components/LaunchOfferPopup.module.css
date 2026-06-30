@@ -1,0 +1,139 @@
+.popup {
+  position: fixed;
+  right: clamp(1rem, 2.5vw, 1.7rem);
+  bottom: clamp(1rem, 2.5vw, 1.7rem);
+  z-index: 45;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  width: min(460px, calc(100vw - 2rem));
+  padding: 0.95rem 3.25rem 0.95rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-left: 4px solid var(--p-azure);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(31, 170, 233, 0.18), transparent 46%),
+    #141417;
+  color: var(--p-white);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(31, 170, 233, 0.42);
+  border-radius: 4px;
+  background: rgba(31, 170, 233, 0.12);
+  color: var(--p-azure);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.copy p {
+  margin: 0;
+  color: var(--p-azure);
+  font-family: var(--p-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.copy strong {
+  display: block;
+  margin-top: 0.22rem;
+  font-family: var(--p-display);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 400;
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.copy span {
+  display: block;
+  margin-top: 0.45rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: var(--p-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.38;
+}
+
+.actions {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 34px;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  color: var(--p-white);
+  font-family: var(--p-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.actions a:first-child {
+  border-color: var(--p-azure);
+  background: var(--p-azure);
+}
+
+.actions a:hover,
+.actions a:focus-visible {
+  border-color: var(--p-white);
+  background: var(--p-white);
+  color: var(--p-ink);
+  outline: none;
+}
+
+.popup button {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--p-white);
+  cursor: pointer;
+}
+
+.popup button:hover,
+.popup button:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+
+@media (max-width: 560px) {
+  .popup {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-right: 3.25rem;
+  }
+
+  .icon {
+    display: none;
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+  }
+}

@@ -28,7 +28,7 @@
 }
 .tile { position: relative; display: block; overflow: hidden; border-radius: 4px; }
 .linkTile { cursor: pointer; }
-.media { position: relative; aspect-ratio: 16 / 10; }
+.media { position: relative; aspect-ratio: 16 / 10; background: #0d0e12; }
 .media :global(img) { object-fit: cover; transition: transform 0.5s ease; }
 .tile:hover .media :global(img),
 .tile:focus-visible .media :global(img) { transform: scale(1.04); }
@@ -39,10 +39,20 @@
 .scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 16, 19, 0) 38%, rgba(15, 16, 19, 0.92) 100%);
+  background:
+    linear-gradient(180deg, rgba(15, 16, 19, 0.1) 18%, rgba(15, 16, 19, 0.6) 58%, rgba(15, 16, 19, 0.96) 100%),
+    linear-gradient(90deg, rgba(15, 16, 19, 0.54), rgba(15, 16, 19, 0.08) 66%);
   pointer-events: none;
 }
-.copy { position: absolute; left: 0; right: 0; bottom: 0; padding: clamp(1.2rem, 2.2vw, 2rem); z-index: 2; }
+.copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: clamp(1.2rem, 2.2vw, 2rem);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
+}
 .tag {
   margin: 0 0 0.45rem;
   font-family: var(--p-body);
@@ -64,7 +74,7 @@
   margin: 0.55rem 0 0;
   max-width: 48ch;
   font-family: var(--p-body);
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.92rem;
   line-height: 1.45;
 }

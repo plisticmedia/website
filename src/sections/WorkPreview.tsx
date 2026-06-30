@@ -21,11 +21,23 @@ export function WorkPreview() {
 
         <div className={styles.grid}>
           {caseStudies.map((study) => {
+            const imageStyle =
+              study.client === "Connect-Ed"
+                ? ({ objectFit: "cover", objectPosition: "58% center" } as const)
+                : study.client === "Unfiltered"
+                  ? ({ objectPosition: "58% center" } as const)
+                  : undefined;
             const tile = (
               <>
                 <span className="p-vfc" aria-hidden="true" />
                 <div className={styles.media}>
-                  <Image src={study.image} alt={study.client} fill sizes="(max-width: 760px) 100vw, 50vw" />
+                  <Image
+                    src={study.image}
+                    alt={study.client}
+                    fill
+                    sizes="(max-width: 760px) 100vw, 50vw"
+                    style={imageStyle}
+                  />
                 </div>
                 <span className={styles.scrim} aria-hidden="true" />
                 <div className={styles.copy}>

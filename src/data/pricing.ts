@@ -95,6 +95,13 @@ export const podcastAddOns: RateItem[] = [
     note: "Per series flat rate.",
   },
   {
+    id: "audienceResearch",
+    label: "Audience and strategy research",
+    low: 150,
+    high: 300,
+    note: "Per series. Audience profiling, adjacent-show analysis, release cadence, and format recommendation.",
+  },
+  {
     id: "projectManagement",
     label: "Project management",
     low: 200,
@@ -167,35 +174,35 @@ export const podcastInterestOnlyAddOns = [
 export const eventDayRates = {
   oneCamera: {
     label: "1 camera, standard kit",
-    standard: { low: 1200, high: 2000 },
-    promo: { low: 750, high: 1000 },
+    full: { low: 1200, high: 2000 },
+    half: { low: 720, high: 1200 },
     note: "Single operator, standard kit.",
   },
   twoCameras: {
     label: "2 cameras",
-    standard: { low: 1600, high: 2500 },
-    promo: { low: 1000, high: 1400 },
+    full: { low: 1600, high: 2500 },
+    half: { low: 960, high: 1600 },
     note: "Two operators or one operator plus static second camera.",
   },
   threeCameras: {
     label: "3 cameras",
-    standard: { low: 2000, high: 3000 },
-    promo: { low: 1200, high: 1600 },
+    full: { low: 2000, high: 3000 },
+    half: { low: 1200, high: 2000 },
     note: "Full crew. Confirm availability first.",
   },
-} satisfies Record<string, { label: string; standard: MoneyRange; promo: MoneyRange; note: string }>;
+} satisfies Record<string, { label: string; full: MoneyRange; half: MoneyRange; note: string }>;
 
 export const eventGimbalRate = {
   label: "Gimbal add-on",
-  standard: { low: 300, high: 500 },
-  promo: { low: 200, high: 300 },
+  low: 300,
+  high: 500,
   note: "Added to any camera setup.",
-};
+} satisfies MoneyRange & { label: string; note: string };
 
 export const eventThreeCameraGimbalPackage = {
   label: "3 cameras + gimbal",
-  standard: { low: 2500, high: 3500 },
-  promo: { low: 1400, high: 2000 },
+  full: { low: 2500, high: 3500 },
+  half: { low: 1500, high: 2500 },
   note: "Maximum complexity. Quote individually for large events.",
 };
 

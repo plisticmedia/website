@@ -13,16 +13,6 @@ type EmailPayload = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-class EmailSendError extends Error {
-  constructor(
-    readonly label: string,
-    readonly status: number,
-    readonly details: string,
-  ) {
-    super(`Resend rejected the ${label} email (${status}): ${details}`);
-  }
-}
-
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -50,8 +40,7 @@ export async function POST(request: Request) {
 
   const notifyTo = getRecipients(process.env.EARN_NOTIFY_EMAIL ?? brand.email);
   const apiKey = process.env.RESEND_API_KEY;
-  const configuredFrom = clean(process.env.EARN_FROM_EMAIL, 240);
-  const from = configuredFrom || (process.env.NODE_ENV === "production" ? "" : `Plistic <${brand.email}>`);
+  const from = process.env.EARN_FROM_EMAIL ?? `Plistic <${brand.email}>`;
 
   if (notifyTo.length === 0) {
     return jsonError("The notification email is not configured.", 503);
@@ -64,32 +53,33 @@ export async function POST(request: Request) {
     });
 
     if (process.env.NODE_ENV === "production") {
-      return jsonError("Email is not configured yet. Please email hello@plistic.media directly.", 503);
+      return jsonError("Email is not configured yet. Please email hello@plisticmedia.com directly.", 503);
     }
 
     return NextResponse.json({ ok: true, emailConfigured: false });
   }
 
-  if (!from) {
-    console.error("[earn-form] Email sender is not configured.", { type });
-    return jsonError(`Email is not configured yet. Please email ${brand.email} directly.`, 503);
+  try {
+    await sendEmail(apiKey, from, {
+      to: notifyTo,
+      subject: result.internalSubject,
+      text: result.internalText,
+    });
+  } catch (error) {
+    console.error("[earn-form] Internal email send failed.", error);
+    return jsonError("We could not send the confirmation email. Please try again.", 502);
   }
+
+  let confirmationSent = true;
 
   try {
-    await Promise.all([
-      sendEmail("internal notification", apiKey, from, {
-        to: notifyTo,
-        subject: result.internalSubject,
-        text: result.internalText,
-      }),
-      sendEmail("confirmation", apiKey, from, result.confirmationEmail),
-    ]);
+    await sendEmail(apiKey, from, result.confirmationEmail);
   } catch (error) {
-    console.error("[earn-form] Email send failed.", emailErrorLog(error, type));
-    return jsonError(emailFailureMessage(error), 502);
+    confirmationSent = false;
+    console.warn("[earn-form] Visitor confirmation email failed, but the internal form notification was received.", error);
   }
 
-  return NextResponse.json({ ok: true, emailConfigured: true });
+  return NextResponse.json({ ok: true, emailConfigured: true, confirmationSent });
 }
 
 function buildReferralEmails(body: Record<string, unknown>) {
@@ -118,8 +108,8 @@ function buildReferralEmails(body: Record<string, unknown>) {
       ["Project description", projectDescription || "Not provided"],
     ]),
     "",
-    "Workflow: confirmation has been sent to the referrer. Jessie should follow up with the referred contact within 24 hours.",
-    "Referral terms: 10% of the confirmed paid project value, paid once the client's invoice is settled.",
+    "Workflow: confirmation has been sent to the referrer. The Plistic team should review the referral and follow up as appropriate.",
+    "Referral terms: 10% of the referred new client's first paid Plistic project, paid once the client's invoice is settled. The referral must be submitted through the official form before the prospective client contacts Plistic another way.",
   ].join("\n");
 
   const confirmationText = [
@@ -127,7 +117,9 @@ function buildReferralEmails(body: Record<string, unknown>) {
     "",
     `Thanks for sending ${referredName} our way. We have received the referral and the Plistic team has been notified.`,
     "",
-    "Jessie will follow up with the referred contact within 24 hours. If the project becomes a confirmed, paid Plistic project, your referral fee is 10% of the total project value, paid once the client's invoice is settled.",
+    "Our team will review the referral and follow up as appropriate. If your recommendation becomes a new client's first paid Plistic project, your referral fee is 10% of that first project value, paid once the client's invoice is settled.",
+    "",
+    "Referral fees only apply when the referral is submitted through the official form before the prospective client contacts Plistic another way.",
     "",
     "Thanks again,",
     "Plistic",
@@ -199,7 +191,7 @@ function buildPartnerEmails(body: Record<string, unknown>) {
   };
 }
 
-async function sendEmail(label: string, apiKey: string, from: string, payload: EmailPayload) {
+async function sendEmail(apiKey: string, from: string, payload: EmailPayload) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -212,12 +204,13 @@ async function sendEmail(label: string, apiKey: string, from: string, payload: E
       to: payload.to,
       subject: payload.subject,
       text: payload.text,
+      reply_to: brand.email,
     }),
   });
 
   if (!response.ok) {
     const details = await response.text();
-    throw new EmailSendError(label, response.status, truncate(details, 1000));
+    throw new Error(`Resend returned ${response.status}: ${details}`);
   }
 }
 
@@ -246,29 +239,4 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function jsonError(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status });
-}
-
-function emailFailureMessage(error: unknown) {
-  if (process.env.NODE_ENV !== "production" && error instanceof EmailSendError) {
-    return error.message;
-  }
-
-  return `We could not send the automatic emails yet. Please email ${brand.email} directly.`;
-}
-
-function emailErrorLog(error: unknown, type: EarnType) {
-  if (error instanceof EmailSendError) {
-    return {
-      type,
-      label: error.label,
-      status: error.status,
-      details: error.details,
-    };
-  }
-
-  return { type, error };
-}
-
-function truncate(value: string, maxLength: number) {
-  return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
 }

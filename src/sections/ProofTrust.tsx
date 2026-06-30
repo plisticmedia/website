@@ -14,9 +14,28 @@ function LogoMarqueeRow({ logos, reverse }: { logos: typeof trustedLogos; revers
         {[0, 1].map((runIndex) => (
           <div className={styles.logoSet} key={runIndex} aria-hidden={runIndex === 1}>
             {logos.map((logo) => (
-              <div className={styles.logoTile} key={`${runIndex}-${logo.name}`}>
+              <div
+                className={`${styles.logoTile} ${
+                  logo.treatment === "native" || logo.treatment === "nativeTall" ? styles.nativeTile : ""
+                }`}
+                key={`${runIndex}-${logo.name}`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.logo} src={logo.src} alt={runIndex === 0 ? logo.name : ""} loading="eager" decoding="async" />
+                <img
+                  className={`${styles.logo} ${
+                    logo.treatment === "native"
+                      ? styles.nativeLogo
+                      : logo.treatment === "nativeTall"
+                        ? `${styles.nativeLogo} ${styles.tallLogo}`
+                        : logo.treatment === "tinyChanges"
+                          ? styles.tinyChangesLogo
+                          : ""
+                  }`}
+                  src={logo.src}
+                  alt={runIndex === 0 ? logo.name : ""}
+                  loading="eager"
+                  decoding="async"
+                />
               </div>
             ))}
           </div>

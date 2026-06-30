@@ -19,20 +19,19 @@ const founders = [
       position: "50% 38%",
     },
     paragraphs: [
-      "Kayla-Megan Burns founded Plistic with a simple conviction: that the best media work happens when the people making it genuinely care about what is being said. As founder, they lead on everything that happens before a camera rolls or a microphone goes live - the storyboarding, scripting, research, and partnerships that turn a client's vision into reality.",
-      "Kayla believes that everyone has an important story to tell. Their projects span everything from a mental health podcast for young musicians to a documentary on neurodivergent entrepreneurship to a long-running business podcast that became number one in its niche on Apple Podcasts.",
-      "What they most value is helping people tell their story well, making space for voices that do not always get the platform they deserve, and doing the preparation that determines whether a project actually lands. They also work directly with hosts, presenters, and on-camera talent - coaching people to show up at their best.",
-      "Kayla is a PhD researcher at the University of St Andrews, with research sitting at the intersection of psychology, technology, and media. This directly informs how they approach production, where understanding how an audience receives and experiences content matters just as much as how the content is made.",
-      "Outside of Plistic, Kayla-Megan sits on the board of the Royal Scottish National Orchestra, contributes to the Cross-Party Group on Music in the Scottish Parliament, and has given evidence to the Scottish Parliament's Economy and Fair Work Committee on AI and the creative industries. They are also a published children's author.",
+      "Kayla founded Plistic with a simple conviction: that the best media work happens when the people making it genuinely care about what's being said. As founder, they lead on everything that happens before a camera rolls or a microphone goes live - the storyboarding, scripting, research, and partnerships that turn a client's vision into reality.",
+      "Kayla believes that everyone has an important story to tell. The projects that excite them span everything from a mental health podcast for young musicians to a documentary on neurodivergent entrepreneurship to a long-running business podcast that became number one in its niche on Apple Podcasts - and plenty in between that would surprise you. What they most value in this work is helping people figure out how to tell their story well, making space for voices that don't always get the platform they deserve, and doing the research and preparation that determines whether a project actually lands. They also work directly with hosts, presenters, and on-camera talent - coaching people to show up at their best rather than simply pointing a camera at them and hoping for the best.",
+      "That instinct is sharpened by something unusual in a media producer: Kayla is a PhD researcher at the University of St Andrews, with their research sitting at the intersection of psychology, technology, and media. This directly informs how Kayla approaches production, where understanding how an audience receives and experiences content matters just as much as how the content is made.",
+      "Outside of Plistic, Kayla sits on the board of the Royal Scottish National Orchestra, contributes to the Cross-Party Group on Music in the Scottish Parliament, and has given evidence to the Scottish Parliament's Economy and Fair Work Committee on AI and the creative industries. They are also a published children's author.",
     ],
   },
   {
     name: "Ross Sloan",
     role: "Founder, Head of Production",
     image: {
-      src: "/assets/photos/founders/ross-sloan.jpg",
+      src: "/assets/photos/founders/ross-sloan-2026.jpg",
       alt: "Ross Sloan, founder and head of production at Plistic",
-      position: "50% 22%",
+      position: "50% 50%",
     },
     paragraphs: [
       "Ross Sloan co-founded Plistic because he believed that professional media production should not be out of reach for the people and organisations who have the most interesting things to say. As Head of Production and Operations, he is the person who makes the work happen - overseeing production across every project, from the first recording day through to the final delivered file.",

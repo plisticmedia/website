@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Banknote, Clock3, Handshake, MailCheck, Percent, UsersRound } from "lucide-react";
+import { ArrowRight, Banknote, CheckCircle2, Handshake, MailCheck, UsersRound } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -10,7 +10,7 @@ import styles from "./EarnPage.module.css";
 export const metadata: Metadata = {
   title: "Earn With Us | Plistic",
   description:
-    "Refer paid Plistic projects for a 10% fee, or join the trusted creative partner network we are building across Scotland.",
+    "Refer qualifying Plistic projects for a 10% first-project referral fee, or explore a longer-term creative partnership.",
 };
 
 const referralSteps = [
@@ -20,14 +20,14 @@ const referralSteps = [
     body: "Send us the contact details and whatever you know about the project. A description helps, but it is optional.",
   },
   {
-    icon: Clock3,
-    title: "Jessie follows up",
-    body: "We confirm receipt automatically, notify the Plistic team, and Jessie follows up with the referred contact within 24 hours.",
+    icon: CheckCircle2,
+    title: "Our team checks it",
+    body: "We confirm receipt, notify the Plistic team, and check that the referral was submitted before the client contacted us another way.",
   },
   {
     icon: Banknote,
     title: "You get paid fairly",
-    body: "If the referral becomes a confirmed, paid project, you receive 10% of the total project value once the client's invoice is settled.",
+    body: "If the referral becomes a paid first project with a new Plistic client, you receive 10% once the client's invoice is settled.",
   },
 ];
 
@@ -54,8 +54,9 @@ export default function EarnPage() {
                 Build the <span>network</span> with us.
               </h1>
               <p className={styles.heroLead}>
-                Referrals and partnerships belong together because they are both about the same thing: building a
-                network of people who benefit from working with Plistic.
+                Referrals are quick: anyone can recommend a new client and earn a cash thank you if it turns into paid
+                work. Partnerships are different: slower, more considered relationships with creative businesses whose
+                services complement ours.
               </p>
               <div className={styles.heroActions}>
                 <Link className="p-btn" href="#referral">
@@ -73,24 +74,41 @@ export default function EarnPage() {
               <span className="p-vfc" aria-hidden="true" />
               <div className={styles.panelHeader}>
                 <UsersRound aria-hidden="true" size={24} />
-                <p>Two ways to work with Plistic</p>
+                <p>Choose the route</p>
               </div>
-              <div className={styles.panelRows}>
-                <div className={styles.panelRow}>
-                  <span>Referral fee</span>
-                  <strong>10%</strong>
-                  <p>of any confirmed, paid project you send our way.</p>
-                </div>
-                <div className={styles.panelRow}>
-                  <span>Follow-up time</span>
-                  <strong>24h</strong>
-                  <p>Jessie follows up with the referred contact within one working day.</p>
-                </div>
-                <div className={styles.panelRow}>
-                  <span>Partner launch</span>
-                  <strong>5</strong>
-                  <p>trusted partners across different creative functions before the directory goes live.</p>
-                </div>
+              <div className={styles.panelSplit}>
+                <article className={`${styles.panelCard} ${styles.referralPanel}`}>
+                  <div className={styles.panelCardHeader}>
+                    <Banknote aria-hidden="true" size={22} />
+                    <span>Referrals</span>
+                  </div>
+                  <strong>10% cash reward</strong>
+                  <p>
+                    A quick route for anyone who sends us a new client. If their first paid Plistic project qualifies,
+                    you receive 10% once the invoice is settled.
+                  </p>
+                  <p className={styles.panelExample}>Example: &pound;500 on a &pound;5,000 first project.</p>
+                  <Link className={styles.panelLink} href="#referral">
+                    Submit a referral
+                    <ArrowRight aria-hidden="true" size={16} />
+                  </Link>
+                </article>
+
+                <article className={`${styles.panelCard} ${styles.partnershipPanel}`}>
+                  <div className={styles.panelCardHeader}>
+                    <Handshake aria-hidden="true" size={22} />
+                    <span>Partnerships</span>
+                  </div>
+                  <strong>Creative network</strong>
+                  <p>
+                    A longer-term route for businesses and freelancers whose services complement ours. No referral
+                    cash: this is about trusted repeat collaboration.
+                  </p>
+                  <Link className={styles.panelLink} href="#partners">
+                    Become a partner
+                    <ArrowRight aria-hidden="true" size={16} />
+                  </Link>
+                </article>
               </div>
             </aside>
           </div>
@@ -99,19 +117,19 @@ export default function EarnPage() {
         <section className={styles.introBand} aria-label="Programme overview">
           <div className={`p-container ${styles.introGrid}`}>
             <article>
-              <Percent aria-hidden="true" size={26} />
+              <Banknote aria-hidden="true" size={26} />
               <h2>Simple, fair, trackable.</h2>
               <p>
-                Anyone who refers a client that results in a confirmed, paid project gets 10% of that project's total
-                value, paid once the client's invoice is settled.
+                Anyone can submit a referral. If it becomes a new client's first paid Plistic project, you receive 10%
+                of that project value once the client's invoice is settled.
               </p>
             </article>
             <article>
               <Handshake aria-hidden="true" size={26} />
               <h2>Partnerships with intent.</h2>
               <p>
-                We are building a trusted Scottish creative ecosystem around services that complement ours, without
-                rushing a public directory before the relationships are confirmed.
+                Partnerships are for businesses and freelancers we may work with repeatedly. They are about shared
+                standards and complementary services, not a one-off referral fee.
               </p>
             </article>
           </div>
@@ -125,6 +143,7 @@ export default function EarnPage() {
               <p>
                 If you know someone who needs podcasting, video production, event filming, or documentary work, send
                 them through here. We will track the referral, confirm we have received it, and keep the process clean.
+                For example, refer someone who signs a &pound;5,000 project and you would receive &pound;500.
               </p>
               <div className={styles.steps} aria-label="Referral process">
                 {referralSteps.map((step, index) => {
@@ -159,8 +178,8 @@ export default function EarnPage() {
                 whose services complement ours and whose work we would feel confident putting beside Plistic projects.
               </p>
               <p>
-                The plan is to launch with around five confirmed partners across different functions before the partner
-                directory goes fully live. For now, tell us who you are and where your work fits.
+                This is a longer-term relationship rather than a cash referral route. For now, tell us who you are,
+                what you do, and where your work could fit alongside Plistic projects.
               </p>
               <div className={styles.partnerTags} aria-label="Partner categories we are interested in">
                 {partnerTypes.map((type) => (

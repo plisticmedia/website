@@ -11,8 +11,11 @@ export function PricingPath() {
             Scope the job. Get the <span className="azu">range</span>.
           </h2>
           <p className="p-lead">
-            A live estimator for podcast production, event filming, coaching and documentary briefs, built from
-            Plistic&apos;s current pricing sheet.
+            A live estimator for all our services.
+          </p>
+          <p className={styles.disclaimer}>
+            Prices shown here are estimates only. They are not fixed quotes and may change once we understand the full
+            scope of your project. Full costings will be discussed and confirmed on your call.
           </p>
         </div>
 

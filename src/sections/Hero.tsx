@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, CalendarDays, Maximize2, Volume2, VolumeX, X } from "lucide-react";
 import { bookingPagePath, prefixWords } from "@/data/site";
 import styles from "./Hero.module.css";
 
@@ -15,6 +15,7 @@ const trustLogos = [
 export function Hero() {
   const [s, setS] = useState({ i: 0, prev: -1, n: 0 });
   const [soundOn, setSoundOn] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -23,6 +24,24 @@ export function Hero() {
     }, 2200);
     return () => window.clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!expanded) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setExpanded(false);
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [expanded]);
 
   function toggleSound() {
     const v = videoRef.current;
@@ -102,15 +121,17 @@ export function Hero() {
           <video
             ref={videoRef}
             className={styles.video}
-            src="/assets/showreel/showreel-web.mp4"
-            poster="/assets/showreel/showreel-poster.jpg"
+            poster="/assets/showreel/showreel-poster.webp"
             autoPlay
             muted
             loop
             playsInline
             preload="metadata"
             aria-label="Plistic showreel"
-          />
+          >
+            <source src="/assets/showreel/showreel-web.webm" type="video/webm" />
+            <source src="/assets/showreel/showreel-web.mp4" type="video/mp4" />
+          </video>
           <span className={styles.glow} aria-hidden="true" />
           <span className={styles.rec}>
             <span className={styles.recDot} aria-hidden="true" />
@@ -123,8 +144,46 @@ export function Hero() {
             {soundOn ? <Volume2 aria-hidden="true" size={14} /> : <VolumeX aria-hidden="true" size={14} />}
             {soundOn ? "Sound on" : "Sound off"}
           </button>
+          <button
+            type="button"
+            className={styles.expand}
+            onClick={() => setExpanded(true)}
+            aria-label="Expand showreel"
+          >
+            <Maximize2 aria-hidden="true" size={15} />
+            Expand
+          </button>
         </div>
       </div>
+
+      {expanded ? (
+        <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label="Expanded Plistic showreel">
+          <button
+            type="button"
+            className={styles.lightboxBackdrop}
+            onClick={() => setExpanded(false)}
+            aria-label="Dismiss expanded showreel"
+          />
+          <div className={styles.lightboxFrame}>
+            <button type="button" className={styles.close} onClick={() => setExpanded(false)} aria-label="Close showreel">
+              <X aria-hidden="true" size={20} />
+            </button>
+            <video
+              className={styles.lightboxVideo}
+              poster="/assets/showreel/showreel-poster.webp"
+              autoPlay
+              muted={!soundOn}
+              loop
+              playsInline
+              controls
+              aria-label="Expanded Plistic showreel"
+            >
+              <source src="/assets/showreel/showreel-web.webm" type="video/webm" />
+              <source src="/assets/showreel/showreel-web.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

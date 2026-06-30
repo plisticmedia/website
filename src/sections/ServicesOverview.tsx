@@ -20,29 +20,37 @@ export function ServicesOverview() {
         </div>
 
         <div className={styles.grid}>
-          {services.map((service, idx) => (
-            <Link className={`${styles.tile} p-vf`} href={service.href ?? "#contact"} key={service.title}>
-              <span className="p-vfc" aria-hidden="true" />
-              <div className={styles.media}>
-                <Image
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  sizes="(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw"
-                />
-              </div>
-              <span className={styles.scrim} aria-hidden="true" />
-              <div className={styles.copy}>
-                <p className={styles.num}>{String(idx + 1).padStart(2, "0")} / 0{services.length}</p>
-                <h3 className={styles.title}>{service.title}</h3>
-                <p className={styles.summary}>{service.summary}</p>
-                <span className={styles.link}>
-                  Explore
-                  <ArrowRight aria-hidden="true" size={15} />
-                </span>
-              </div>
-            </Link>
-          ))}
+          {services.map((service, idx) => {
+            const imageStyle =
+              service.title === "Documentary" || service.title === "Event filming"
+                ? ({ objectPosition: "center top" } as const)
+                : undefined;
+
+            return (
+              <Link className={`${styles.tile} p-vf`} href={service.href ?? "#contact"} key={service.title}>
+                <span className="p-vfc" aria-hidden="true" />
+                <div className={styles.media}>
+                  <Image
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    sizes="(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw"
+                    style={imageStyle}
+                  />
+                </div>
+                <span className={styles.scrim} aria-hidden="true" />
+                <div className={styles.copy}>
+                  <p className={styles.num}>{String(idx + 1).padStart(2, "0")} / 0{services.length}</p>
+                  <h3 className={styles.title}>{service.title}</h3>
+                  <p className={styles.summary}>{service.summary}</p>
+                  <span className={styles.link}>
+                    Explore
+                    <ArrowRight aria-hidden="true" size={15} />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
