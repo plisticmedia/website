@@ -79,7 +79,7 @@
   color: var(--p-ink);
 }
 .quoteSlate h3 {
-  max-width: 12ch;
+  max-width: 14ch;
   font-size: clamp(1.6rem, 2.6vw, 2.3rem);
   color: var(--p-muted);
   letter-spacing: 0.01em;
@@ -87,22 +87,26 @@
 
 /* the hero number */
 .slateRange {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 0.18em;
+  display: grid;
+  gap: 0.45rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--p-azure);
   font-family: var(--p-display);
-  font-size: clamp(2.9rem, 6vw, 5rem);
+  font-size: clamp(1.45rem, 2.25vw, 2.55rem);
   line-height: 0.86;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--p-ink);
 }
+.priceLine {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0 0.18em;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+}
 .slateRange small {
-  flex-basis: 100%;
-  margin-top: 0.4rem;
   color: var(--p-muted);
   font-family: var(--p-body);
   font-size: 0.74rem;
@@ -200,6 +204,109 @@
   line-height: 1.45;
 }
 
+.leadForm {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border: 1px solid rgba(31, 170, 233, 0.3);
+  border-left: 3px solid var(--p-azure);
+  border-radius: 4px;
+  background: rgba(31, 170, 233, 0.06);
+}
+.leadHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+.leadHeader strong {
+  color: var(--p-ink);
+  font-family: var(--p-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.leadHeader p {
+  margin: 0;
+  color: var(--p-muted);
+  font-family: var(--p-body);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+.leadFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.leadFields label {
+  display: grid;
+  gap: 0.34rem;
+  min-width: 0;
+}
+.leadFields span {
+  color: var(--p-ink);
+  font-family: var(--p-body);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.leadFields input,
+.leadFields textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--p-line);
+  border-radius: 4px;
+  background: var(--p-white);
+  color: var(--p-ink);
+  padding: 0.66rem 0.72rem;
+  font-family: var(--p-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  outline: none;
+}
+.leadFields textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+.leadFields input:focus,
+.leadFields textarea:focus {
+  border-color: var(--p-azure);
+  box-shadow: 0 0 0 3px rgba(31, 170, 233, 0.16);
+}
+.fullLeadField {
+  grid-column: 1 / -1;
+}
+.leadStatus {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 4px;
+  font-family: var(--p-body);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.leadSuccess {
+  border: 1px solid rgba(29, 129, 80, 0.28);
+  background: rgba(29, 129, 80, 0.1);
+  color: #1d8150;
+}
+.leadError {
+  border: 1px solid rgba(190, 52, 52, 0.28);
+  background: rgba(190, 52, 52, 0.1);
+  color: #be3434;
+}
+.leadForm :global(.p-btn) {
+  justify-content: center;
+  min-height: 44px;
+  padding-block: 0.7rem;
+  width: 100%;
+}
+.leadForm :global(.p-btn:disabled) {
+  cursor: wait;
+  opacity: 0.62;
+  transform: none;
+}
+
 .slateActions { display: grid; gap: 0.6rem; padding-top: 0.4rem; }
 .slateActions :global(.p-btn) { justify-content: center; }
 
@@ -209,7 +316,7 @@
 /* service selector — a clean segmented control */
 .servicePicker {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0;
   border: 1px solid var(--p-line);
   border-radius: 4px;
@@ -246,9 +353,12 @@
 .serviceOption[aria-pressed="true"]::before { transform: scaleX(1); }
 .serviceOption[aria-pressed="true"] { background: var(--p-ink); color: var(--p-white); }
 .serviceOption > span:not(.serviceNumber) {
-  overflow-wrap: anywhere;
+  min-width: 0;
+  overflow-wrap: normal;
+  text-wrap: balance;
+  white-space: normal;
   font-family: var(--p-display);
-  font-size: clamp(1rem, 1.35vw, 1.28rem);
+  font-size: clamp(0.86rem, 1.12vw, 1.1rem);
   line-height: 0.96;
   text-transform: uppercase;
 }
@@ -401,6 +511,19 @@
 .checkbox:has(input:focus-visible) { outline: 3px solid rgba(31, 170, 233, 0.24); outline-offset: 2px; }
 .checkbox:has(input:checked) .checkboxMark { border-color: var(--p-azure); background: var(--p-azure); color: var(--p-white); }
 
+.helperNote {
+  max-width: 62ch;
+  margin: -0.15rem 0 0;
+  padding: 0.78rem 0.9rem;
+  border-left: 3px solid var(--p-azure);
+  background: rgba(31, 170, 233, 0.07);
+  color: var(--p-muted);
+  font-family: var(--p-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .formButton { justify-self: start; }
 .rateList { display: grid; }
 
@@ -417,14 +540,14 @@
     border-top: 1px solid var(--p-line);
   }
   .quoteSlate::after { display: none; }
-  .servicePicker { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .servicePicker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
   .servicePicker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .serviceOption { border-bottom: 1px solid var(--p-line); }
   .serviceOption:nth-child(odd) { border-right: 1px solid var(--p-line); }
   .serviceOption:nth-child(even) { border-right: 0; }
-  .fields, .addonGrid, .inlineFields { grid-template-columns: 1fr; }
+  .fields, .addonGrid, .inlineFields, .leadFields { grid-template-columns: 1fr; }
   .slateActions, .slateActions :global(.p-btn), .formButton { width: 100%; }
   .panelHeading { grid-template-columns: 1fr; }
 }

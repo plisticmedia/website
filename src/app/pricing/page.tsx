@@ -7,8 +7,7 @@ import { PricingPath } from "@/sections/PricingPath";
 
 export const metadata: Metadata = {
   title: "Pricing | Plistic",
-  description:
-    "Estimate podcast production, event filming, coaching, and documentary pricing with Plistic's live pricing calculator.",
+  description: "A live estimator for all Plistic services.",
 };
 
 export default function PricingPage() {

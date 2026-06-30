@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, ChartNoAxesCombined, Mic2, Trophy } from "lucide-react";
+import { ArrowRight, CalendarDays, ChartNoAxesCombined, Mic2, Trophy } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -95,10 +95,6 @@ export default function StrathclydeInspireCaseStudyPage() {
         <section className={styles.hero} aria-labelledby="case-study-title">
           <div className={`p-container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <Link className={styles.backLink} href="/#work">
-                <ArrowLeft aria-hidden="true" size={15} />
-                Selected work
-              </Link>
               <p className={styles.kicker}>Case study - podcast production</p>
               <h1 id="case-study-title" className={`${styles.stackedTitle} ${styles.podcastTitle}`}>
                 Inspiring <span>Entrepreneurs</span>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, ListChecks, Mic2, Sprout } from "lucide-react";
+import { ArrowRight, CalendarDays, ListChecks, Mic2, Sprout } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -105,10 +105,6 @@ export default function TinyChangesCaseStudyPage() {
         <section className={styles.hero} aria-labelledby="case-study-title">
           <div className={`p-container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <Link className={styles.backLink} href="/#work">
-                <ArrowLeft aria-hidden="true" size={15} />
-                Selected work
-              </Link>
               <p className={styles.kicker}>Case study - end-to-end production</p>
               <h1 id="case-study-title">
                 Tiny Changes <span>Big Podcast</span>

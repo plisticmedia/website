@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
+import { LaunchOfferPopup } from "@/components/LaunchOfferPopup";
 import { SiteHeader } from "@/components/SiteHeader";
 import styles from "../ServicePage.module.css";
 
@@ -80,6 +81,7 @@ export default function PodcastingPage() {
     <>
       <LaunchBanner />
       <SiteHeader />
+      <LaunchOfferPopup service="podcast" />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="service-title">
           <div className={`p-container ${styles.heroGrid}`}>

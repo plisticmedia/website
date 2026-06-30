@@ -26,7 +26,6 @@
   align-items: center;
 }
 .heroCopy { min-width: 0; }
-.backLink,
 .kicker,
 .miniLabel {
   font-family: var(--p-body);
@@ -34,15 +33,6 @@
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-bottom: clamp(1.2rem, 2vw, 1.8rem);
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.72rem;
-}
-.backLink:hover { color: var(--p-white); }
 .kicker {
   display: inline-flex;
   align-items: center;
@@ -119,6 +109,10 @@
   overflow: hidden;
   border-radius: 4px;
   background: #0d0e12;
+}
+.heroMedia.connectHeroMedia {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
 }
 .heroMedia :global(img) { object-fit: cover; }
 .heroMedia::before {
@@ -459,6 +453,10 @@
 @media (max-width: 620px) {
   .heroMedia {
     min-height: 360px;
+  }
+  .heroMedia.connectHeroMedia {
+    aspect-ratio: 4 / 3;
+    min-height: 280px;
   }
   .mediaCaption {
     align-items: start;

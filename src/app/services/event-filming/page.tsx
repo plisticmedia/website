@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
+import { LaunchOfferPopup } from "@/components/LaunchOfferPopup";
 import { SiteHeader } from "@/components/SiteHeader";
 import styles from "../ServicePage.module.css";
 
@@ -43,6 +44,7 @@ export default function EventFilmingPage() {
     <>
       <LaunchBanner />
       <SiteHeader />
+      <LaunchOfferPopup service="event" />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="service-title">
           <div className={`p-container ${styles.heroGrid}`}>
@@ -70,11 +72,12 @@ export default function EventFilmingPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/strathclyde-inspire.jpg"
-                alt="Multi-camera event recording setup with monitors and microphones"
+                src="/assets/photos/event-filming-speaker.webp"
+                alt="Speaker at a filmed live event"
                 fill
                 priority
                 sizes="(max-width: 860px) 100vw, 52vw"
+                style={{ objectPosition: "center top" }}
               />
               <div className={styles.heroStats} aria-label="Event filming service highlights">
                 {heroStats.map((stat) => (

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, X } from "lucide-react";
-import { launchOffer } from "@/data/site";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowRight, Sparkles, X } from "lucide-react";
+import { launchOffer, launchOfferExpiresAt } from "@/data/site";
 
 const storageKey = "plistic-launch-banner-dismissed";
 
@@ -12,7 +11,9 @@ export function LaunchBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(window.localStorage.getItem(storageKey) !== "true");
+    const hasExpired = Date.now() > new Date(launchOfferExpiresAt).getTime();
+
+    setVisible(!hasExpired && window.localStorage.getItem(storageKey) !== "true");
   }, []);
 
   if (!visible) {
@@ -20,13 +21,18 @@ export function LaunchBanner() {
   }
 
   return (
-    <Alert className="launch-banner" role="status">
+    <div className="launch-banner">
       <div className="launch-banner-shell">
         <div className="launch-banner-copy">
-          <AlertTitle className="launch-banner-title">{launchOffer.eyebrow}</AlertTitle>
-          <AlertDescription className="launch-banner-description">{launchOffer.body}</AlertDescription>
+          <span className="launch-banner-icon" aria-hidden="true">
+            <Sparkles size={15} />
+          </span>
+          <div className="launch-banner-text">
+            <strong>{launchOffer.eyebrow}</strong>
+            <span>{launchOffer.body}</span>
+          </div>
         </div>
-        <AlertAction className="launch-banner-actions">
+        <div className="launch-banner-actions">
           <Link href="/pricing">
             <span>{launchOffer.cta}</span>
             <ArrowRight aria-hidden="true" size={15} />
@@ -41,8 +47,8 @@ export function LaunchBanner() {
           >
             <X aria-hidden="true" size={18} />
           </button>
-        </AlertAction>
+        </div>
       </div>
-    </Alert>
+    </div>
   );
 }

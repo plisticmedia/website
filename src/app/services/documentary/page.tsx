@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
+import { LaunchOfferPopup } from "@/components/LaunchOfferPopup";
 import { SiteHeader } from "@/components/SiteHeader";
 import styles from "../ServicePage.module.css";
 
@@ -38,29 +39,12 @@ const documentaryServices = [
   },
 ];
 
-const documentaryRates = [
-  {
-    title: "Short documentary",
-    range: <>From &pound;12,000</>,
-    body: "Under 30 minutes.",
-  },
-  {
-    title: "Feature documentary",
-    range: <>&pound;20,000-&pound;40,000</>,
-    body: "45-90 minutes.",
-  },
-  {
-    title: "Complex or multi-location projects",
-    range: "Quoted individually",
-    body: "No fixed ceiling.",
-  },
-];
-
 export default function DocumentaryPage() {
   return (
     <>
       <LaunchBanner />
       <SiteHeader />
+      <LaunchOfferPopup service="documentary" />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="service-title">
           <div className={`p-container ${styles.heroGrid}`}>
@@ -89,6 +73,7 @@ export default function DocumentaryPage() {
                 fill
                 priority
                 sizes="(max-width: 860px) 100vw, 52vw"
+                style={{ objectPosition: "58% center" }}
               />
               <div className={styles.heroStats} aria-label="Documentary service highlights">
                 {heroStats.map((stat) => (
@@ -121,31 +106,6 @@ export default function DocumentaryPage() {
                 </article>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section className={`${styles.section} ${styles.dark}`} aria-labelledby="documentary-costs">
-          <div className="p-container">
-            <div className={styles.sectionHeader}>
-              <p className="p-eyebrow">Guide pricing</p>
-              <h2 id="documentary-costs">What this kind of project costs</h2>
-              <p>
-                Documentary is bespoke by nature, and pricing reflects that. As a guide:
-              </p>
-            </div>
-            <div className={styles.rateGrid}>
-              {documentaryRates.map((rate) => (
-                <article className={styles.rateCard} key={rate.title}>
-                  <h3>{rate.title}</h3>
-                  <p>{rate.body}</p>
-                  <strong>{rate.range}</strong>
-                </article>
-              ))}
-            </div>
-            <p className={styles.rateNote}>
-              These numbers exist to set expectations honestly, not to put you off - a documentary is a significant
-              undertaking, and getting it right is worth the investment.
-            </p>
           </div>
         </section>
 

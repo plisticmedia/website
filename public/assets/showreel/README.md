@@ -1,11 +1,11 @@
-# Showreel Asset Slot
+# Showreel Assets
 
-The source zip includes `Plistic Media Showreel New.mp4`, but the file is about 592MB.
+Source master used for the current hero reel:
 
-For the website, export a compressed web version before adding it here, for example:
+- `C:\Users\andre\Downloads\Plistic Media Showreel New Colour Draft 2.mp4`
 
-- `plistic-showreel-1080p.mp4`
-- `plistic-showreel-poster.webp`
+The source is a 4K master at roughly 595MB, so the website uses compressed 1080p web exports:
 
-The homepage skeleton currently uses production photography as the hero visual and is ready to swap to the showreel once the final compressed asset is available.
-
+- `showreel-web.webm` — VP9 WebM, preferred by modern browsers
+- `showreel-web.mp4` — H.264 MP4 fallback
+- `showreel-poster.webp` — poster frame for the video element

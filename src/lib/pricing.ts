@@ -12,12 +12,12 @@ import {
   type MoneyRange,
 } from "@/data/pricing";
 
-export type ServiceChoice = "podcast" | "event" | "coaching" | "documentary" | "other";
+export type ServiceChoice = "podcast" | "event" | "musicVideo" | "coaching" | "documentary" | "other";
 
 export type PodcastEstimateInput = {
   need: "full" | "post";
-  episodes: "three" | "six" | "eightTen" | "twelvePlus" | "ongoing" | "unsure";
-  episodeLength: "under20" | "twentyThirty" | "thirtyFortyFive" | "fortyFiveSixty" | "sixtyPlus" | "unsure";
+  episodes: "threeFive" | "sixEight" | "nineEleven" | "twelvePlus" | "ongoing" | "unsure";
+  episodeLength: "under20" | "twentyForty" | "fortySixty" | "sixtyPlus" | "unsure";
   location: "glasgowOffice" | "glasgowClient" | "outsideGlasgow" | "remote" | "unsure";
   cadence: "batch" | "regular" | "mixed" | "unsure";
   productionDepth: "light" | "standard" | "full";
@@ -32,7 +32,6 @@ export type EventEstimateInput = {
   duration: "half" | "full" | "multi" | "unsure";
   location: "glasgow" | "outsideGlasgow" | "outsideScotland";
   cameras: "oneCamera" | "twoCameras" | "threeCameras" | "unsure";
-  usePromo: boolean;
   addGimbal: boolean;
   complexEdit: boolean;
   overviewVideo: boolean;
@@ -80,12 +79,12 @@ export type EstimateResult = {
 };
 
 const episodeCounts: Record<PodcastEstimateInput["episodes"], number> = {
-  three: 3,
-  six: 6,
-  eightTen: 9,
+  threeFive: 4,
+  sixEight: 7,
+  nineEleven: 10,
   twelvePlus: 12,
   ongoing: 1,
-  unsure: 6,
+  unsure: 7,
 };
 
 const budgetBands: Record<PodcastEstimateInput["budget"], { min: number; max: number | null } | null> = {
@@ -124,6 +123,10 @@ function estimatePodcastBase(input: PodcastEstimateInput): {
 } {
   const count = episodeCounts[input.episodes];
   const flags: string[] = [];
+
+  if (input.episodes === "nineEleven") {
+    flags.push("9-11 episodes should be checked on a call.");
+  }
 
   if (input.episodes === "twelvePlus") {
     flags.push("12+ episodes should be scoped on a call.");
@@ -174,39 +177,38 @@ function estimatePodcastBase(input: PodcastEstimateInput): {
     };
   }
 
-  if (input.episodes === "three") {
+  if (input.episodes === "threeFive") {
+    const multiplier = count / 3;
     return {
-      range: podcastPackages.pilot,
+      range: multiplyRange(podcastPackages.pilot, multiplier),
       label: podcastPackages.pilot.label,
-      note: podcastPackages.pilot.note,
+      note: `${podcastPackages.pilot.note} Scaled from the 3-episode workbook rate for the 3-5 episode band.`,
       complexFlags: flags,
     };
   }
 
   const canUseOutsidePackage =
     input.location === "outsideGlasgow" &&
-    count === 6 &&
+    count <= 10 &&
     input.episodeLength !== "under20" &&
-    input.episodeLength !== "twentyThirty";
+    input.episodeLength !== "twentyForty";
 
   if (canUseOutsidePackage) {
+    const multiplier = count / 6;
     return {
-      range: podcastPackages.outsideGlasgow,
+      range: multiplyRange(podcastPackages.outsideGlasgow, multiplier),
       label: podcastPackages.outsideGlasgow.label,
-      note: podcastPackages.outsideGlasgow.note,
+      note: count === 6 ? podcastPackages.outsideGlasgow.note : `${podcastPackages.outsideGlasgow.note} Scaled from the 6-episode workbook rate.`,
       complexFlags: flags,
     };
   }
 
   let packageRate = podcastPackages.standardCadence;
-  if (
-    input.cadence === "batch" &&
-    (input.episodeLength === "under20" || input.episodeLength === "twentyThirty")
-  ) {
+  if (input.cadence === "batch" && (input.episodeLength === "under20" || input.episodeLength === "twentyForty")) {
     packageRate = podcastPackages.starterBatch;
   }
 
-  if (input.episodeLength === "fortyFiveSixty" || input.episodeLength === "sixtyPlus") {
+  if (input.episodeLength === "fortySixty" || input.episodeLength === "sixtyPlus") {
     packageRate = podcastPackages.extended;
   }
 
@@ -325,10 +327,12 @@ function isEventWithinTwoWeeks(eventDate: string): boolean {
 
 export function estimateEvent(input: EventEstimateInput): EstimateResult {
   const flags: string[] = [];
-  const notes: string[] = ["Standard edited event video is included in the filming day rate."];
+  const notes: string[] = [
+    "Standard edited event video is included in the filming day rate.",
+    "Promotional offers are not baked into this estimate; if an active promo applies, Plistic will apply it separately once the scope is confirmed.",
+  ];
   const ranges: MoneyRange[] = [];
   const includes: string[] = [];
-  const rateKind = input.usePromo ? "promo" : "standard";
 
   if (input.duration === "multi") {
     flags.push("Multi-day events need an individual quote.");
@@ -351,20 +355,20 @@ export function estimateEvent(input: EventEstimateInput): EstimateResult {
     flags.push("The event is within 2 weeks, so availability needs to be checked.");
   }
 
-  const durationMultiplier = input.duration === "half" ? 0.6 : 1;
+  const durationKey = input.duration === "half" ? "half" : "full";
 
   if (input.cameras !== "unsure" && input.duration !== "multi" && input.duration !== "unsure") {
     if (input.cameras === "threeCameras" && input.addGimbal) {
-      const packageRate = eventThreeCameraGimbalPackage[rateKind];
-      ranges.push(multiplyRange(packageRate, durationMultiplier));
+      const packageRate = eventThreeCameraGimbalPackage[durationKey];
+      ranges.push(packageRate);
       includes.push(eventThreeCameraGimbalPackage.label);
     } else {
-      const cameraRate = eventDayRates[input.cameras][rateKind];
-      ranges.push(multiplyRange(cameraRate, durationMultiplier));
+      const cameraRate = eventDayRates[input.cameras][durationKey];
+      ranges.push(cameraRate);
       includes.push(eventDayRates[input.cameras].label);
 
       if (input.addGimbal) {
-        ranges.push(eventGimbalRate[rateKind]);
+        ranges.push(eventGimbalRate);
         includes.push(eventGimbalRate.label);
       }
     }
@@ -392,10 +396,6 @@ export function estimateEvent(input: EventEstimateInput): EstimateResult {
 
   if (input.extraNotes.trim()) {
     notes.push("Your extra brief notes will be passed to the production team.");
-  }
-
-  if (input.usePromo) {
-    notes.push("Event filming is using the launch promo rate from the workbook.");
   }
 
   const range = ranges.length > 0 ? addRanges(...ranges) : null;
@@ -508,8 +508,13 @@ export function estimateCoaching(input: CoachingEstimateInput): EstimateResult {
 }
 
 export function estimateOther(input: OtherEstimateInput): EstimateResult {
-  const notes = ["This route is for briefs that do not fit a neat production category yet."];
-  const includes = [input.category === "unsure" ? "Category to define" : "Open brief"];
+  const isMusicVideo = input.category === "musicVideo";
+  const notes = [
+    isMusicVideo
+      ? "Music videos are scoped around creative concept, locations, crew, edit complexity, and delivery needs."
+      : "This route is for briefs that do not fit a neat production category yet.",
+  ];
+  const includes = [input.category === "unsure" ? "Category to define" : isMusicVideo ? "Music video brief" : "Open brief"];
 
   if (input.outputs.trim()) {
     includes.push("Output note added");
@@ -525,10 +530,14 @@ export function estimateOther(input: OtherEstimateInput): EstimateResult {
 
   return {
     range: null,
-    baseLabel: "Open brief",
+    baseLabel: isMusicVideo ? "Music video" : "Open brief",
     includes,
     notIncluded: [],
-    flags: ["Plistic will shape the right route once the production goal is clearer."],
+    flags: [
+      isMusicVideo
+        ? "A music video needs a production call to confirm creative scope, schedule, and crew."
+        : "Plistic will shape the right route once the production goal is clearer.",
+    ],
     notes,
     depositEligible: false,
     primaryCta: "Book your free 30-min kick-off call",

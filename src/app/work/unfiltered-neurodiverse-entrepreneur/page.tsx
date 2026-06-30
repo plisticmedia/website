@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Accessibility, ArrowLeft, ArrowRight, CalendarDays, Film, Microscope } from "lucide-react";
+import { Accessibility, ArrowRight, CalendarDays, Film, Microscope } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -114,10 +114,6 @@ export default function UnfilteredCaseStudyPage() {
         <section className={styles.hero} aria-labelledby="case-study-title">
           <div className={`p-container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <Link className={styles.backLink} href="/#work">
-                <ArrowLeft aria-hidden="true" size={15} />
-                Selected work
-              </Link>
               <p className={styles.kicker}>Case study - feature documentary</p>
               <h1 id="case-study-title" className={styles.stackedTitle}>
                 Unfiltered <span>Life as a Neurodiverse Entrepreneur</span>
@@ -147,6 +143,7 @@ export default function UnfilteredCaseStudyPage() {
                 fill
                 priority
                 sizes="(max-width: 900px) 100vw, 52vw"
+                style={{ objectPosition: "58% center" }}
               />
               <div className={styles.mediaCaption}>
                 <div>

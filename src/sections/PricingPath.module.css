@@ -24,6 +24,18 @@
 
 .header { max-width: 760px; }
 
+.disclaimer {
+  max-width: 68ch;
+  margin: 0.75rem 0 0;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--p-azure);
+  color: rgba(255, 255, 255, 0.68);
+  font-family: var(--p-body);
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .liveTag {
   display: inline-flex;
   align-items: center;

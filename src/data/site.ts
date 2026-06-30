@@ -2,7 +2,7 @@ export const brand = {
   name: "Plistic",
   tagline: "media made simPLISTIC",
   locationLine: "Made in Scotland",
-  email: "hello@plistic.media",
+  email: "hello@plisticmedia.com",
   bookingLabel: "Book a Call",
   quoteLabel: "Get a Quote",
 };
@@ -12,9 +12,11 @@ const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
 export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;
 export const bookingPagePath = "/book";
 
+export const launchOfferExpiresAt = "2026-08-14T23:59:59+01:00";
+
 export const launchOffer = {
   eyebrow: "Launch early access",
-  body: "A special launch rate is being held for the first five confirmed clients.",
+  body: "Up to 50% off event filming, podcasting and documentaries until 14 August.",
   cta: "Start a quote",
 };
 
@@ -45,19 +47,25 @@ export const proofStats = [
   },
 ];
 
-export const trustedLogos = [
+type TrustedLogo = {
+  name: string;
+  src: string;
+  treatment?: "native" | "nativeTall" | "tinyChanges";
+};
+
+export const trustedLogos: TrustedLogo[] = [
   { name: "King's Trust", src: "/assets/logos/king-s-trust-logo-svg.png" },
-  { name: "AccelerateHER", src: "/assets/logos/accelerateher-logo.png" },
+  { name: "AccelerateHER", src: "/assets/logos/accelerateher-logo.png", treatment: "native" },
   { name: "Techscaler", src: "/assets/logos/techscaler-logo.png" },
   { name: "Firstport", src: "/assets/logos/firstport-hero-logo-rgb.png" },
   { name: "St Andrews Innovation", src: "/assets/logos/download-8-removebg-preview-1.png" },
-  { name: "Tiny Changes", src: "/assets/logos/tc-logo-v2-ilka-tc-donationlogo-wh.png" },
+  { name: "Tiny Changes", src: "/assets/logos/tc-logo-v2-ilka-tc-donationlogo-wh.png", treatment: "tinyChanges" },
   { name: "ConnectEd Podcast", src: "/assets/logos/connect-ed-podcast-art-removebg-preview-1.png" },
-  { name: "Robert Gordon University", src: "/assets/logos/rgu-logo.png" },
-  { name: "Royal Bank of Scotland", src: "/assets/logos/rbs-logo.png" },
-  { name: "Strathclyde Business School", src: "/assets/logos/strath-business-removebg-preview.png" },
+  { name: "Robert Gordon University", src: "/assets/logos/rgu-logo.png", treatment: "native" },
+  { name: "Royal Bank of Scotland", src: "/assets/logos/rbs-logo.png", treatment: "nativeTall" },
+  { name: "Strathclyde Business School", src: "/assets/logos/strath-business-removebg-preview.png", treatment: "native" },
   { name: "University of Glasgow", src: "/assets/logos/uog-colour.png" },
-  { name: "University of Strathclyde Inspire", src: "/assets/logos/18-1.png" },
+  { name: "University of Strathclyde Inspire", src: "/assets/logos/18-1.png", treatment: "native" },
 ];
 
 export const services = [
@@ -78,14 +86,14 @@ export const services = [
   {
     title: "Event filming",
     summary: "Multi-camera coverage of live events, turned into content that outlasts the day itself.",
-    image: "/assets/photos/strathclyde-inspire.jpg",
+    image: "/assets/photos/event-filming-speaker.webp",
     href: "/services/event-filming",
     bullets: ["Up to three cameras", "Edited event video included", "Overview videos and clips"],
   },
   {
     title: "Documentary",
     summary: "Long-form storytelling for the projects that deserve real depth. Our most ambitious work.",
-    image: "/assets/photos/documentary-interview.webp",
+    image: "/assets/photos/documentary-services.webp",
     href: "/services/documentary",
     bullets: ["Research-led story", "Contributor care", "Full production"],
   },
@@ -100,7 +108,7 @@ export const caseStudies = [
     href: "/work/strathclyde-inspire",
   },
   {
-    client: "TinyChanges",
+    client: "Tiny Changes",
     service: "End-to-end production",
     description:
       "End-to-end support for a youth mental health podcast about building a career in music without losing yourself inside it.",
