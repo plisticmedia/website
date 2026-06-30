@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search, Sparkles } from "lucide-react";
+import { MapPin, Search, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getCategories, getPublishedServices } from "@/lib/services";
+import { getCategories, getLocations, getPublishedServices } from "@/lib/services";
 import styles from "./Directory.module.css";
 
 export const metadata: Metadata = {
@@ -22,19 +22,20 @@ function gbp(value: number | null) {
 export default async function DirectoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; location?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
 
-  const [{ services, pageCount }, categories] = await Promise.all([
-    getPublishedServices({ q: params.q, category: params.category, page }),
+  const [{ services, pageCount, total }, categories, locations] = await Promise.all([
+    getPublishedServices({ q: params.q, category: params.category, location: params.location, page }),
     getCategories(),
+    getLocations(),
   ]);
 
   const buildHref = (next: Record<string, string | number | undefined>) => {
     const sp = new URLSearchParams();
-    const merged = { q: params.q, category: params.category, page, ...next };
+    const merged = { q: params.q, category: params.category, location: params.location, page, ...next };
     Object.entries(merged).forEach(([k, v]) => {
       if (v !== undefined && v !== "" && !(k === "page" && v === 1)) sp.set(k, String(v));
     });
@@ -59,6 +60,7 @@ export default async function DirectoryPage({
 
             <form className={styles.searchBar} action="/directory" method="get">
               {params.category && <input type="hidden" name="category" value={params.category} />}
+              {params.location && <input type="hidden" name="location" value={params.location} />}
               <div className={styles.searchInput}>
                 <Search aria-hidden="true" size={18} />
                 <input
@@ -77,9 +79,10 @@ export default async function DirectoryPage({
         </section>
 
         <section className={`p-container ${styles.body}`}>
-          <nav className={styles.filters} aria-label="Filter by category">
+          <p className={styles.filterLabel}>Service</p>
+          <nav className={styles.filters} aria-label="Filter by service">
             <Link href={buildHref({ category: undefined, page: 1 })} className={!params.category ? styles.chipActive : styles.chip}>
-              All
+              All services
             </Link>
             {categories.map((c) => (
               <Link
@@ -91,6 +94,26 @@ export default async function DirectoryPage({
               </Link>
             ))}
           </nav>
+
+          <p className={styles.filterLabel}>Location</p>
+          <nav className={styles.filters} aria-label="Filter by location">
+            <Link href={buildHref({ location: undefined, page: 1 })} className={!params.location ? styles.chipActive : styles.chip}>
+              All of Scotland
+            </Link>
+            {locations.map((l) => (
+              <Link
+                key={l.id}
+                href={buildHref({ location: l.slug, page: 1 })}
+                className={params.location === l.slug ? styles.chipActive : styles.chip}
+              >
+                {l.name}
+              </Link>
+            ))}
+          </nav>
+
+          <p className={styles.resultCount} aria-live="polite">
+            {total} {total === 1 ? "listing" : "listings"}
+          </p>
 
           {services.length === 0 ? (
             <p className={styles.empty}>No listings match yet. Try a different search or category.</p>
@@ -118,11 +141,27 @@ export default async function DirectoryPage({
                         )}
                       </div>
                       <div className={styles.cardBody}>
-                        {s.categories?.name && <span className={styles.cardCat}>{s.categories.name}</span>}
+                        {(() => {
+                          const tags = s.listing_services
+                            .map((ls) => ls.categories?.name)
+                            .filter((n): n is string => !!n);
+                          const display = tags.length ? tags : s.categories?.name ? [s.categories.name] : [];
+                          return display.length ? (
+                            <span className={styles.cardCat}>{display.slice(0, 3).join(" · ")}</span>
+                          ) : null;
+                        })()}
                         <h2>{s.title}</h2>
                         {s.summary && <p>{s.summary}</p>}
                         <div className={styles.cardFoot}>
-                          <span>{s.profiles?.display_name ?? "Plistic partner"}</span>
+                          <span>
+                            {s.locations?.name ? (
+                              <span className={styles.cardLoc}>
+                                <MapPin aria-hidden="true" size={13} /> {s.locations.name}
+                              </span>
+                            ) : (
+                              (s.profiles?.display_name ?? "Plistic partner")
+                            )}
+                          </span>
                           {fromPrice != null && <span className={styles.price}>from {gbp(fromPrice)}</span>}
                         </div>
                       </div>

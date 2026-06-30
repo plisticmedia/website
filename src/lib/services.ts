@@ -1,11 +1,12 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Category, Service, ServiceWithRelations } from "@/lib/types";
+import type { Category, Location, Service, ServiceWithRelations } from "@/lib/types";
 
 const PAGE_SIZE = 12;
 
 export type DirectoryQuery = {
   q?: string;
   category?: string;
+  location?: string;
   page?: number;
 };
 
@@ -20,6 +21,8 @@ export type DirectoryResult = {
 const LISTING_SELECT = `
   *,
   categories ( slug, name ),
+  locations ( slug, name ),
+  listing_services ( categories ( slug, name ) ),
   profiles ( id, display_name, bio, avatar_url, website_url ),
   service_packages ( id, service_id, name, price_gbp, delivery_days, features, sort_order ),
   service_media ( id, service_id, url, kind, sort_order )
@@ -44,7 +47,28 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
       .eq("slug", query.category)
       .maybeSingle();
     if (cat?.id) {
-      builder = builder.eq("category_id", cat.id);
+      // Match listings whose primary category OR a tagged service is this category.
+      const { data: tagged } = await supabase
+        .from("listing_services")
+        .select("service_id")
+        .eq("category_id", cat.id);
+      const ids = (tagged ?? []).map((t) => t.service_id as string);
+      if (ids.length > 0) {
+        builder = builder.or(`category_id.eq.${cat.id},id.in.(${ids.join(",")})`);
+      } else {
+        builder = builder.eq("category_id", cat.id);
+      }
+    }
+  }
+
+  if (query.location) {
+    const { data: loc } = await supabase
+      .from("locations")
+      .select("id")
+      .eq("slug", query.location)
+      .maybeSingle();
+    if (loc?.id) {
+      builder = builder.eq("location_id", loc.id);
     }
   }
 
@@ -133,6 +157,19 @@ export async function getCategories(): Promise<Category[]> {
     throw new Error(`Failed to load categories: ${error.message}`);
   }
   return (data ?? []) as Category[];
+}
+
+export async function getLocations(): Promise<Location[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("locations")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to load locations: ${error.message}`);
+  }
+  return (data ?? []) as Location[];
 }
 
 /** Builds a URL-safe, unique-ish slug from a title. */
