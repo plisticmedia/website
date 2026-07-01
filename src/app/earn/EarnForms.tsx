@@ -59,6 +59,12 @@ export function ReferralForm() {
 
   return (
     <form className={styles.formCard} onSubmit={handleSubmit} aria-label="Submit a referral">
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Company
+          <input name="company" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       <div className={styles.formHeader}>
         <span>Referral form</span>
         <h3>Introduce us to the project.</h3>
@@ -132,6 +138,12 @@ export function PartnerForm() {
 
   return (
     <form className={styles.formCard} onSubmit={handleSubmit} aria-label="Partnership enquiry">
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Company
+          <input name="company" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       <div className={styles.formHeader}>
         <span>Partner contact</span>
         <h3>Tell us where you fit.</h3>

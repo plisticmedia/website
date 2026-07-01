@@ -27,6 +27,11 @@ export async function POST(request: Request) {
     return jsonError("Please send the form again.", 400);
   }
 
+  // Honeypot: bots fill the hidden "company" field; humans never see it.
+  if (clean(body.company, 100)) {
+    return NextResponse.json({ ok: true });
+  }
+
   const type = clean(body.type, 40) as EarnType;
 
   if (type !== "referral" && type !== "partner") {
