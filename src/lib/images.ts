@@ -31,6 +31,22 @@ function extractDriveId(url: string): string | null {
   return m ? m[1] : null;
 }
 
+/**
+ * Converts a YouTube/Vimeo watch/share URL into an embeddable player URL for an
+ * <iframe>. Returns null if it isn't a recognised provider.
+ */
+export function toEmbedUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const u = url.trim();
+  const yt =
+    u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{6,})/i) ||
+    u.match(/youtube\.com\/shorts\/([\w-]{6,})/i);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vimeo = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return null;
+}
+
 /** First letter for a fallback monogram tile. */
 export function initialOf(name: string): string {
   const c = name.trim().charAt(0).toUpperCase();

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
+import { Clock3, Check, ExternalLink, MapPin, Sparkles, BadgeCheck, Star, CalendarClock, Award } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
-import { toDisplayImage } from "@/lib/images";
+import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
@@ -29,9 +29,25 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = await getServiceBySlug(slug);
   if (!service) return { title: "Listing not found | Plistic" };
+  const title = `${service.title} | Plistic directory`;
+  const description = service.summary ?? undefined;
+  const image = toDisplayImage(service.cover_image_url, 1200) ?? toDisplayImage(service.logo_url, 1200) ?? undefined;
   return {
-    title: `${service.title} | Plistic directory`,
-    description: service.summary ?? undefined,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: `/directory/${slug}`,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
   };
 }
 
@@ -147,12 +163,29 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 </p>
               )}
             </div>
-            {service.is_featured && (
-              <span className={styles.featured}>
-                <Sparkles aria-hidden="true" size={14} /> Trusted partner
-              </span>
-            )}
+            <div className={styles.badges}>
+              {service.is_featured && (
+                <span className={styles.featured}>
+                  <Sparkles aria-hidden="true" size={14} /> Trusted partner
+                </span>
+              )}
+              {service.verified && (
+                <span className={styles.verified}>
+                  <BadgeCheck aria-hidden="true" size={14} /> Verified
+                </span>
+              )}
+              {service.founding && (
+                <span className={styles.foundingBadge}>
+                  <Star aria-hidden="true" size={14} /> Founding partner
+                </span>
+              )}
+            </div>
           </div>
+          {service.availability && (
+            <p className={styles.availability}>
+              <CalendarClock aria-hidden="true" size={15} /> {service.availability}
+            </p>
+          )}
         </section>
 
         <CoverImage
@@ -172,16 +205,38 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
+            {service.credits && (
+              <div className={styles.credits}>
+                <h2><Award aria-hidden="true" size={18} /> Notable work &amp; credits</h2>
+                {service.credits.split(/\n+/).filter(Boolean).map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
+            )}
+
             {gallery.length > 0 && (
               <div className={styles.gallery} aria-label="Portfolio samples">
-                {gallery.map((m) =>
-                  m.kind === "video" ? (
+                {gallery.map((m) => {
+                  const embed = m.kind === "embed" ? toEmbedUrl(m.url) : null;
+                  if (embed) {
+                    return (
+                      <div key={m.id} className={styles.galleryEmbed}>
+                        <iframe
+                          src={embed}
+                          title="Showreel"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    );
+                  }
+                  return m.kind === "video" ? (
                     <video key={m.id} src={m.url} controls className={styles.galleryItem} />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={m.id} src={m.url} alt="" loading="lazy" className={styles.galleryItem} />
-                  ),
-                )}
+                  );
+                })}
               </div>
             )}
 
