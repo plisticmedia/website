@@ -157,12 +157,25 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
 
 export type DensityPoint = { slug: string; name: string; lat: number; lng: number; count: number };
 
+// Centroids for the standard Scottish regions (no migration needed). Locations
+// not in this map (e.g. "Scotland-wide/remote") simply don't appear on the map.
+const REGION_CENTROIDS: Record<string, [number, number]> = {
+  glasgow: [55.8642, -4.2518],
+  edinburgh: [55.9533, -3.1883],
+  aberdeen: [57.1497, -2.0943],
+  dundee: [56.462, -2.9707],
+  stirling: [56.1165, -3.9369],
+  "highlands-islands": [57.4778, -4.2247],
+  "south-scotland": [55.1, -3.4],
+  fife: [56.2082, -3.1495],
+};
+
 /** How many published listings operate in each located region — for the density map. */
 export async function getServiceDensity(category?: string): Promise<DensityPoint[]> {
   const supabase = await createSupabaseServerClient();
 
   const [{ data: locs }, { data: pub }] = await Promise.all([
-    supabase.from("locations").select("id, slug, name, latitude, longitude").not("latitude", "is", null),
+    supabase.from("locations").select("id, slug, name"),
     supabase.from("services").select("id, category_id").eq("status", "published"),
   ]);
 
@@ -187,10 +200,16 @@ export async function getServiceDensity(category?: string): Promise<DensityPoint
     }
   }
 
-  type LocRow = { id: string; slug: string; name: string; latitude: number; longitude: number };
+  type LocRow = { id: string; slug: string; name: string };
   return ((locs ?? []) as LocRow[])
-    .map((l) => ({ slug: l.slug, name: l.name, lat: l.latitude, lng: l.longitude, count: counts.get(l.id) ?? 0 }))
-    .filter((p) => p.count > 0);
+    .map((l) => {
+      const centroid = REGION_CENTROIDS[l.slug];
+      const count = counts.get(l.id) ?? 0;
+      return centroid && count > 0
+        ? { slug: l.slug, name: l.name, lat: centroid[0], lng: centroid[1], count }
+        : null;
+    })
+    .filter((p): p is DensityPoint => p !== null);
 }
 
 /** Public listing detail by slug. Returns null if not published / not found. */
