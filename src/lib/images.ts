@@ -1,17 +1,35 @@
 /**
- * Whether a stored URL is something a browser can actually render in <img>.
- * Google Form file uploads are saved as Google Drive/Docs *share* links, which
- * return an HTML page (not the image), so they must not be used as an <img src>.
+ * Turns a stored image value into a URL a browser can actually render, or null.
+ *
+ * Google Form file uploads land in the sheet as Google Drive *share* links
+ * (e.g. `https://drive.google.com/open?id=FILE_ID` or `/file/d/FILE_ID/view`),
+ * which return an HTML page rather than the image. We convert those to Google's
+ * direct image endpoint (`lh3.googleusercontent.com/d/FILE_ID`), which serves
+ * the file itself — provided the file/folder is shared "anyone with the link".
+ * A cell may hold several comma-separated links; we use the first.
  */
-export function isDisplayableImage(url: string | null | undefined): url is string {
-  if (!url) return false;
-  const u = url.trim();
-  if (!/^https?:\/\//i.test(u)) return false;
-  if (/drive\.google\.|docs\.google\.|\/open\?|[?&]id=/i.test(u)) return false;
-  return true;
+export function toDisplayImage(value: string | null | undefined, width = 1000): string | null {
+  if (!value) return null;
+  const first = value.split(/[,\s]+/).find((v) => /^https?:\/\//i.test(v));
+  if (!first) return null;
+
+  if (/drive\.google\.|docs\.google\./i.test(first)) {
+    const id = extractDriveId(first);
+    return id ? `https://lh3.googleusercontent.com/d/${id}=w${width}` : null;
+  }
+  return first;
 }
 
-/** First letter for a fallback avatar/placeholder tile. */
+function extractDriveId(url: string): string | null {
+  const m =
+    url.match(/\/file\/d\/([-\w]{16,})/) ||
+    url.match(/[?&]id=([-\w]{16,})/) ||
+    url.match(/\/d\/([-\w]{16,})/) ||
+    url.match(/googleusercontent\.com\/d\/([-\w]{16,})/);
+  return m ? m[1] : null;
+}
+
+/** First letter for a fallback monogram tile. */
 export function initialOf(name: string): string {
   const c = name.trim().charAt(0).toUpperCase();
   return /[A-Z0-9]/.test(c) ? c : "•";
