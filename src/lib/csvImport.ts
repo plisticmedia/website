@@ -45,7 +45,7 @@ async function ensureTaxon(supabase: SupabaseClient, table: "categories" | "loca
   return (data?.id as string) ?? null;
 }
 
-export type ImportResult = { created: number; skipped: number; errors: string[] };
+export type ImportResult = { created: number; updated: number; skipped: number; errors: string[] };
 
 /** Import listings from raw CSV text using a service-role client. */
 export async function importListingsFromCsv(
@@ -54,7 +54,7 @@ export async function importListingsFromCsv(
   publish: boolean,
 ): Promise<ImportResult> {
   const matrix = parseCsv(csvText);
-  const result: ImportResult = { created: 0, skipped: 0, errors: [] };
+  const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
   if (matrix.length < 2) {
     result.errors.push("CSV had no data rows.");
     return result;
@@ -78,8 +78,14 @@ export async function importListingsFromCsv(
     ]);
     if (consent && /^(n|no|false|0)/i.test(consent)) { result.skipped += 1; continue; }
 
-    const { data: dupe } = await supabase.from("services").select("id").eq("slug", slug).maybeSingle();
-    if (dupe?.id) { result.skipped += 1; continue; }
+    // A listing may already exist. Update owner-less (imported) ones from the
+    // sheet; never overwrite a listing a seller has claimed.
+    const { data: dupe } = await supabase
+      .from("services")
+      .select("id, seller_id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (dupe?.id && dupe.seller_id) { result.skipped += 1; continue; }
 
     const serviceNames = [
       pick(r, ["services", "service", "category", "categories", "discipline", "whatcategorybestdescribesyourservices"]),
@@ -134,44 +140,58 @@ export async function importListingsFromCsv(
       if (id && !areaIds.includes(id)) areaIds.push(id);
     }
 
-    const { data: inserted, error } = await supabase
-      .from("services")
-      .insert({
-        seller_id: null,
-        slug,
-        title,
-        summary: summary || null,
-        description: description || null,
-        category_id: categoryIds[0] ?? null,
-        location_id: areaIds[0] ?? null,
-        website_url: website || null,
-        logo_url: logo || null,
-        cover_image_url: logo || null,
-        // Base location for the map pin: explicit address, else the "based in" town.
-        address: explicitAddress || baseText || null,
-        postcode: postcode || null,
-        social_links: social,
-        status: publish ? "published" : "pending",
-        is_featured: isFeatured,
-        featured_until: isFeatured ? new Date(Date.now() + 365 * 864e5).toISOString() : null,
-      })
-      .select("id")
-      .single();
+    // Content fields shared by insert + update (base location = pin + display).
+    const content = {
+      title,
+      summary: summary || null,
+      description: description || null,
+      category_id: categoryIds[0] ?? null,
+      location_id: areaIds[0] ?? null,
+      website_url: website || null,
+      logo_url: logo || null,
+      cover_image_url: logo || null,
+      address: explicitAddress || baseText || null,
+      postcode: postcode || null,
+      social_links: social,
+      // Re-geocode next time the admin runs the map tool.
+      latitude: null,
+      longitude: null,
+    };
 
-    if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+    let serviceId: string;
+    if (dupe?.id) {
+      // Update an existing imported (owner-less) listing; keep its status/featured.
+      const { error } = await supabase.from("services").update(content).eq("id", dupe.id);
+      if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+      serviceId = dupe.id;
+      result.updated += 1;
+    } else {
+      const { data: inserted, error } = await supabase
+        .from("services")
+        .insert({
+          seller_id: null,
+          slug,
+          status: publish ? "published" : "pending",
+          is_featured: isFeatured,
+          featured_until: isFeatured ? new Date(Date.now() + 365 * 864e5).toISOString() : null,
+          ...content,
+        })
+        .select("id")
+        .single();
+      if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+      serviceId = inserted.id;
+      result.created += 1;
+    }
 
+    // Re-sync coverage areas + service tags from the sheet.
+    await supabase.from("service_areas").delete().eq("service_id", serviceId);
     if (areaIds.length) {
-      await supabase.from("service_areas").insert(
-        areaIds.map((lid) => ({ service_id: inserted.id, location_id: lid })),
-      );
+      await supabase.from("service_areas").insert(areaIds.map((lid) => ({ service_id: serviceId, location_id: lid })));
     }
-
+    await supabase.from("listing_services").delete().eq("service_id", serviceId);
     if (categoryIds.length) {
-      await supabase.from("listing_services").insert(
-        categoryIds.map((cid) => ({ service_id: inserted.id, category_id: cid })),
-      );
+      await supabase.from("listing_services").insert(categoryIds.map((cid) => ({ service_id: serviceId, category_id: cid })));
     }
-    result.created += 1;
   }
 
   return result;

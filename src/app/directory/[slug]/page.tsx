@@ -96,6 +96,12 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                   );
                 })()}
               </p>
+              {(service.address || service.postcode) && (
+                <p className={styles.metaLoc} style={{ marginTop: "0.5rem", color: "var(--p-muted)" }}>
+                  <MapPin aria-hidden="true" size={14} />{" "}
+                  {[service.address, service.postcode].filter(Boolean).join(", ")}
+                </p>
+              )}
             </div>
             {service.is_featured && (
               <span className={styles.featured}>

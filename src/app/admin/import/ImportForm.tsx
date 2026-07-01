@@ -20,7 +20,7 @@ export function ImportForm() {
       if (!res.ok) throw new Error(data?.error ?? "Import failed.");
       setStatus("done");
       const errs = data.errors?.length ? ` (${data.errors.length} rows had errors)` : "";
-      setMessage(`Done — created ${data.created}, skipped ${data.skipped}${errs}. Imported listings are ${form.publish?.checked ? "published" : "in review"}.`);
+      setMessage(`Done — created ${data.created}, updated ${data.updated ?? 0}, skipped ${data.skipped}${errs}. New listings are ${form.publish?.checked ? "published" : "in review"}.`);
     } catch (err) {
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "Import failed.");
