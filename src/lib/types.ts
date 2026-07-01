@@ -66,6 +66,14 @@ export type Service = {
   status: ServiceStatus;
   is_featured: boolean;
   featured_until: string | null;
+  // Platform Phase 1 additions (migration 0009)
+  claim_token: string | null;
+  source: string | null;
+  verified: boolean;
+  founding: boolean;
+  credits: string | null;
+  availability: string | null;
+  view_count: number;
   created_at: string;
   updated_at: string;
 };
