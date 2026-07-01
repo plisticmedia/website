@@ -12,15 +12,18 @@ create index if not exists service_areas_location_idx on service_areas (location
 
 alter table service_areas enable row level security;
 
+drop policy if exists "service_areas: public read for published" on service_areas;
 create policy "service_areas: public read for published" on service_areas
   for select using (
     exists (select 1 from services s where s.id = service_id and s.status = 'published')
   );
+drop policy if exists "service_areas: seller manage own" on service_areas;
 create policy "service_areas: seller manage own" on service_areas
   for all using (
     exists (select 1 from services s where s.id = service_id and s.seller_id = auth.uid())
   ) with check (
     exists (select 1 from services s where s.id = service_id and s.seller_id = auth.uid())
   );
+drop policy if exists "service_areas: admin all" on service_areas;
 create policy "service_areas: admin all" on service_areas
   for all using (is_admin()) with check (is_admin());
