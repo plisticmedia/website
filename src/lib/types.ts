@@ -1,6 +1,6 @@
 // Shared database row types for the services directory.
 
-export type ServiceStatus = "draft" | "published" | "paused" | "removed";
+export type ServiceStatus = "draft" | "pending" | "published" | "paused" | "removed";
 export type EnquiryStatus = "new" | "responded" | "closed";
 
 export type Category = {

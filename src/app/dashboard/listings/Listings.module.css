@@ -134,6 +134,37 @@
   color: var(--p-muted);
 }
 
+.status_pending {
+  background: #e7f1fb;
+  border-color: #bcdcf6;
+  color: var(--p-azure-deep);
+}
+
+.reviewNote {
+  font-size: 0.85rem;
+  color: var(--p-azure-deep);
+  font-weight: 600;
+}
+
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.4rem;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.checkItem input {
+  width: auto;
+}
+
 .empty {
   margin-top: 2.4rem;
   padding: 3rem 1.5rem;

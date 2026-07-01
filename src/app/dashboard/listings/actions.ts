@@ -15,30 +15,72 @@ function str(form: FormData, key: string, max = 2000) {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
 
+/** Multi-select category ids (checkbox name="services"). */
+function selectedServices(form: FormData) {
+  return form
+    .getAll("services")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+}
+
+/** Shared business-listing fields used by create + update. */
+function listingFields(formData: FormData, categoryIds: string[]) {
+  let website = str(formData, "website_url", 300);
+  if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
+
+  const social: Record<string, string> = {};
+  const instagram = str(formData, "instagram", 200);
+  const linkedin = str(formData, "linkedin", 200);
+  if (instagram) social.instagram = instagram;
+  if (linkedin) social.linkedin = linkedin;
+
+  return {
+    title: str(formData, "title", 140),
+    summary: str(formData, "summary", 280) || null,
+    description: str(formData, "description", 6000) || null,
+    category_id: categoryIds[0] ?? (str(formData, "category_id", 80) || null),
+    location_id: str(formData, "location_id", 80) || null,
+    website_url: website || null,
+    address: str(formData, "address", 240) || null,
+    postcode: str(formData, "postcode", 20) || null,
+    social_links: social,
+  };
+}
+
+/** Replace a listing's service tags with the selected category ids. */
+async function syncListingServices(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  serviceId: string,
+  categoryIds: string[],
+) {
+  await supabase.from("listing_services").delete().eq("service_id", serviceId);
+  if (categoryIds.length > 0) {
+    await supabase
+      .from("listing_services")
+      .insert(categoryIds.map((cid) => ({ service_id: serviceId, category_id: cid })));
+  }
+}
+
 export async function createListing(formData: FormData) {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
-  const title = str(formData, "title", 140);
-  if (!title) throw new Error("A title is required.");
-
-  const categoryId = str(formData, "category_id", 80) || null;
+  const categoryIds = selectedServices(formData);
+  const fields = listingFields(formData, categoryIds);
+  if (!fields.title) throw new Error("A title is required.");
 
   const { data, error } = await supabase
     .from("services")
     .insert({
       seller_id: profile.id,
-      title,
-      slug: slugify(title),
-      summary: str(formData, "summary", 280) || null,
-      description: str(formData, "description", 6000) || null,
-      category_id: categoryId,
+      slug: slugify(fields.title),
       status: "draft" as ServiceStatus,
+      ...fields,
     })
     .select("id")
     .single();
 
   if (error) throw new Error(error.message);
+  await syncListingServices(supabase, data.id, categoryIds);
 
   revalidatePath("/dashboard/listings");
   redirect(`/dashboard/listings/${data.id}`);
@@ -48,33 +90,37 @@ export async function updateListing(id: string, formData: FormData) {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
-  const title = str(formData, "title", 140);
-  if (!title) throw new Error("A title is required.");
+  const categoryIds = selectedServices(formData);
+  const fields = listingFields(formData, categoryIds);
+  if (!fields.title) throw new Error("A title is required.");
 
   const { error } = await supabase
     .from("services")
-    .update({
-      title,
-      summary: str(formData, "summary", 280) || null,
-      description: str(formData, "description", 6000) || null,
-      category_id: str(formData, "category_id", 80) || null,
-    })
+    .update(fields)
     .eq("id", id)
     .eq("seller_id", profile.id);
 
   if (error) throw new Error(error.message);
+  await syncListingServices(supabase, id, categoryIds);
 
   revalidatePath(`/dashboard/listings/${id}`);
   revalidatePath("/dashboard/listings");
 }
 
+/**
+ * Seller-controlled status changes. Sellers may move a listing to draft or
+ * paused, or submit it for review (pending). Going live ("published") is an
+ * admin moderation action only.
+ */
 export async function setListingStatus(id: string, status: ServiceStatus) {
   const profile = await requireUser("/dashboard/listings");
+  const allowed: ServiceStatus[] = ["draft", "paused", "pending"];
+  const next = allowed.includes(status) ? status : "pending";
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase
     .from("services")
-    .update({ status })
+    .update({ status: next })
     .eq("id", id)
     .eq("seller_id", profile.id);
 

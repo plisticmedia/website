@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Draft",
+  pending: "In review",
   published: "Published",
   paused: "Paused",
   removed: "Removed",

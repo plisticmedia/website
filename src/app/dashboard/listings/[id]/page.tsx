@@ -5,7 +5,7 @@ import { ExternalLink, Trash2, Upload } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
-import { getCategories, getSellerServiceById } from "@/lib/services";
+import { getCategories, getLocations, getSellerServiceById } from "@/lib/services";
 import {
   addPackage,
   deleteListing,
@@ -28,13 +28,18 @@ function gbp(value: number | null) {
 export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const profile = await requireUser(`/dashboard/listings/${id}`);
-  const [service, categories] = await Promise.all([
+  const [service, categories, locations] = await Promise.all([
     getSellerServiceById(profile.id, id),
     getCategories(),
+    getLocations(),
   ]);
   if (!service) notFound();
 
   const isPublished = service.status === "published";
+  const selectedSlugs = new Set(
+    service.listing_services.map((ls) => ls.categories?.slug).filter(Boolean),
+  );
+  const social = service.social_links ?? {};
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const media = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
 
@@ -55,9 +60,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 <form action={setListingStatus.bind(null, service.id, "paused")}>
                   <button type="submit" className="p-btn p-btn--ghost">Unpublish</button>
                 </form>
+              ) : service.status === "pending" ? (
+                <span className={styles.reviewNote}>In review — Plistic will approve it shortly.</span>
               ) : (
-                <form action={setListingStatus.bind(null, service.id, "published")}>
-                  <button type="submit" className="p-btn">Publish</button>
+                <form action={setListingStatus.bind(null, service.id, "pending")}>
+                  <button type="submit" className="p-btn">Submit for review</button>
                 </form>
               )}
               {isPublished && (
@@ -75,12 +82,28 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <span>Title *</span>
               <input name="title" type="text" required maxLength={140} defaultValue={service.title} />
             </label>
-            <label className={styles.field}>
-              <span>Category</span>
-              <select name="category_id" defaultValue={service.category_id ?? ""}>
-                <option value="">Choose a category…</option>
+            <fieldset className={styles.field} style={{ border: "none", padding: 0, margin: 0 }}>
+              <span>Services offered</span>
+              <div className={styles.checkGrid}>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <label key={c.id} className={styles.checkItem}>
+                    <input
+                      type="checkbox"
+                      name="services"
+                      value={c.id}
+                      defaultChecked={selectedSlugs.has(c.slug)}
+                    />
+                    {c.name}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label className={styles.field}>
+              <span>Location</span>
+              <select name="location_id" defaultValue={service.location_id ?? ""}>
+                <option value="">Choose a location…</option>
+                {locations.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
                 ))}
               </select>
             </label>
@@ -92,6 +115,32 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <span>Description</span>
               <textarea name="description" rows={6} maxLength={6000} defaultValue={service.description ?? ""} />
             </label>
+            <label className={styles.field}>
+              <span>Website</span>
+              <input name="website_url" type="text" maxLength={300} defaultValue={service.website_url ?? ""} placeholder="yourstudio.com" />
+            </label>
+            <div className={styles.packageFields}>
+              <label className={styles.field}>
+                <span>Address</span>
+                <input name="address" type="text" maxLength={240} defaultValue={service.address ?? ""} />
+              </label>
+              <label className={styles.field}>
+                <span>Postcode</span>
+                <input name="postcode" type="text" maxLength={20} defaultValue={service.postcode ?? ""} />
+              </label>
+            </div>
+            <div className={styles.packageFields}>
+              <label className={styles.field}>
+                <span>Instagram</span>
+                <input name="instagram" type="text" maxLength={200} defaultValue={social.instagram ?? ""} placeholder="https://instagram.com/…" />
+              </label>
+              <label className={styles.field}>
+                <span>LinkedIn</span>
+                <input name="linkedin" type="text" maxLength={200} defaultValue={social.linkedin ?? ""} placeholder="https://linkedin.com/…" />
+              </label>
+            </div>
+            {/* Keep the primary single-category in sync for legacy fallback. */}
+            <input type="hidden" name="category_id" value={service.category_id ?? ""} />
             <button type="submit" className="p-btn">Save details</button>
           </form>
 
