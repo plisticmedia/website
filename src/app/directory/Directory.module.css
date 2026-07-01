@@ -101,6 +101,12 @@
   margin-bottom: 1.8rem;
 }
 
+.densityLink {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .cardLoc {
   display: inline-flex;
   align-items: center;

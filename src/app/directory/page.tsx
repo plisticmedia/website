@@ -117,6 +117,10 @@ export default async function DirectoryPage({
           <p className={styles.resultCount} aria-live="polite">
             {total} {total === 1 ? "listing" : "listings"}
             {mapPoints.length > 0 && total !== mapPoints.length ? ` · ${mapPoints.length} on the map` : ""}
+            {" · "}
+            <Link href="/directory/density" className={styles.densityLink}>
+              See where services cluster →
+            </Link>
           </p>
 
           {mapPoints.length > 0 && (

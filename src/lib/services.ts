@@ -155,6 +155,44 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   }));
 }
 
+export type DensityPoint = { slug: string; name: string; lat: number; lng: number; count: number };
+
+/** How many published listings operate in each located region — for the density map. */
+export async function getServiceDensity(category?: string): Promise<DensityPoint[]> {
+  const supabase = await createSupabaseServerClient();
+
+  const [{ data: locs }, { data: pub }] = await Promise.all([
+    supabase.from("locations").select("id, slug, name, latitude, longitude").not("latitude", "is", null),
+    supabase.from("services").select("id, category_id").eq("status", "published"),
+  ]);
+
+  let allowed = new Set((pub ?? []).map((s) => s.id as string));
+  if (category) {
+    const { data: cat } = await supabase.from("categories").select("id").eq("slug", category).maybeSingle();
+    if (cat?.id) {
+      const inCat = new Set(
+        (pub ?? []).filter((s) => s.category_id === cat.id).map((s) => s.id as string),
+      );
+      const { data: tagged } = await supabase.from("listing_services").select("service_id").eq("category_id", cat.id);
+      (tagged ?? []).forEach((t) => inCat.add(t.service_id as string));
+      allowed = new Set([...allowed].filter((id) => inCat.has(id)));
+    }
+  }
+
+  const { data: areas } = await supabase.from("service_areas").select("service_id, location_id");
+  const counts = new Map<string, number>();
+  for (const a of areas ?? []) {
+    if (allowed.has(a.service_id as string)) {
+      counts.set(a.location_id as string, (counts.get(a.location_id as string) ?? 0) + 1);
+    }
+  }
+
+  type LocRow = { id: string; slug: string; name: string; latitude: number; longitude: number };
+  return ((locs ?? []) as LocRow[])
+    .map((l) => ({ slug: l.slug, name: l.name, lat: l.latitude, lng: l.longitude, count: counts.get(l.id) ?? 0 }))
+    .filter((p) => p.count > 0);
+}
+
 /** Public listing detail by slug. Returns null if not published / not found. */
 export async function getServiceBySlug(slug: string): Promise<ServiceWithRelations | null> {
   const supabase = await createSupabaseServerClient();
