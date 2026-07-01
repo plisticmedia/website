@@ -61,12 +61,24 @@ or bypass that gate — the mechanism is in `src/proxy.ts` + `src/lib/siteAccess
 (a developer flips it off, or changes the gate to allow the public in). Do this only
 when you're ready for the site to be public.
 
+## Google ratings (built — needs an API key to switch on)
+Listings show their Google star rating + review count once a **Places API (New)**
+key is added. To turn it on:
+1. In **Google Cloud Console**, create a project, enable **Places API (New)**, and
+   create an **API key** (restrict it to the Places API).
+2. In **Vercel → Settings → Environment Variables**, add `GOOGLE_PLACES_API_KEY`
+   (the key) and `CRON_SECRET` (any long random string). Redeploy.
+3. In **`/admin`**, click **"Refresh Google ratings"** to fetch them now. After that
+   a nightly cron keeps them current automatically.
+Businesses are matched to Google by name + address, so keep those accurate. Listings
+with no Google match simply show no stars.
+
 ## Not yet enabled (fast-follows)
-- **Google ratings** on listings — needs a Google Cloud account + Places API key.
 - **Per-account paid featuring** (Stripe) — needs a Stripe account + a monthly price;
   the free admin "Make trusted" already covers launch partners.
 - **Auth email via Resend SMTP** — set this in Supabase (Authentication → Emails →
-  SMTP) to remove the sign-in email rate limit. Recommended before launch.
+  SMTP) to remove the sign-in email rate limit. (You've raised the cap to 1000, which
+  covers launch; SMTP removes the limit entirely.)
 
 ## Troubleshooting
 - **"email rate limit exceeded" on login** → Supabase's built-in mailer cap; wait an

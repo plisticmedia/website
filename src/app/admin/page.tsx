@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { approveClaim, moderateService, rejectClaim, setFeatured } from "./actions";
 import { GeocodeButton } from "./GeocodeButton";
+import { RatingsButton } from "./RatingsButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -67,6 +68,7 @@ export default async function AdminPage() {
             </Link>
           </p>
           {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
+          <RatingsButton />
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />

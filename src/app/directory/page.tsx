@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, Search, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations, getMapPoints, getPublishedServices, getUnlocatedServices } from "@/lib/services";
 import { MapSection } from "./MapSection";
@@ -168,6 +169,9 @@ export default async function DirectoryPage({
                           ) : null;
                         })()}
                         <h2>{s.title}</h2>
+                        {s.google_rating != null && (
+                          <GoogleRating rating={s.google_rating} count={s.google_rating_count} size={13} />
+                        )}
                         {s.summary && <p>{s.summary}</p>}
                         <div className={styles.cardFoot}>
                           <span>

@@ -10,9 +10,12 @@ const publicPaths = new Set([
   "/robots.txt",
   "/sitemap.xml",
 ]);
-// Prefixes always allowed: framework assets, static assets, and the auth
-// callback/confirm routes (so magic-link sign-in resolves even before the gate cookie).
-const publicPrefixes = ["/_next/", "/assets/", "/auth/"];
+// Prefixes always allowed: framework assets, static assets, the auth
+// callback/confirm routes (so magic-link sign-in resolves even before the gate
+// cookie), and server-to-server endpoints hit by external callers with no
+// browser cookie (scheduled cron, inbound webhooks). Those enforce their own
+// auth (CRON_SECRET / webhook signatures).
+const publicPrefixes = ["/_next/", "/assets/", "/auth/", "/api/cron/", "/api/webhooks/"];
 
 function isPublicPath(pathname: string) {
   return publicPaths.has(pathname) || publicPrefixes.some((p) => pathname.startsWith(p));

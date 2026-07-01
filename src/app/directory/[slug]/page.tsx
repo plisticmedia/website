@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
@@ -80,6 +81,15 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
     ...(service.latitude && service.longitude
       ? { geo: { "@type": "GeoCoordinates", latitude: service.latitude, longitude: service.longitude } }
       : {}),
+    ...(service.google_rating != null && service.google_rating_count
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: service.google_rating,
+            reviewCount: service.google_rating_count,
+          },
+        }
+      : {}),
   };
 
   return (
@@ -101,6 +111,11 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 return display.length ? <span className={styles.cat}>{display.join(" · ")}</span> : null;
               })()}
               <h1>{service.title}</h1>
+              {service.google_rating != null && (
+                <p style={{ margin: "0.5rem 0 0" }}>
+                  <GoogleRating rating={service.google_rating} count={service.google_rating_count} size={16} />
+                </p>
+              )}
               {service.summary && <p className={styles.summary}>{service.summary}</p>}
               <p className={styles.by}>
                 {seller?.display_name ? (
