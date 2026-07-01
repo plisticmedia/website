@@ -310,28 +310,34 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             {isUnowned && (
               <div className={styles.sellerCard}>
                 <h3>Is this your business?</h3>
-                {claimState === "guest" && (
+                {service.claim_token ? (
                   <>
-                    <p>Sign in to claim this listing and manage it yourself.</p>
-                    <Link href={`/login?next=${encodeURIComponent(`/directory/${slug}`)}`}>
-                      Sign in to claim →
+                    <p>Claim it to edit your profile, add a showreel and photos, and get enquiries — free.</p>
+                    <Link href={`/claim/${service.claim_token}`} className={`p-btn ${styles.enquireBtn}`}>
+                      Claim this listing
                     </Link>
                   </>
-                )}
-                {claimState === "pending" && (
+                ) : claimState === "guest" ? (
+                  <>
+                    <p>Sign in to claim this listing and manage it yourself.</p>
+                    <Link href={`/login?next=${encodeURIComponent(`/directory/${slug}`)}`}>Sign in to claim →</Link>
+                  </>
+                ) : claimState === "pending" ? (
                   <p>Your claim is pending review. We&apos;ll email you once it&apos;s approved.</p>
-                )}
-                {claimState === "none" && (
+                ) : (
                   <form action={requestClaim.bind(null, service.id, slug)} className={styles.enquiryForm}>
                     <p style={{ margin: 0 }}>Claim it to edit the details and respond to enquiries.</p>
                     <label className={styles.field}>
                       <span>Proof (e.g. your work email or role)</span>
                       <input name="evidence" type="text" maxLength={200} placeholder="you@yourbusiness.com" />
                     </label>
-                    <button type="submit" className={`p-btn ${styles.enquireBtn}`}>
-                      Claim this listing
-                    </button>
+                    <button type="submit" className={`p-btn ${styles.enquireBtn}`}>Claim this listing</button>
                   </form>
+                )}
+                {service.source && (
+                  <p style={{ marginTop: "0.7rem", fontSize: "0.78rem", color: "var(--p-muted)" }}>
+                    Compiled from public business information. <Link href={`/claim/${service.claim_token ?? ""}`}>Claim or request removal</Link>.
+                  </p>
                 )}
               </div>
             )}
