@@ -23,6 +23,7 @@ const LISTING_SELECT = `
   categories ( slug, name ),
   locations ( slug, name ),
   listing_services ( categories ( slug, name ) ),
+  service_areas ( locations ( slug, name ) ),
   profiles ( id, display_name, bio, avatar_url, website_url ),
   service_packages ( id, service_id, name, price_gbp, delivery_days, features, sort_order ),
   service_media ( id, service_id, url, kind, sort_order )
@@ -68,7 +69,10 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
       .eq("slug", query.location)
       .maybeSingle();
     if (loc?.id) {
-      builder = builder.eq("location_id", loc.id);
+      // "Operates in" this area (coverage), or is based there.
+      const { data: areas } = await supabase.from("service_areas").select("service_id").eq("location_id", loc.id);
+      const ids = (areas ?? []).map((a) => a.service_id as string);
+      builder = ids.length > 0 ? builder.or(`location_id.eq.${loc.id},id.in.(${ids.join(",")})`) : builder.eq("location_id", loc.id);
     }
   }
 
@@ -127,7 +131,11 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   }
   if (query.location) {
     const { data: loc } = await supabase.from("locations").select("id").eq("slug", query.location).maybeSingle();
-    if (loc?.id) builder = builder.eq("location_id", loc.id);
+    if (loc?.id) {
+      const { data: areas } = await supabase.from("service_areas").select("service_id").eq("location_id", loc.id);
+      const ids = (areas ?? []).map((a) => a.service_id as string);
+      builder = ids.length > 0 ? builder.or(`location_id.eq.${loc.id},id.in.(${ids.join(",")})`) : builder.eq("location_id", loc.id);
+    }
   }
   if (query.q) {
     const term = `%${query.q.replace(/[%_]/g, "")}%`;

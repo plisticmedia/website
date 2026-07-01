@@ -95,7 +95,16 @@ export async function importListingsFromCsv(
     const longDesc = pick(r, ["tellusmoreaboutyourbusiness"]);
     const summary = (pick(r, ["summary", "tagline"]) || shortDesc || title).slice(0, 280);
     const description = [shortDesc, longDesc].filter(Boolean).join("\n\n") || shortDesc || null;
-    const locationName = pick(r, ["location", "area", "region", "city", "town", "whereisyourcompanybased", "wheredoesyourbusinessoperate"]);
+    // Base location -> map pin (geocoded from address/postcode/town).
+    const baseText = pick(r, ["whereisyourcompanybased", "basedin", "location", "city", "town"]);
+    const explicitAddress = pick(r, ["address", "streetaddress"]);
+    const postcode = pick(r, ["postcode", "postalcode", "zip"]);
+    // Operating areas -> coverage (Location filter + density). Split multi-values.
+    const operatesText = pick(r, ["wheredoesyourbusinessoperate", "operates", "coverage", "area", "region"]);
+    const areaNames = (operatesText || baseText)
+      .split(/[,;|/]|\band\b/i)
+      .map((s) => s.trim())
+      .filter(Boolean);
     const website = pick(r, ["website", "url", "site", "weblink"]);
     const logo = pick(r, ["logo", "logourl", "logolink", "logoorprofileimage", "profileimage"]);
     const partnerFlag = pick(r, ["founding", "foundingpartner", "trusted", "trustedpartner", "partner", "featured"]);
@@ -119,7 +128,11 @@ export async function importListingsFromCsv(
       const id = await ensureTaxon(supabase, "categories", name);
       if (id) categoryIds.push(id);
     }
-    const locationId = locationName ? await ensureTaxon(supabase, "locations", locationName) : null;
+    const areaIds: string[] = [];
+    for (const name of areaNames) {
+      const id = await ensureTaxon(supabase, "locations", name);
+      if (id && !areaIds.includes(id)) areaIds.push(id);
+    }
 
     const { data: inserted, error } = await supabase
       .from("services")
@@ -130,12 +143,13 @@ export async function importListingsFromCsv(
         summary: summary || null,
         description: description || null,
         category_id: categoryIds[0] ?? null,
-        location_id: locationId,
+        location_id: areaIds[0] ?? null,
         website_url: website || null,
         logo_url: logo || null,
         cover_image_url: logo || null,
-        address: pick(r, ["address", "streetaddress"]) || null,
-        postcode: pick(r, ["postcode", "postalcode", "zip"]) || null,
+        // Base location for the map pin: explicit address, else the "based in" town.
+        address: explicitAddress || baseText || null,
+        postcode: postcode || null,
         social_links: social,
         status: publish ? "published" : "pending",
         is_featured: isFeatured,
@@ -145,6 +159,12 @@ export async function importListingsFromCsv(
       .single();
 
     if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+
+    if (areaIds.length) {
+      await supabase.from("service_areas").insert(
+        areaIds.map((lid) => ({ service_id: inserted.id, location_id: lid })),
+      );
+    }
 
     if (categoryIds.length) {
       await supabase.from("listing_services").insert(

@@ -84,11 +84,17 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 {seller?.display_name ? (
                   <>by <strong>{seller.display_name}</strong></>
                 ) : null}
-                {service.locations?.name ? (
-                  <span className={styles.metaLoc}>
-                    <MapPin aria-hidden="true" size={14} /> {service.locations.name}
-                  </span>
-                ) : null}
+                {(() => {
+                  const areas = service.service_areas
+                    .map((sa) => sa.locations?.name)
+                    .filter((n): n is string => !!n);
+                  if (areas.length === 0) return null;
+                  return (
+                    <span className={styles.metaLoc}>
+                      <MapPin aria-hidden="true" size={14} /> Covers {areas.slice(0, 4).join(", ")}
+                    </span>
+                  );
+                })()}
               </p>
             </div>
             {service.is_featured && (

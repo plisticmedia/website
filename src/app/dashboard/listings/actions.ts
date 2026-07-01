@@ -23,8 +23,15 @@ function selectedServices(form: FormData) {
     .filter((v): v is string => typeof v === "string" && v.length > 0);
 }
 
+/** Multi-select coverage-area location ids (checkbox name="areas"). */
+function selectedAreas(form: FormData) {
+  return form
+    .getAll("areas")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+}
+
 /** Shared business-listing fields used by create + update. */
-function listingFields(formData: FormData, categoryIds: string[]) {
+function listingFields(formData: FormData, categoryIds: string[], areaIds: string[]) {
   let website = str(formData, "website_url", 300);
   if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
 
@@ -39,7 +46,7 @@ function listingFields(formData: FormData, categoryIds: string[]) {
     summary: str(formData, "summary", 280) || null,
     description: str(formData, "description", 6000) || null,
     category_id: categoryIds[0] ?? (str(formData, "category_id", 80) || null),
-    location_id: str(formData, "location_id", 80) || null,
+    location_id: areaIds[0] ?? (str(formData, "location_id", 80) || null),
     website_url: website || null,
     address: str(formData, "address", 240) || null,
     postcode: str(formData, "postcode", 20) || null,
@@ -76,12 +83,27 @@ async function syncListingServices(
   }
 }
 
+/** Replace a listing's coverage areas ("operates in") with the selected location ids. */
+async function syncServiceAreas(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  serviceId: string,
+  areaIds: string[],
+) {
+  await supabase.from("service_areas").delete().eq("service_id", serviceId);
+  if (areaIds.length > 0) {
+    await supabase
+      .from("service_areas")
+      .insert(areaIds.map((lid) => ({ service_id: serviceId, location_id: lid })));
+  }
+}
+
 export async function createListing(formData: FormData) {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
   const categoryIds = selectedServices(formData);
-  const fields = listingFields(formData, categoryIds);
+  const areaIds = selectedAreas(formData);
+  const fields = listingFields(formData, categoryIds, areaIds);
   if (!fields.title) throw new Error("A title is required.");
 
   const coords = await resolveCoords(supabase, fields);
@@ -99,6 +121,7 @@ export async function createListing(formData: FormData) {
 
   if (error) throw new Error(error.message);
   await syncListingServices(supabase, data.id, categoryIds);
+  await syncServiceAreas(supabase, data.id, areaIds);
 
   revalidatePath("/dashboard/listings");
   redirect(`/dashboard/listings/${data.id}`);
@@ -109,7 +132,8 @@ export async function updateListing(id: string, formData: FormData) {
   const supabase = await createSupabaseServerClient();
 
   const categoryIds = selectedServices(formData);
-  const fields = listingFields(formData, categoryIds);
+  const areaIds = selectedAreas(formData);
+  const fields = listingFields(formData, categoryIds, areaIds);
   if (!fields.title) throw new Error("A title is required.");
 
   const coords = await resolveCoords(supabase, fields);
@@ -121,6 +145,7 @@ export async function updateListing(id: string, formData: FormData) {
 
   if (error) throw new Error(error.message);
   await syncListingServices(supabase, id, categoryIds);
+  await syncServiceAreas(supabase, id, areaIds);
 
   revalidatePath(`/dashboard/listings/${id}`);
   revalidatePath("/dashboard/listings");

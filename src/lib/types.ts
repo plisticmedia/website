@@ -75,6 +75,7 @@ export type ServiceWithRelations = Service & {
   categories: Pick<Category, "slug" | "name"> | null;
   locations: Pick<Location, "slug" | "name"> | null;
   listing_services: { categories: Pick<Category, "slug" | "name"> | null }[];
+  service_areas: { locations: Pick<Location, "slug" | "name"> | null }[];
   profiles: SellerProfile | null;
   service_packages: ServicePackage[];
   service_media: ServiceMedia[];

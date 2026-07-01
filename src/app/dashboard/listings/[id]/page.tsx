@@ -39,6 +39,9 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const selectedSlugs = new Set(
     service.listing_services.map((ls) => ls.categories?.slug).filter(Boolean),
   );
+  const selectedAreaSlugs = new Set(
+    service.service_areas.map((sa) => sa.locations?.slug).filter(Boolean),
+  );
   const social = service.social_links ?? {};
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const media = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
@@ -98,15 +101,22 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 ))}
               </div>
             </fieldset>
-            <label className={styles.field}>
-              <span>Location</span>
-              <select name="location_id" defaultValue={service.location_id ?? ""}>
-                <option value="">Choose a location…</option>
+            <fieldset className={styles.field} style={{ border: "none", padding: 0, margin: 0 }}>
+              <span>Areas you cover (for the location filter)</span>
+              <div className={styles.checkGrid}>
                 {locations.map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
+                  <label key={l.id} className={styles.checkItem}>
+                    <input
+                      type="checkbox"
+                      name="areas"
+                      value={l.id}
+                      defaultChecked={selectedAreaSlugs.has(l.slug)}
+                    />
+                    {l.name}
+                  </label>
                 ))}
-              </select>
-            </label>
+              </div>
+            </fieldset>
             <label className={styles.field}>
               <span>Short summary</span>
               <input name="summary" type="text" maxLength={280} defaultValue={service.summary ?? ""} />
@@ -121,11 +131,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
             </label>
             <div className={styles.packageFields}>
               <label className={styles.field}>
-                <span>Address</span>
-                <input name="address" type="text" maxLength={240} defaultValue={service.address ?? ""} />
+                <span>Address or town (map pin)</span>
+                <input name="address" type="text" maxLength={240} defaultValue={service.address ?? ""} placeholder="e.g. Glasgow, or a full address" />
               </label>
               <label className={styles.field}>
-                <span>Postcode</span>
+                <span>Postcode (most precise pin)</span>
                 <input name="postcode" type="text" maxLength={20} defaultValue={service.postcode ?? ""} />
               </label>
             </div>
