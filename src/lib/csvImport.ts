@@ -28,6 +28,19 @@ function slugify(s: string) {
 function norm(h: string) {
   return h.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
+const SOCIAL_DOMAINS: Array<[RegExp, string]> = [
+  [/instagram\.com/i, "instagram"],
+  [/(linkedin\.com|lnkd\.in)/i, "linkedin"],
+  [/(facebook\.com|fb\.com|fb\.me)/i, "facebook"],
+  [/tiktok\.com/i, "tiktok"],
+  [/(twitter\.com|x\.com)/i, "twitter"],
+  [/(youtube\.com|youtu\.be)/i, "youtube"],
+];
+function classifySocial(url: string): string | null {
+  for (const [re, net] of SOCIAL_DOMAINS) if (re.test(url)) return net;
+  return null;
+}
+
 function pick(r: Record<string, string>, keys: string[]) {
   for (const k of keys) {
     const v = r[k];
@@ -119,18 +132,30 @@ export async function importListingsFromCsv(
     const partnerFlag = pick(r, ["founding", "foundingpartner", "trusted", "trustedpartner", "partner", "featured"]);
     const isFeatured = /^(y|yes|true|1)/i.test(partnerFlag);
 
+    // Social + Google links. Robust: scan EVERY answer for links so we never
+    // miss them just because the form column was named unexpectedly.
     const social: Record<string, string> = {};
     for (const net of ["instagram", "linkedin", "facebook", "tiktok", "twitter", "youtube"]) {
       const v = pick(r, [net]);
       if (v) social[net] = v;
     }
-    const genericSocial = pick(r, ["anysocialmedialinksyoudliketoinclude", "socialmedia", "socials", "social"]);
-    if (genericSocial) {
-      if (/instagram/i.test(genericSocial)) social.instagram ||= genericSocial;
-      else if (/linkedin/i.test(genericSocial)) social.linkedin ||= genericSocial;
-      else if (/facebook/i.test(genericSocial)) social.facebook ||= genericSocial;
-      else social.link ||= genericSocial;
+    let googleProfile = "";
+    const urlRe = /https?:\/\/[^\s,;"'|]+/gi;
+    for (const val of Object.values(r)) {
+      const found = String(val).match(urlRe);
+      if (!found) continue;
+      for (const link of found) {
+        const net = classifySocial(link);
+        if (net) {
+          if (!social[net]) social[net] = link;
+        } else if (!googleProfile && /(google\.[^/]+\/maps|maps\.app\.goo\.gl|g\.page|business\.google)/i.test(link)) {
+          googleProfile = link;
+        }
+      }
     }
+    if (googleProfile) social.google = googleProfile;
+    // If the Google link embeds a real place id, use it for an accurate rating.
+    const placeIdFromUrl = googleProfile ? googleProfile.match(/ChIJ[-\w]+/)?.[0] ?? null : null;
 
     const categoryIds: string[] = [];
     for (const name of serviceNames) {
@@ -156,6 +181,9 @@ export async function importListingsFromCsv(
       address: explicitAddress || baseText || null,
       postcode: postcode || null,
       social_links: social,
+      // Only set the Google place when the profile link contained a real id;
+      // never wipe an existing match on re-import.
+      ...(placeIdFromUrl ? { google_place_id: placeIdFromUrl } : {}),
       // Re-geocode next time the admin runs the map tool.
       latitude: null,
       longitude: null,
