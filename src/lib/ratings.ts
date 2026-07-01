@@ -69,6 +69,9 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
   let updated = 0;
   let matched = 0;
   for (const row of rows) {
+    // "SKIP" = admin cleared this listing's match; leave it alone.
+    if (row.google_place_id === "SKIP") continue;
+
     const locationName = row.location_id ? locNames.get(row.location_id) ?? null : null;
     let place = row.google_place_id
       ? await getPlaceRating(row.google_place_id)

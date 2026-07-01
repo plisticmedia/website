@@ -39,6 +39,11 @@ Run these once, in order (each is idempotent — safe to re-run):
 - **Make trusted / Un-trust** — free "Trusted Partner" feature (pins to top, badge).
 - **Claim requests** — approve/reject businesses claiming their listing.
 - **`/admin/taxonomy`** — add/rename/remove **services** and **locations** (no deploy).
+- **"Merge duplicate services & locations"** (button on `/admin`) — collapses
+  case/spacing duplicates (e.g. "Video production" + "Video Production") into one.
+  Run it after a big import, then fine-tune the rest in `/admin/taxonomy`.
+- **"Clear rating"** (per listing, Google column) — removes a wrong Google match and
+  stops it re-matching; **"Re-check Google"** turns matching back on for that listing.
 - **`/admin/import`** — bulk CSV import.
 - All the agency leads (referrals, partnerships, quotes, bookings, enquiries) are listed here.
 

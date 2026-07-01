@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
-import { GoogleRating } from "@/components/GoogleRating";
+import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
+import { isDisplayableImage } from "@/lib/images";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -113,7 +114,12 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               <h1>{service.title}</h1>
               {service.google_rating != null && (
                 <p style={{ margin: "0.5rem 0 0" }}>
-                  <GoogleRating rating={service.google_rating} count={service.google_rating_count} size={16} />
+                  <GoogleRating
+                    rating={service.google_rating}
+                    count={service.google_rating_count}
+                    size={16}
+                    href={googleReviewsUrl(service.google_place_id)}
+                  />
                 </p>
               )}
               {service.summary && <p className={styles.summary}>{service.summary}</p>}
@@ -148,7 +154,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
 
-        {service.cover_image_url && (
+        {isDisplayableImage(service.cover_image_url) && (
           <section className={`p-container ${styles.coverWrap}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.cover} src={service.cover_image_url} alt={service.title} />

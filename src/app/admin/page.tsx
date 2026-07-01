@@ -4,9 +4,10 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, moderateService, rejectClaim, setFeatured } from "./actions";
+import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, setFeatured } from "./actions";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
+import { ConsolidateButton } from "./ConsolidateButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -24,7 +25,7 @@ export default async function AdminPage() {
   // Admin RLS policies grant full read access across these tables.
   const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships, claims, missingGeo] =
     await Promise.all([
-      supabase.from("services").select("id, title, slug, status, is_featured, created_at, profiles(display_name)").order("created_at", { ascending: false }),
+      supabase.from("services").select("id, title, slug, status, is_featured, created_at, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("enquiries").select("id, buyer_name, buyer_email, status, created_at, services(title)").order("created_at", { ascending: false }),
       supabase.from("referrals").select("id, referrer_name, referrer_email, referred_name, status, created_at").order("created_at", { ascending: false }),
       supabase.from("partnerships").select("id, partner_name, partner_email, partner_discipline, status, created_at").order("created_at", { ascending: false }),
@@ -36,7 +37,7 @@ export default async function AdminPage() {
       supabase.from("services").select("id", { count: "exact", head: true }).is("latitude", null).not("location_id", "is", null),
     ]);
 
-  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; created_at: string; profiles: { display_name: string | null } | null }>;
+  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; created_at: string; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const enq = (enquiries.data ?? []) as unknown as Array<{ id: string; buyer_name: string; buyer_email: string; status: string; created_at: string; services: { title: string } | null }>;
   const refs = (referrals.data ?? []) as Array<Record<string, string>>;
   const parts = (partnerships.data ?? []) as Array<Record<string, string>>;
@@ -69,6 +70,7 @@ export default async function AdminPage() {
           </p>
           {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
           <RatingsButton />
+          <ConsolidateButton />
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />
@@ -120,16 +122,23 @@ export default async function AdminPage() {
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
-                <tr><th>Title</th><th>Seller</th><th>Status</th><th>Trusted</th><th>Created</th><th>Actions</th></tr>
+                <tr><th>Title</th><th>Seller</th><th>Status</th><th>Trusted</th><th>Google</th><th>Created</th><th>Actions</th></tr>
               </thead>
               <tbody>
-                {svc.length === 0 && <tr><td colSpan={6} className={styles.emptyCell}>No listings yet.</td></tr>}
+                {svc.length === 0 && <tr><td colSpan={7} className={styles.emptyCell}>No listings yet.</td></tr>}
                 {svc.map((s) => (
                   <tr key={s.id}>
                     <td><Link href={`/directory/${s.slug}`} target="_blank">{s.title}</Link></td>
                     <td>{s.profiles?.display_name ?? "—"}</td>
                     <td><span className={styles.badge}>{s.status}</span></td>
                     <td>{s.is_featured ? <span className={`${styles.badge} ${styles.badgeTrusted}`}>Trusted</span> : "—"}</td>
+                    <td>
+                      {s.google_place_id === "SKIP"
+                        ? "off"
+                        : s.google_rating != null
+                          ? `★ ${s.google_rating}${s.google_rating_count != null ? ` (${s.google_rating_count})` : ""}`
+                          : "—"}
+                    </td>
                     <td>{fmt(s.created_at)}</td>
                     <td className={styles.actions}>
                       {s.status !== "published" && (
@@ -151,6 +160,15 @@ export default async function AdminPage() {
                           <button className={`${styles.btnSmall} ${styles.btnTrust}`} type="submit">Make trusted</button>
                         </form>
                       )}
+                      {s.google_place_id === "SKIP" ? (
+                        <form action={recheckRating.bind(null, s.id)}>
+                          <button className={styles.btnSmall} type="submit">Re-check Google</button>
+                        </form>
+                      ) : (s.google_rating != null || s.google_place_id) ? (
+                        <form action={clearRating.bind(null, s.id)}>
+                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Clear rating</button>
+                        </form>
+                      ) : null}
                     </td>
                   </tr>
                 ))}
