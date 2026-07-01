@@ -61,8 +61,30 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
     }
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: service.title,
+    description: service.summary ?? undefined,
+    url: service.website_url ?? undefined,
+    ...(service.address || service.postcode
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: service.address ?? undefined,
+            postalCode: service.postcode ?? undefined,
+            addressCountry: "GB",
+          },
+        }
+      : {}),
+    ...(service.latitude && service.longitude
+      ? { geo: { "@type": "GeoCoordinates", latitude: service.latitude, longitude: service.longitude } }
+      : {}),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main className={styles.page}>
         <section className={`p-container ${styles.top}`}>
