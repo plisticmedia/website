@@ -1,0 +1,371 @@
+.page {
+  overflow-x: clip;
+  background: var(--p-paper);
+  color: var(--p-ink);
+}
+
+.hero {
+  padding-block: clamp(2.6rem, 5vw, 4.4rem);
+  background:
+    radial-gradient(70% 80% at 92% 8%, rgba(31, 170, 233, 0.18), transparent 58%),
+    linear-gradient(180deg, #101115 0%, var(--p-ink) 100%);
+  color: var(--p-white);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--p-azure);
+  font-family: var(--p-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0.7rem 0 0;
+  font-family: var(--p-display);
+  font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+  line-height: 0.98;
+}
+
+.hero h1 span {
+  color: var(--p-azure);
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 52ch;
+  color: var(--p-muted-dark);
+  font-size: 1.04rem;
+  line-height: 1.6;
+}
+
+.searchBar {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  max-width: 620px;
+}
+
+.searchInput {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.9rem;
+  background: var(--p-white);
+  border-radius: 12px;
+  color: var(--p-muted);
+}
+
+.searchInput input {
+  flex: 1;
+  padding: 0.85rem 0;
+  border: none;
+  background: transparent;
+  font-family: var(--p-body);
+  font-size: 1rem;
+  color: var(--p-ink);
+  outline: none;
+}
+
+.body {
+  padding-block: clamp(2rem, 4vw, 3.2rem);
+}
+
+.filterLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.4rem;
+}
+
+.resultCount {
+  margin: 0.4rem 0 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--p-ink);
+}
+
+.mapWrap {
+  margin-bottom: 1.8rem;
+}
+
+/* Map beside a panel of businesses that can't be pinned (Scotland-wide / remote). */
+.mapLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+}
+
+@media (min-width: 900px) {
+  .mapLayout.withPanel {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
+.remotePanel {
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  background: var(--p-white);
+  padding: 1rem 1.1rem 1.2rem;
+  align-self: start;
+}
+
+.remotePanel h2 {
+  margin: 0;
+  font-family: var(--p-display);
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.remoteHint {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--p-muted);
+}
+
+.remoteList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.remoteItem a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.remoteItem a:hover {
+  border-color: var(--p-azure);
+  background: rgba(31, 170, 233, 0.06);
+}
+
+.remoteName {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--p-ink);
+}
+
+.remoteDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-azure);
+  flex: none;
+}
+
+.remoteDotFeatured {
+  background: var(--p-lemon, #f5c84b);
+}
+
+.remoteAreas {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--p-muted);
+}
+
+.densityLink {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cardLoc {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.chip,
+.chipActive {
+  padding: 0.45rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--p-line);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.chip {
+  color: var(--p-muted);
+  background: var(--p-white);
+}
+
+.chip:hover {
+  border-color: var(--p-azure);
+  color: var(--p-azure-deep);
+}
+
+.chipActive {
+  color: var(--p-white);
+  background: var(--p-ink);
+  border-color: var(--p-ink);
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.4rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow, 0 18px 50px rgba(22, 22, 22, 0.12));
+}
+
+.cardImage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #e7eef0, #d2e2e7);
+}
+
+.cardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardImagePlaceholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #e7eef0, #e7eef0 12px, #dde9ec 12px, #dde9ec 24px);
+}
+
+.featured {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--p-ink);
+  background: var(--p-lemon, #f5c84b);
+  border-radius: 999px;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+  flex: 1;
+}
+
+.cardCat {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-azure-deep);
+}
+
+.cardBody h2 {
+  margin: 0;
+  font-family: var(--p-display);
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.cardBody p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--p-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  font-size: 0.85rem;
+  color: var(--p-muted);
+}
+
+.price {
+  font-weight: 700;
+  color: var(--p-ink);
+}
+
+.empty {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--p-muted);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2.4rem;
+  font-size: 0.9rem;
+  color: var(--p-muted);
+}
+
+.pagination a {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (max-width: 560px) {
+  .searchBar {
+    flex-direction: column;
+  }
+}

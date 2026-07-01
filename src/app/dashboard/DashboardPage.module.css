@@ -1,0 +1,117 @@
+.page {
+  overflow-x: clip;
+  background: var(--p-paper);
+  color: var(--p-ink);
+  min-height: 70vh;
+}
+
+.inner {
+  padding-block: clamp(2.6rem, 6vw, 4.6rem);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--p-azure);
+  font-family: var(--p-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.head h1 {
+  margin: 0.6rem 0 0;
+  font-family: var(--p-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+}
+
+.lead {
+  margin: 0.5rem 0 0;
+  color: var(--p-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.1rem;
+  margin-top: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.4rem;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.cardLink:hover {
+  border-color: var(--p-azure);
+  transform: translateY(-2px);
+}
+
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 10px;
+  background: rgba(31, 170, 233, 0.12);
+  color: var(--p-azure-deep);
+}
+
+.card h2 {
+  margin: 0.4rem 0 0;
+  font-family: var(--p-display);
+  font-size: 1.2rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--p-muted);
+}
+
+.badge {
+  align-self: flex-start;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  background: var(--p-paper);
+  border: 1px solid var(--p-line);
+  border-radius: 999px;
+}
+
+.adminNote {
+  margin-top: 2rem;
+  font-size: 0.95rem;
+}
+
+.adminNote a {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+}

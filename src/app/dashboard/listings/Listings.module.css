@@ -1,0 +1,360 @@
+.page {
+  overflow-x: clip;
+  background: var(--p-paper);
+  color: var(--p-ink);
+  min-height: 70vh;
+}
+
+.inner {
+  padding-block: clamp(2.4rem, 5vw, 4rem);
+}
+
+.innerNarrow {
+  max-width: 760px;
+  padding-block: clamp(2.4rem, 5vw, 4rem);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.kicker a {
+  color: var(--p-azure-deep);
+  text-decoration: none;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.head h1,
+.editHead h1 {
+  margin: 0.4rem 0 0;
+  font-family: var(--p-display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.sub {
+  margin: 0.4rem 0 1.4rem;
+  color: var(--p-muted);
+  font-size: 0.95rem;
+}
+
+/* List of listings */
+.list {
+  list-style: none;
+  margin: 1.8rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.row:hover {
+  border-color: var(--p-azure);
+}
+
+.rowThumb {
+  width: 64px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: repeating-linear-gradient(45deg, #e7eef0, #e7eef0 8px, #dde9ec 8px, #dde9ec 16px);
+}
+
+.rowThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rowMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.rowMeta {
+  font-size: 0.82rem;
+  color: var(--p-muted);
+}
+
+.status {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--p-paper);
+  border: 1px solid var(--p-line);
+  color: var(--p-muted);
+}
+
+.status_published {
+  background: #e7f7ef;
+  border-color: #bfe8d4;
+  color: #0f7a52;
+}
+
+.status_draft {
+  background: #fff6e2;
+  border-color: #f3e2b4;
+  color: #946200;
+}
+
+.status_paused {
+  background: #f0f3f5;
+  color: var(--p-muted);
+}
+
+.status_pending {
+  background: #e7f1fb;
+  border-color: #bcdcf6;
+  color: var(--p-azure-deep);
+}
+
+.reviewNote {
+  font-size: 0.85rem;
+  color: var(--p-azure-deep);
+  font-weight: 600;
+}
+
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.4rem;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.checkItem input {
+  width: auto;
+}
+
+.empty {
+  margin-top: 2.4rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--p-white);
+  border: 1px dashed var(--p-line);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--p-muted);
+}
+
+/* Forms */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 1rem 0 0;
+  max-width: 640px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 0.7rem 0.8rem;
+  font-family: var(--p-body);
+  font-size: 0.95rem;
+  color: var(--p-ink);
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  outline: none;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--p-azure);
+}
+
+.editHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.editActions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-azure-deep);
+  text-decoration: none;
+}
+
+.block {
+  margin-top: 2.6rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--p-line);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--p-display);
+  font-size: 1.4rem;
+}
+
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.mediaItem {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e7eef0;
+}
+
+.mediaItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mediaDelete {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: inline-flex;
+  padding: 0.35rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(20, 20, 23, 0.7);
+  color: #fff;
+  cursor: pointer;
+}
+
+.uploadForm {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.packageList {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.packageList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--p-white);
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+}
+
+.packageList .mediaDelete {
+  position: static;
+  background: transparent;
+  color: var(--p-muted);
+}
+
+.packageFields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.danger {
+  margin-top: 3rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--p-line);
+}
+
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--p-coral, #f06d45);
+  background: transparent;
+  border: 1px solid var(--p-coral, #f06d45);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  background: var(--p-coral, #f06d45);
+  color: #fff;
+}
+
+@media (max-width: 560px) {
+  .packageFields {
+    grid-template-columns: 1fr;
+  }
+}

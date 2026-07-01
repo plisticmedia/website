@@ -1997,3 +1997,18 @@ textarea {
 .p-vf::after { bottom: 0; right: 0; border-left: 0; border-top: 0; }
 .p-vfc::before { top: 0; right: 0; border-left: 0; border-bottom: 0; }
 .p-vfc::after { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+
+/* Accessibility: visible keyboard focus + respect reduced-motion (WCAG 2.1 AA). */
+:focus-visible {
+  outline: 3px solid var(--p-azure);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
