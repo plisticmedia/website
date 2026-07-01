@@ -88,6 +88,11 @@ export default async function DirectoryPage({
                 Search
               </button>
             </form>
+            <p style={{ marginTop: "1rem" }}>
+              <Link href="/list-your-business" style={{ color: "var(--p-white)", fontWeight: 600 }}>
+                Run a creative business? List it free →
+              </Link>
+            </p>
           </div>
         </section>
 
