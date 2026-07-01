@@ -56,9 +56,12 @@ export default async function AdminPage() {
         <section className={`p-container ${styles.inner}`}>
           <p className={styles.kicker}>Admin</p>
           <h1>Admin dashboard</h1>
-          <p style={{ marginTop: "0.5rem" }}>
+          <p style={{ marginTop: "0.5rem", display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
             <Link href="/admin/taxonomy" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
               Manage services &amp; locations →
+            </Link>
+            <Link href="/admin/import" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
+              Import listings from CSV →
             </Link>
           </p>
 
