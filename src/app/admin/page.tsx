@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, geocodeMissing, moderateService, rejectClaim, setFeatured } from "./actions";
+import { approveClaim, moderateService, rejectClaim, setFeatured } from "./actions";
+import { GeocodeButton } from "./GeocodeButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -65,13 +66,7 @@ export default async function AdminPage() {
               Import listings from CSV →
             </Link>
           </p>
-          {(missingGeo.count ?? 0) > 0 && (
-            <form action={geocodeMissing} style={{ marginTop: "0.6rem" }}>
-              <button type="submit" className="p-btn p-btn--ghost">
-                Add {missingGeo.count} listing(s) to the map (geocode next batch)
-              </button>
-            </form>
-          )}
+          {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />
