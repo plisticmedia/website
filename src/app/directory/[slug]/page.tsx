@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { toDisplayImage } from "@/lib/images";
+import { CoverImage } from "../ListingImage";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -154,16 +155,12 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
 
-        {(() => {
-          const cover = toDisplayImage(service.cover_image_url, 1600) ?? toDisplayImage(service.logo_url, 1600);
-          if (!cover) return null;
-          return (
-            <section className={`p-container ${styles.coverWrap}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={styles.cover} src={cover} alt={service.title} />
-            </section>
-          );
-        })()}
+        <CoverImage
+          src={toDisplayImage(service.cover_image_url, 1600) ?? toDisplayImage(service.logo_url, 1600)}
+          alt={service.title}
+          className={styles.cover}
+          wrapClassName={`p-container ${styles.coverWrap}`}
+        />
 
         <section className={`p-container ${styles.layout}`}>
           <div className={styles.main}>

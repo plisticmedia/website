@@ -13,9 +13,11 @@ export function toDisplayImage(value: string | null | undefined, width = 1000): 
   const first = value.split(/[,\s]+/).find((v) => /^https?:\/\//i.test(v));
   if (!first) return null;
 
-  if (/drive\.google\.|docs\.google\./i.test(first)) {
+  if (/drive\.google\.|docs\.google\.|googleusercontent\.com/i.test(first)) {
     const id = extractDriveId(first);
-    return id ? `https://lh3.googleusercontent.com/d/${id}=w${width}` : null;
+    // Drive's thumbnail endpoint is the most reliable way to hotlink a public
+    // Drive image (works for Google Form uploads shared "anyone with the link").
+    return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w${width}` : null;
   }
   return first;
 }

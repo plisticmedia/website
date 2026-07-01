@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
 import { toDisplayImage, initialOf } from "@/lib/images";
 import { DirectoryFilters } from "./DirectoryFilters";
+import { LogoImage } from "./ListingImage";
 import { MapSection } from "./MapSection";
 import styles from "./Directory.module.css";
 
@@ -125,14 +126,12 @@ export default async function DirectoryPage({
                   <li key={s.id}>
                     <Link href={`/directory/${s.slug}`} className={`${styles.card} ${s.is_featured ? styles.cardFeatured : ""}`}>
                       <div className={styles.cardImage}>
-                        {cardImg ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={cardImg} alt={`${s.title} logo`} loading="lazy" />
-                        ) : (
-                          <span className={styles.cardImageInitial} aria-hidden="true">
-                            {initialOf(s.title)}
-                          </span>
-                        )}
+                        <LogoImage
+                          src={cardImg}
+                          alt={`${s.title} logo`}
+                          initial={initialOf(s.title)}
+                          initialClassName={styles.cardImageInitial}
+                        />
                         {s.is_featured && (
                           <span className={styles.featured}>
                             <Sparkles aria-hidden="true" size={13} /> Trusted partner
