@@ -5,7 +5,7 @@ import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
-import { isDisplayableImage } from "@/lib/images";
+import { toDisplayImage } from "@/lib/images";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -154,12 +154,16 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </div>
         </section>
 
-        {isDisplayableImage(service.cover_image_url) && (
-          <section className={`p-container ${styles.coverWrap}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.cover} src={service.cover_image_url} alt={service.title} />
-          </section>
-        )}
+        {(() => {
+          const cover = toDisplayImage(service.cover_image_url, 1600) ?? toDisplayImage(service.logo_url, 1600);
+          if (!cover) return null;
+          return (
+            <section className={`p-container ${styles.coverWrap}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className={styles.cover} src={cover} alt={service.title} />
+            </section>
+          );
+        })()}
 
         <section className={`p-container ${styles.layout}`}>
           <div className={styles.main}>

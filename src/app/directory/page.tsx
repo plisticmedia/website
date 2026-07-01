@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
-import { isDisplayableImage, initialOf } from "@/lib/images";
+import { toDisplayImage, initialOf } from "@/lib/images";
 import { DirectoryFilters } from "./DirectoryFilters";
 import { MapSection } from "./MapSection";
 import styles from "./Directory.module.css";
@@ -120,14 +120,14 @@ export default async function DirectoryPage({
                   .map((p) => p.price_gbp)
                   .filter((p): p is number => p != null)
                   .sort((a, b) => a - b)[0];
-                const cardImg = isDisplayableImage(s.cover_image_url) ? s.cover_image_url : null;
+                const cardImg = toDisplayImage(s.logo_url) ?? toDisplayImage(s.cover_image_url);
                 return (
                   <li key={s.id}>
                     <Link href={`/directory/${s.slug}`} className={`${styles.card} ${s.is_featured ? styles.cardFeatured : ""}`}>
                       <div className={styles.cardImage}>
                         {cardImg ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={cardImg} alt="" loading="lazy" />
+                          <img src={cardImg} alt={`${s.title} logo`} loading="lazy" />
                         ) : (
                           <span className={styles.cardImageInitial} aria-hidden="true">
                             {initialOf(s.title)}
