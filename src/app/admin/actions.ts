@@ -37,6 +37,40 @@ export async function setFeatured(id: string, featured: boolean) {
 }
 
 // ---------------------------------------------------------------------------
+// Claim-a-listing moderation
+// ---------------------------------------------------------------------------
+export async function approveClaim(claimId: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+
+  const { data: claim } = await supabase
+    .from("claims")
+    .select("id, service_id, claimant_user_id")
+    .eq("id", claimId)
+    .maybeSingle();
+  if (!claim) throw new Error("Claim not found.");
+
+  // Assign ownership, then mark the claim approved.
+  const { error: ownErr } = await supabase
+    .from("services")
+    .update({ seller_id: claim.claimant_user_id })
+    .eq("id", claim.service_id);
+  if (ownErr) throw new Error(ownErr.message);
+
+  const { error } = await supabase.from("claims").update({ status: "approved" }).eq("id", claimId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
+export async function rejectClaim(claimId: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("claims").update({ status: "rejected" }).eq("id", claimId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
+// ---------------------------------------------------------------------------
 // Editable taxonomy: service categories + locations (no deploy needed)
 // ---------------------------------------------------------------------------
 type Taxon = "categories" | "locations";

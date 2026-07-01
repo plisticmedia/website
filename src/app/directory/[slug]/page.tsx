@@ -5,7 +5,10 @@ import { Clock3, Check, ExternalLink, MapPin, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getServiceBySlug } from "@/lib/services";
+import { getSessionProfile } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
+import { requestClaim } from "./actions";
 import styles from "./Listing.module.css";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +40,26 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const gallery = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const seller = service.profiles;
+
+  // Claim-a-listing: only for unowned (imported) listings.
+  const isUnowned = !service.seller_id;
+  const profile = isUnowned ? await getSessionProfile() : null;
+  let claimState: "none" | "guest" | "pending" = "none";
+  if (isUnowned) {
+    if (!profile) {
+      claimState = "guest";
+    } else {
+      const supabase = await createSupabaseServerClient();
+      const { data: myClaim } = await supabase
+        .from("claims")
+        .select("status")
+        .eq("service_id", service.id)
+        .eq("claimant_user_id", profile.id)
+        .eq("status", "pending")
+        .maybeSingle();
+      claimState = myClaim ? "pending" : "none";
+    }
+  }
 
   return (
     <>
@@ -173,6 +196,34 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 </div>
               );
             })()}
+            {isUnowned && (
+              <div className={styles.sellerCard}>
+                <h3>Is this your business?</h3>
+                {claimState === "guest" && (
+                  <>
+                    <p>Sign in to claim this listing and manage it yourself.</p>
+                    <Link href={`/login?next=${encodeURIComponent(`/directory/${slug}`)}`}>
+                      Sign in to claim →
+                    </Link>
+                  </>
+                )}
+                {claimState === "pending" && (
+                  <p>Your claim is pending review. We&apos;ll email you once it&apos;s approved.</p>
+                )}
+                {claimState === "none" && (
+                  <form action={requestClaim.bind(null, service.id, slug)} className={styles.enquiryForm}>
+                    <p style={{ margin: 0 }}>Claim it to edit the details and respond to enquiries.</p>
+                    <label className={styles.field}>
+                      <span>Proof (e.g. your work email or role)</span>
+                      <input name="evidence" type="text" maxLength={200} placeholder="you@yourbusiness.com" />
+                    </label>
+                    <button type="submit" className={`p-btn ${styles.enquireBtn}`}>
+                      Claim this listing
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
             <p className={styles.disclaimer}>
               Plistic introduces buyers and sellers but is not a party to any agreement between them.
             </p>
