@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { brand } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
+import { getSessionProfile } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -92,11 +93,16 @@ export async function POST(request: Request) {
     logoUrl = supabase.storage.from("service-media").getPublicUrl(path).data.publicUrl;
   }
 
+  // If the submitter is already signed in, they instantly own their listing;
+  // otherwise we remember their email so signing in with it later auto-claims it.
+  const owner = await getSessionProfile();
+
   const slug = `${slugify(title)}-${Math.random().toString(36).slice(2, 7)}`;
   const { data: inserted, error } = await supabase
     .from("services")
     .insert({
-      seller_id: null,
+      seller_id: owner?.id ?? null,
+      submitter_email: email || null,
       slug,
       status: "pending",
       is_featured: false,
