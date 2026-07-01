@@ -16,7 +16,7 @@ type Row = {
   address: string | null;
   postcode: string | null;
   google_place_id: string | null;
-  locations: { name: string } | null;
+  location_id: string | null;
 };
 
 /**
@@ -43,10 +43,11 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
 
   // Stalest first (never-fetched come first as NULLs). We try to match every
   // published listing to Google by name + area, using the street address too
-  // when it's available for a tighter match.
+  // when it's available for a tighter match. No embed here (services links to
+  // locations two ways) — the base location name is looked up separately.
   const { data, error } = await supabase
     .from("services")
-    .select("id, title, address, postcode, google_place_id, locations!location_id(name)")
+    .select("id, title, address, postcode, google_place_id, location_id")
     .eq("status", "published")
     .order("google_rating_updated_at", { ascending: true, nullsFirst: true })
     .limit(limit);
@@ -57,12 +58,21 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
 
   const rows = (data ?? []) as unknown as Row[];
 
+  // Resolve base-location names for the batch in one query.
+  const locIds = [...new Set(rows.map((r) => r.location_id).filter((v): v is string => !!v))];
+  const locNames = new Map<string, string>();
+  if (locIds.length > 0) {
+    const { data: locs } = await supabase.from("locations").select("id, name").in("id", locIds);
+    for (const l of (locs ?? []) as Array<{ id: string; name: string }>) locNames.set(l.id, l.name);
+  }
+
   let updated = 0;
   let matched = 0;
   for (const row of rows) {
+    const locationName = row.location_id ? locNames.get(row.location_id) ?? null : null;
     let place = row.google_place_id
       ? await getPlaceRating(row.google_place_id)
-      : await findPlace(buildQuery(row));
+      : await findPlace(buildQuery(row, locationName));
 
     // For a fresh name search (no stored place id), only trust the match when
     // the returned Google name overlaps the listing name — guards against
@@ -103,8 +113,8 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
   return { updated, matched, processed: rows.length, remaining: count ?? 0, publishedTotal: publishedTotal ?? 0 };
 }
 
-function buildQuery(row: Row): string {
-  return [row.title, row.address, row.postcode, row.locations?.name, "Scotland"]
+function buildQuery(row: Row, locationName: string | null): string {
+  return [row.title, row.address, row.postcode, locationName, "Scotland"]
     .filter(Boolean)
     .join(", ");
 }
