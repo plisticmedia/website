@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, setFeatured } from "./actions";
+import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, releaseOwner, setFeatured } from "./actions";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
@@ -185,6 +185,11 @@ export default async function AdminPage() {
                           <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Clear rating</button>
                         </form>
                       ) : null}
+                      {s.seller_id && (
+                        <form action={releaseOwner.bind(null, s.id)}>
+                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Release owner</button>
+                        </form>
+                      )}
                     </td>
                   </tr>
                 ))}

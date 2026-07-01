@@ -18,15 +18,39 @@ const STATUS_LABEL: Record<string, string> = {
   removed: "Removed",
 };
 
-export default async function ListingsPage() {
+export default async function ListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ claimed?: string }>;
+}) {
   const profile = await requireUser("/dashboard/listings");
   const services = await getSellerServices(profile.id);
+  const { claimed } = await searchParams;
 
   return (
     <>
       <SiteHeader />
       <main className={styles.page}>
         <section className={`p-container ${styles.inner}`}>
+          {claimed && (
+            <div
+              role="status"
+              style={{
+                margin: "0 0 1.4rem",
+                padding: "1rem 1.2rem",
+                border: "1px solid var(--p-line)",
+                borderRadius: 14,
+                background: "rgba(31,170,233,0.08)",
+              }}
+            >
+              <strong>Welcome — this listing is now yours.</strong>
+              <p style={{ margin: "0.3rem 0 0", color: "var(--p-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+                Click it below to edit everything: your description, services and areas, photos and an embedded
+                showreel, links, and availability. Buyer enquiries arrive in your{" "}
+                <Link href="/dashboard/enquiries">inbox</Link> and by email. It&apos;s free to be listed.
+              </p>
+            </div>
+          )}
           <header className={styles.head}>
             <div>
               <p className={styles.kicker}>

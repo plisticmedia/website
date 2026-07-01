@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { getSessionProfile } from "@/lib/auth";
+import { sendEmail, adminEmail, siteUrl } from "@/lib/email";
 
 function emailDomain(email: string | null): string | null {
   const d = email?.split("@")[1]?.trim().toLowerCase();
@@ -29,7 +30,7 @@ export async function claimListing(token: string, formData: FormData) {
   const supabase = createSupabaseServiceRoleClient();
   const { data: svc } = await supabase
     .from("services")
-    .select("id, seller_id, website_url, status")
+    .select("id, seller_id, website_url, status, title, submitter_email")
     .eq("claim_token", token)
     .maybeSingle();
 
@@ -37,8 +38,12 @@ export async function claimListing(token: string, formData: FormData) {
   if (svc.seller_id) redirect(`/claim/${token}?status=claimed`);
 
   const marketingOptIn = formData.get("marketing") === "on";
+  const email = profile.email?.toLowerCase() ?? null;
+  // Auto-approve when the signed-in email matches the listing's website domain
+  // OR the email used to submit it (pre-claim for voluntary sign-ups).
   const autoApprove =
-    !!emailDomain(profile.email) && emailDomain(profile.email) === siteDomain(svc.website_url);
+    (!!emailDomain(email) && emailDomain(email) === siteDomain(svc.website_url)) ||
+    (!!email && !!svc.submitter_email && svc.submitter_email.toLowerCase() === email);
 
   // Record consent at the moment of claim.
   await supabase
@@ -52,12 +57,19 @@ export async function claimListing(token: string, formData: FormData) {
       service_id: svc.id,
       claimant_user_id: profile.id,
       status: "approved",
-      evidence: `Auto-verified: ${profile.email} matches website domain`,
+      evidence: `Auto-verified: ${profile.email}`,
     });
-    redirect("/dashboard/listings");
+    if (profile.email) {
+      await sendEmail({
+        to: profile.email,
+        subject: `You now manage ${svc.title} on Plistic`,
+        text: `Hi,\n\nYou're now the owner of "${svc.title}" in the Plistic directory. You can edit your profile, add photos and a showreel, and receive enquiries here:\n\n${siteUrl()}/dashboard/listings\n\nThanks,\nPlistic`,
+      });
+    }
+    redirect("/dashboard/listings?claimed=1");
   }
 
-  // No domain match → pending admin review (skip a duplicate pending claim).
+  // No match → pending admin review (skip a duplicate pending claim).
   const { data: existing } = await supabase
     .from("claims")
     .select("id")
@@ -71,6 +83,11 @@ export async function claimListing(token: string, formData: FormData) {
       claimant_user_id: profile.id,
       status: "pending",
       evidence: `Claim via link by ${profile.email}`,
+    });
+    await sendEmail({
+      to: adminEmail(),
+      subject: `New claim to review: ${svc.title}`,
+      text: `${profile.email} has requested to claim "${svc.title}".\n\nApprove or reject it in the admin dashboard:\n${siteUrl()}/admin`,
     });
   }
   redirect(`/claim/${token}?status=pending`);

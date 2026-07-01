@@ -108,9 +108,15 @@ export default async function ClaimPage({
                     <button type="submit" className="p-btn">Claim this listing</button>
                   </form>
                 ) : (
-                  <Link href={`/login?next=${encodeURIComponent(`/claim/${token}`)}`} className="p-btn">
-                    Sign in to claim
-                  </Link>
+                  <>
+                    <Link href={`/login?next=${encodeURIComponent(`/claim/${token}`)}`} className="p-btn">
+                      Sign in to claim
+                    </Link>
+                    <p className={styles.hint}>
+                      You&apos;ll sign in with your email — that&apos;s how we confirm it&apos;s you. Use your business
+                      email (matching your website) and it&apos;s approved instantly.
+                    </p>
+                  </>
                 )}
 
                 <form action={optOut.bind(null, token)} className={styles.optOut}>

@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { geocode, geocodeQuery } from "@/lib/geocode";
+import { sendEmail, siteUrl } from "@/lib/email";
 import type { ServiceStatus } from "@/lib/types";
 
 /** Admin moderation: publish or remove any listing. RLS admin policy permits this. */
@@ -128,7 +129,36 @@ export async function approveClaim(claimId: string) {
 
   const { error } = await supabase.from("claims").update({ status: "approved" }).eq("id", claimId);
   if (error) throw new Error(error.message);
+
+  // Let the business know they now own the listing.
+  try {
+    const service = createSupabaseServiceRoleClient();
+    const [{ data: svc }, { data: userRes }] = await Promise.all([
+      service.from("services").select("title").eq("id", claim.service_id).maybeSingle(),
+      service.auth.admin.getUserById(claim.claimant_user_id),
+    ]);
+    const email = userRes?.user?.email;
+    if (email) {
+      await sendEmail({
+        to: email,
+        subject: `Your Plistic listing is approved${svc?.title ? `: ${svc.title}` : ""}`,
+        text: `Good news — your claim has been approved. You can now edit your profile, add photos and a showreel, and receive enquiries here:\n\n${siteUrl()}/dashboard/listings\n\nThanks,\nPlistic`,
+      });
+    }
+  } catch (e) {
+    console.error("[approveClaim] notify failed", e);
+  }
   revalidatePath("/admin");
+}
+
+/** Admin: release ownership of a listing (back to unclaimed). Undoes a claim. */
+export async function releaseOwner(id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("services").update({ seller_id: null }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/directory");
 }
 
 export async function rejectClaim(claimId: string) {
