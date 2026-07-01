@@ -6,6 +6,7 @@ export type PlaceResult = {
   placeId: string;
   rating: number | null;
   ratingCount: number | null;
+  name: string | null;
 };
 
 const SEARCH_URL = "https://places.googleapis.com/v1/places:searchText";
@@ -25,7 +26,7 @@ export async function findPlace(query: string): Promise<PlaceResult | null> {
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": key,
-        "X-Goog-FieldMask": "places.id,places.rating,places.userRatingCount",
+        "X-Goog-FieldMask": "places.id,places.rating,places.userRatingCount,places.displayName",
       },
       body: JSON.stringify({ textQuery: query, regionCode: "GB", maxResultCount: 1 }),
     });
@@ -33,10 +34,12 @@ export async function findPlace(query: string): Promise<PlaceResult | null> {
     const data = (await res.json()) as { places?: Array<Record<string, unknown>> };
     const place = data.places?.[0];
     if (!place || typeof place.id !== "string") return null;
+    const displayName = place.displayName as { text?: string } | undefined;
     return {
       placeId: place.id,
       rating: typeof place.rating === "number" ? place.rating : null,
       ratingCount: typeof place.userRatingCount === "number" ? place.userRatingCount : null,
+      name: typeof displayName?.text === "string" ? displayName.text : null,
     };
   } catch {
     return null;
@@ -62,6 +65,7 @@ export async function getPlaceRating(placeId: string): Promise<PlaceResult | nul
       placeId: data.id,
       rating: typeof data.rating === "number" ? data.rating : null,
       ratingCount: typeof data.userRatingCount === "number" ? data.userRatingCount : null,
+      name: null,
     };
   } catch {
     return null;
