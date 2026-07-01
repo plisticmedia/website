@@ -18,7 +18,7 @@ const publicPaths = new Set([
 // cookie), and server-to-server endpoints hit by external callers with no
 // browser cookie (scheduled cron, inbound webhooks). Those enforce their own
 // auth (CRON_SECRET / webhook signatures).
-const publicPrefixes = ["/_next/", "/assets/", "/auth/", "/api/cron/", "/api/webhooks/"];
+const publicPrefixes = ["/_next/", "/assets/", "/auth/", "/api/cron/", "/api/webhooks/", "/claim/"];
 
 function isPublicPath(pathname: string) {
   return publicPaths.has(pathname) || publicPrefixes.some((p) => pathname.startsWith(p));

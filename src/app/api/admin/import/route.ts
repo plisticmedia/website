@@ -17,6 +17,8 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const file = form.get("file");
   const publish = form.get("publish") === "on" || form.get("publish") === "true";
+  const sourceRaw = form.get("source");
+  const source = typeof sourceRaw === "string" && sourceRaw.trim() ? sourceRaw.trim().slice(0, 80) : undefined;
   if (!(file instanceof File) || file.size === 0) {
     return NextResponse.json({ error: "Please choose a CSV file." }, { status: 400 });
   }
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
   const text = await file.text();
   const supabase = createSupabaseServiceRoleClient();
   try {
-    const result = await importListingsFromCsv(supabase, text, publish);
+    const result = await importListingsFromCsv(supabase, text, publish, source);
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     console.error("[admin-import] failed", error);

@@ -33,6 +33,10 @@ export function ImportForm() {
         <span style={{ fontWeight: 600 }}>CSV file</span>
         <input type="file" name="file" accept=".csv,text/csv" required />
       </label>
+      <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        <span style={{ fontWeight: 600 }}>Source <em style={{ fontWeight: 400, color: "var(--p-muted)" }}>(optional — e.g. &ldquo;public research&rdquo; for seeded businesses)</em></span>
+        <input type="text" name="source" placeholder="public research" maxLength={80} style={{ padding: "0.6rem 0.8rem", border: "1px solid var(--p-line)", borderRadius: 10 }} />
+      </label>
       <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <input type="checkbox" name="publish" />
         Publish immediately (otherwise imported as “in review”)

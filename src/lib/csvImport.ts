@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Minimal CSV parser: handles quotes, escaped quotes, commas and newlines. */
@@ -65,6 +66,7 @@ export async function importListingsFromCsv(
   supabase: SupabaseClient,
   csvText: string,
   publish: boolean,
+  source?: string,
 ): Promise<ImportResult> {
   const matrix = parseCsv(csvText);
   const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
@@ -95,10 +97,12 @@ export async function importListingsFromCsv(
     // sheet; never overwrite a listing a seller has claimed.
     const { data: dupe } = await supabase
       .from("services")
-      .select("id, seller_id")
+      .select("id, seller_id, claim_token")
       .eq("slug", slug)
       .maybeSingle();
     if (dupe?.id && dupe.seller_id) { result.skipped += 1; continue; }
+    // Stable per-listing claim link (kept on re-import).
+    const claimToken = (dupe as { claim_token?: string | null } | null)?.claim_token ?? randomUUID().replace(/-/g, "");
 
     const serviceNames = [
       pick(r, ["services", "service", "category", "categories", "discipline", "whatcategorybestdescribesyourservices"]),
@@ -181,6 +185,8 @@ export async function importListingsFromCsv(
       address: explicitAddress || baseText || null,
       postcode: postcode || null,
       social_links: social,
+      claim_token: claimToken,
+      ...(source ? { source } : {}),
       // Only set the Google place when the profile link contained a real id;
       // never wipe an existing match on re-import.
       ...(placeIdFromUrl ? { google_place_id: placeIdFromUrl } : {}),
