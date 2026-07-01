@@ -109,6 +109,7 @@ export type MapPoint = {
   is_featured: boolean;
   category: string | null;
   location: string | null;
+  address: string | null;
 };
 
 /** Published listings that have coordinates, matching the current filters — for the map. */
@@ -116,7 +117,7 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   const supabase = await createSupabaseServerClient();
   let builder = supabase
     .from("services")
-    .select("id, slug, title, latitude, longitude, is_featured, categories(name), locations(name)")
+    .select("id, slug, title, latitude, longitude, is_featured, address, postcode, categories(name), locations(name)")
     .eq("status", "published")
     .not("latitude", "is", null)
     .not("longitude", "is", null);
@@ -146,70 +147,67 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   if (error) throw new Error(`Failed to load map points: ${error.message}`);
 
   type Row = {
-    id: string; slug: string; title: string; latitude: number; longitude: number;
-    is_featured: boolean; categories: { name: string } | null; locations: { name: string } | null;
+    id: string; slug: string; title: string; latitude: number; longitude: number; is_featured: boolean;
+    address: string | null; postcode: string | null; categories: { name: string } | null; locations: { name: string } | null;
   };
   return ((data ?? []) as unknown as Row[]).map((r) => ({
     id: r.id, slug: r.slug, title: r.title, latitude: r.latitude, longitude: r.longitude,
     is_featured: r.is_featured, category: r.categories?.name ?? null, location: r.locations?.name ?? null,
+    address: [r.address, r.postcode].filter(Boolean).join(", ") || null,
   }));
 }
 
-export type DensityPoint = { slug: string; name: string; lat: number; lng: number; count: number };
+export type UnlocatedService = { slug: string; title: string; areas: string[]; is_featured: boolean };
 
-// Centroids for the standard Scottish regions (no migration needed). Locations
-// not in this map (e.g. "Scotland-wide/remote") simply don't appear on the map.
-const REGION_CENTROIDS: Record<string, [number, number]> = {
-  glasgow: [55.8642, -4.2518],
-  edinburgh: [55.9533, -3.1883],
-  aberdeen: [57.1497, -2.0943],
-  dundee: [56.462, -2.9707],
-  stirling: [56.1165, -3.9369],
-  "highlands-islands": [57.4778, -4.2247],
-  "south-scotland": [55.1, -3.4],
-  fife: [56.2082, -3.1495],
-};
-
-/** How many published listings operate in each located region — for the density map. */
-export async function getServiceDensity(category?: string): Promise<DensityPoint[]> {
+/**
+ * Published listings that can't be pinned (no geocoded address) — typically
+ * "Scotland-wide" / remote businesses. Shown as a list beside the map so they
+ * are never lost just because they don't sit at a single point.
+ */
+export async function getUnlocatedServices(query: DirectoryQuery = {}): Promise<UnlocatedService[]> {
   const supabase = await createSupabaseServerClient();
+  let builder = supabase
+    .from("services")
+    .select("id, slug, title, is_featured, service_areas ( locations ( name ) )")
+    .eq("status", "published")
+    .or("latitude.is.null,longitude.is.null");
 
-  const [{ data: locs }, { data: pub }] = await Promise.all([
-    supabase.from("locations").select("id, slug, name"),
-    supabase.from("services").select("id, category_id").eq("status", "published"),
-  ]);
-
-  let allowed = new Set((pub ?? []).map((s) => s.id as string));
-  if (category) {
-    const { data: cat } = await supabase.from("categories").select("id").eq("slug", category).maybeSingle();
+  if (query.category) {
+    const { data: cat } = await supabase.from("categories").select("id").eq("slug", query.category).maybeSingle();
     if (cat?.id) {
-      const inCat = new Set(
-        (pub ?? []).filter((s) => s.category_id === cat.id).map((s) => s.id as string),
-      );
       const { data: tagged } = await supabase.from("listing_services").select("service_id").eq("category_id", cat.id);
-      (tagged ?? []).forEach((t) => inCat.add(t.service_id as string));
-      allowed = new Set([...allowed].filter((id) => inCat.has(id)));
+      const ids = (tagged ?? []).map((t) => t.service_id as string);
+      builder = ids.length > 0 ? builder.or(`category_id.eq.${cat.id},id.in.(${ids.join(",")})`) : builder.eq("category_id", cat.id);
     }
   }
-
-  const { data: areas } = await supabase.from("service_areas").select("service_id, location_id");
-  const counts = new Map<string, number>();
-  for (const a of areas ?? []) {
-    if (allowed.has(a.service_id as string)) {
-      counts.set(a.location_id as string, (counts.get(a.location_id as string) ?? 0) + 1);
+  if (query.location) {
+    const { data: loc } = await supabase.from("locations").select("id").eq("slug", query.location).maybeSingle();
+    if (loc?.id) {
+      const { data: areas } = await supabase.from("service_areas").select("service_id").eq("location_id", loc.id);
+      const ids = (areas ?? []).map((a) => a.service_id as string);
+      builder = ids.length > 0 ? builder.or(`location_id.eq.${loc.id},id.in.(${ids.join(",")})`) : builder.eq("location_id", loc.id);
     }
   }
+  if (query.q) {
+    const term = `%${query.q.replace(/[%_]/g, "")}%`;
+    builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
+  }
 
-  type LocRow = { id: string; slug: string; name: string };
-  return ((locs ?? []) as LocRow[])
-    .map((l) => {
-      const centroid = REGION_CENTROIDS[l.slug];
-      const count = counts.get(l.id) ?? 0;
-      return centroid && count > 0
-        ? { slug: l.slug, name: l.name, lat: centroid[0], lng: centroid[1], count }
-        : null;
-    })
-    .filter((p): p is DensityPoint => p !== null);
+  const { data, error } = await builder.limit(500);
+  if (error) throw new Error(`Failed to load unlocated listings: ${error.message}`);
+
+  type Row = {
+    slug: string; title: string; is_featured: boolean;
+    service_areas: { locations: { name: string } | null }[] | null;
+  };
+  return ((data ?? []) as unknown as Row[])
+    .map((r) => ({
+      slug: r.slug,
+      title: r.title,
+      is_featured: r.is_featured,
+      areas: (r.service_areas ?? []).map((a) => a.locations?.name).filter((n): n is string => !!n),
+    }))
+    .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.title.localeCompare(b.title));
 }
 
 /** Public listing detail by slug. Returns null if not published / not found. */

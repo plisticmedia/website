@@ -20,7 +20,7 @@ for anything in the "Running it" section.
 ## Database setup (one-time, in Supabase SQL Editor)
 Run these once, in order (each is idempotent — safe to re-run):
 `0001_init` → `0002_rls` → `0003_seed` → `0004_storage` → `0005_directory` →
-`0006_listing_website` → `0007_service_areas` → `0008_location_centroids`.
+`0006_listing_website` → `0007_service_areas`.
 (The one-shot `supabase/launch_directory.sql` bundles the partner seed + admin.)
 
 ## Running it (no developer needed)
@@ -73,8 +73,12 @@ when you're ready for the site to be public.
   hour, or connect Resend SMTP (above) to remove it.
 - **A page 404s / a new feature is missing** → you're on an older Vercel preview;
   open the newest **Ready** deployment (Vercel → Deployments).
-- **A listing has no map pin** → its location is "Scotland-wide/remote" (no single
-  point — by design) or it needs an address/postcode; add one and re-run geocode.
+- **A listing has no map pin** → it needs an address/postcode (add one in the listing
+  editor, then **`/admin` → "Add listings to the map"** to geocode). Businesses with no
+  fixed address (Scotland-wide / remote) aren't pinned — by design they appear in the
+  **"Scotland-wide & remote"** list beside the map instead.
+- **The map** groups nearby businesses into numbered circles; zoom in and they split into
+  individual pins showing each business's address. Filter by service on `/directory/density`.
 - **Import "skipped" instead of "updated"** → older deployment; use the newest build.
 - **Legal** → `/terms` and `/privacy` are data-driven in `src/data/legal.ts`; have a
   solicitor review the Partner Directory clauses before launch.

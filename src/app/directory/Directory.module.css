@@ -101,6 +101,95 @@
   margin-bottom: 1.8rem;
 }
 
+/* Map beside a panel of businesses that can't be pinned (Scotland-wide / remote). */
+.mapLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+}
+
+@media (min-width: 900px) {
+  .mapLayout.withPanel {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
+.remotePanel {
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  background: var(--p-white);
+  padding: 1rem 1.1rem 1.2rem;
+  align-self: start;
+}
+
+.remotePanel h2 {
+  margin: 0;
+  font-family: var(--p-display);
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.remoteHint {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--p-muted);
+}
+
+.remoteList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.remoteItem a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.remoteItem a:hover {
+  border-color: var(--p-azure);
+  background: rgba(31, 170, 233, 0.06);
+}
+
+.remoteName {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--p-ink);
+}
+
+.remoteDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-azure);
+  flex: none;
+}
+
+.remoteDotFeatured {
+  background: var(--p-lemon, #f5c84b);
+}
+
+.remoteAreas {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--p-muted);
+}
+
 .densityLink {
   color: var(--p-azure-deep);
   font-weight: 600;

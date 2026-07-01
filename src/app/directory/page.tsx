@@ -3,8 +3,9 @@ import Link from "next/link";
 import { MapPin, Search, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
+import { getCategories, getLocations, getMapPoints, getPublishedServices, getUnlocatedServices } from "@/lib/services";
 import { MapSection } from "./MapSection";
+import { RemotePanel } from "./RemotePanel";
 import styles from "./Directory.module.css";
 
 export const metadata: Metadata = {
@@ -29,11 +30,12 @@ export default async function DirectoryPage({
   const page = Number(params.page) || 1;
 
   const filters = { q: params.q, category: params.category, location: params.location };
-  const [{ services, pageCount, total }, categories, locations, mapPoints] = await Promise.all([
+  const [{ services, pageCount, total }, categories, locations, mapPoints, unlocated] = await Promise.all([
     getPublishedServices({ ...filters, page }),
     getCategories(),
     getLocations(),
     getMapPoints(filters),
+    getUnlocatedServices(filters),
   ]);
 
   const buildHref = (next: Record<string, string | number | undefined>) => {
@@ -123,9 +125,10 @@ export default async function DirectoryPage({
             </Link>
           </p>
 
-          {mapPoints.length > 0 && (
-            <div className={styles.mapWrap}>
-              <MapSection points={mapPoints} />
+          {(mapPoints.length > 0 || unlocated.length > 0) && (
+            <div className={`${styles.mapLayout} ${mapPoints.length > 0 && unlocated.length > 0 ? styles.withPanel : ""}`}>
+              {mapPoints.length > 0 && <MapSection points={mapPoints} />}
+              <RemotePanel items={unlocated} />
             </div>
           )}
 

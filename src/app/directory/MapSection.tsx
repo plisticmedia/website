@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import type { MapPoint } from "@/lib/services";
 
 // Leaflet needs the browser, so load the map client-side only.
-const DirectoryMap = dynamic(() => import("./DirectoryMap"), {
+const ClusterMap = dynamic(() => import("./ClusterMap"), {
   ssr: false,
   loading: () => (
     <div
@@ -22,7 +22,7 @@ const DirectoryMap = dynamic(() => import("./DirectoryMap"), {
   ),
 });
 
-export function MapSection({ points }: { points: MapPoint[] }) {
+export function MapSection({ points, height }: { points: MapPoint[]; height?: number }) {
   if (points.length === 0) return null;
-  return <DirectoryMap points={points} />;
+  return <ClusterMap points={points} height={height} />;
 }
