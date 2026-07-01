@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { geocode, geocodeQuery } from "@/lib/geocode";
 import type { ServiceStatus } from "@/lib/types";
 
 /** Admin moderation: publish or remove any listing. RLS admin policy permits this. */
@@ -32,6 +33,40 @@ export async function setFeatured(id: string, featured: boolean) {
     .update({ is_featured: featured, featured_until: featuredUntil })
     .eq("id", id);
   if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/directory");
+}
+
+/**
+ * Geocode a small batch of listings that have a location but no coordinates
+ * (e.g. imported rows), so they appear on the directory map. Processes a few
+ * per click (Nominatim allows ~1 req/sec) — run it a few times for large sets.
+ */
+export async function geocodeMissing() {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+
+  const { data } = await supabase
+    .from("services")
+    .select("id, address, postcode, locations(name)")
+    .is("latitude", null)
+    .not("location_id", "is", null)
+    .limit(6);
+
+  const rows = (data ?? []) as unknown as Array<{
+    id: string; address: string | null; postcode: string | null; locations: { name: string } | null;
+  }>;
+
+  for (const r of rows) {
+    const q = geocodeQuery({ address: r.address, postcode: r.postcode, location: r.locations?.name ?? null });
+    if (!q) continue;
+    const coords = await geocode(q);
+    if (coords) {
+      await supabase.from("services").update({ latitude: coords.lat, longitude: coords.lng }).eq("id", r.id);
+    }
+    await new Promise((res) => setTimeout(res, 1100)); // respect Nominatim rate limit
+  }
+
   revalidatePath("/admin");
   revalidatePath("/directory");
 }

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { slugify } from "@/lib/services";
+import { geocode, geocodeQuery } from "@/lib/geocode";
 import type { ServiceStatus } from "@/lib/types";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -46,6 +47,21 @@ function listingFields(formData: FormData, categoryIds: string[]) {
   };
 }
 
+/** Best-effort geocode from address / postcode / location name -> lat,lng. */
+async function resolveCoords(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  fields: { address: string | null; postcode: string | null; location_id: string | null },
+): Promise<{ latitude: number; longitude: number } | Record<string, never>> {
+  let locationName: string | null = null;
+  if (fields.location_id) {
+    const { data } = await supabase.from("locations").select("name").eq("id", fields.location_id).maybeSingle();
+    locationName = (data?.name as string) ?? null;
+  }
+  const q = geocodeQuery({ address: fields.address, postcode: fields.postcode, location: locationName });
+  const coords = await geocode(q);
+  return coords ? { latitude: coords.lat, longitude: coords.lng } : {};
+}
+
 /** Replace a listing's service tags with the selected category ids. */
 async function syncListingServices(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -68,6 +84,7 @@ export async function createListing(formData: FormData) {
   const fields = listingFields(formData, categoryIds);
   if (!fields.title) throw new Error("A title is required.");
 
+  const coords = await resolveCoords(supabase, fields);
   const { data, error } = await supabase
     .from("services")
     .insert({
@@ -75,6 +92,7 @@ export async function createListing(formData: FormData) {
       slug: slugify(fields.title),
       status: "draft" as ServiceStatus,
       ...fields,
+      ...coords,
     })
     .select("id")
     .single();
@@ -94,9 +112,10 @@ export async function updateListing(id: string, formData: FormData) {
   const fields = listingFields(formData, categoryIds);
   if (!fields.title) throw new Error("A title is required.");
 
+  const coords = await resolveCoords(supabase, fields);
   const { error } = await supabase
     .from("services")
-    .update(fields)
+    .update({ ...fields, ...coords })
     .eq("id", id)
     .eq("seller_id", profile.id);
 

@@ -96,6 +96,57 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
   };
 }
 
+export type MapPoint = {
+  id: string;
+  slug: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+  is_featured: boolean;
+  category: string | null;
+  location: string | null;
+};
+
+/** Published listings that have coordinates, matching the current filters — for the map. */
+export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint[]> {
+  const supabase = await createSupabaseServerClient();
+  let builder = supabase
+    .from("services")
+    .select("id, slug, title, latitude, longitude, is_featured, categories(name), locations(name)")
+    .eq("status", "published")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null);
+
+  if (query.category) {
+    const { data: cat } = await supabase.from("categories").select("id").eq("slug", query.category).maybeSingle();
+    if (cat?.id) {
+      const { data: tagged } = await supabase.from("listing_services").select("service_id").eq("category_id", cat.id);
+      const ids = (tagged ?? []).map((t) => t.service_id as string);
+      builder = ids.length > 0 ? builder.or(`category_id.eq.${cat.id},id.in.(${ids.join(",")})`) : builder.eq("category_id", cat.id);
+    }
+  }
+  if (query.location) {
+    const { data: loc } = await supabase.from("locations").select("id").eq("slug", query.location).maybeSingle();
+    if (loc?.id) builder = builder.eq("location_id", loc.id);
+  }
+  if (query.q) {
+    const term = `%${query.q.replace(/[%_]/g, "")}%`;
+    builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
+  }
+
+  const { data, error } = await builder.limit(1000);
+  if (error) throw new Error(`Failed to load map points: ${error.message}`);
+
+  type Row = {
+    id: string; slug: string; title: string; latitude: number; longitude: number;
+    is_featured: boolean; categories: { name: string } | null; locations: { name: string } | null;
+  };
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id, slug: r.slug, title: r.title, latitude: r.latitude, longitude: r.longitude,
+    is_featured: r.is_featured, category: r.categories?.name ?? null, location: r.locations?.name ?? null,
+  }));
+}
+
 /** Public listing detail by slug. Returns null if not published / not found. */
 export async function getServiceBySlug(slug: string): Promise<ServiceWithRelations | null> {
   const supabase = await createSupabaseServerClient();

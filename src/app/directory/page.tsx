@@ -3,7 +3,8 @@ import Link from "next/link";
 import { MapPin, Search, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getCategories, getLocations, getPublishedServices } from "@/lib/services";
+import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
+import { MapSection } from "./MapSection";
 import styles from "./Directory.module.css";
 
 export const metadata: Metadata = {
@@ -27,10 +28,12 @@ export default async function DirectoryPage({
   const params = await searchParams;
   const page = Number(params.page) || 1;
 
-  const [{ services, pageCount, total }, categories, locations] = await Promise.all([
-    getPublishedServices({ q: params.q, category: params.category, location: params.location, page }),
+  const filters = { q: params.q, category: params.category, location: params.location };
+  const [{ services, pageCount, total }, categories, locations, mapPoints] = await Promise.all([
+    getPublishedServices({ ...filters, page }),
     getCategories(),
     getLocations(),
+    getMapPoints(filters),
   ]);
 
   const buildHref = (next: Record<string, string | number | undefined>) => {
@@ -113,7 +116,14 @@ export default async function DirectoryPage({
 
           <p className={styles.resultCount} aria-live="polite">
             {total} {total === 1 ? "listing" : "listings"}
+            {mapPoints.length > 0 && total !== mapPoints.length ? ` · ${mapPoints.length} on the map` : ""}
           </p>
+
+          {mapPoints.length > 0 && (
+            <div className={styles.mapWrap}>
+              <MapSection points={mapPoints} />
+            </div>
+          )}
 
           {services.length === 0 ? (
             <p className={styles.empty}>No listings match yet. Try a different search or category.</p>

@@ -97,6 +97,10 @@
   color: var(--p-ink);
 }
 
+.mapWrap {
+  margin-bottom: 1.8rem;
+}
+
 .cardLoc {
   display: inline-flex;
   align-items: center;
