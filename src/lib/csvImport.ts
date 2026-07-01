@@ -101,12 +101,15 @@ export async function importListingsFromCsv(
     const longDesc = pick(r, ["tellusmoreaboutyourbusiness"]);
     const summary = (pick(r, ["summary", "tagline"]) || shortDesc || title).slice(0, 280);
     const description = [shortDesc, longDesc].filter(Boolean).join("\n\n") || shortDesc || null;
-    // Base location -> map pin (geocoded from address/postcode/town).
+    // Base location -> map pin + shown publicly (geocoded from address/postcode/town).
+    const explicitAddress = pick(r, ["businessaddress", "address", "streetaddress"]);
     const baseText = pick(r, ["whereisyourcompanybased", "basedin", "location", "city", "town"]);
-    const explicitAddress = pick(r, ["address", "streetaddress"]);
     const postcode = pick(r, ["postcode", "postalcode", "zip"]);
     // Operating areas -> coverage (Location filter + density). Split multi-values.
-    const operatesText = pick(r, ["wheredoesyourbusinessoperate", "operates", "coverage", "area", "region"]);
+    const operatesText = pick(r, [
+      "wheredoesyourbusinessoperate", "whichareasofscotlanddoyouworkin", "whichareasdoyouworkin",
+      "areasyouworkin", "areasyoucover", "areasyouoperatein", "operates", "coverage", "area", "region",
+    ]);
     const areaNames = (operatesText || baseText)
       .split(/[,;|/]|\band\b/i)
       .map((s) => s.trim())
