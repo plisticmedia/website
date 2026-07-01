@@ -345,14 +345,19 @@
   aspect-ratio: 16 / 10;
   background: #f4f7f8;
   border-bottom: 1px solid var(--p-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Logos display contained (never cropped) on a clean tile. */
+/* Logos are capped + centred so every card reads at a consistent size,
+   regardless of the uploaded image's shape. */
 .cardImage img {
-  width: 100%;
-  height: 100%;
+  max-width: 68%;
+  max-height: 58%;
+  width: auto;
+  height: auto;
   object-fit: contain;
-  padding: 1.4rem;
   display: block;
 }
 

@@ -9,6 +9,9 @@ const publicPaths = new Set([
   "/favicon.ico",
   "/robots.txt",
   "/sitemap.xml",
+  // Public sign-up funnel: businesses can list themselves before public launch.
+  "/list-your-business",
+  "/api/submit-listing",
 ]);
 // Prefixes always allowed: framework assets, static assets, the auth
 // callback/confirm routes (so magic-link sign-in resolves even before the gate
