@@ -20,8 +20,8 @@ export type DirectoryResult = {
 
 const LISTING_SELECT = `
   *,
-  categories ( slug, name ),
-  locations ( slug, name ),
+  categories!category_id ( slug, name ),
+  locations!location_id ( slug, name ),
   listing_services ( categories ( slug, name ) ),
   service_areas ( locations ( slug, name ) ),
   profiles ( id, display_name, bio, avatar_url, website_url ),
@@ -117,7 +117,7 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   const supabase = await createSupabaseServerClient();
   let builder = supabase
     .from("services")
-    .select("id, slug, title, latitude, longitude, is_featured, address, postcode, categories(name), locations(name)")
+    .select("id, slug, title, latitude, longitude, is_featured, address, postcode, categories!category_id(name), locations!location_id(name)")
     .eq("status", "published")
     .not("latitude", "is", null)
     .not("longitude", "is", null);

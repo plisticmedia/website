@@ -48,7 +48,7 @@ export async function geocodeMissing() {
 
   const { data } = await supabase
     .from("services")
-    .select("id, address, postcode, locations(name)")
+    .select("id, address, postcode, locations!location_id(name)")
     .is("latitude", null)
     .not("location_id", "is", null)
     .limit(6);
