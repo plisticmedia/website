@@ -7,6 +7,17 @@ import styles from "./LoginPage.module.css";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
+function readError(error: unknown, fallback: string): string {
+  const msg =
+    error && typeof error === "object" && "message" in error && typeof (error as { message: unknown }).message === "string"
+      ? (error as { message: string }).message
+      : "";
+  if (/rate limit/i.test(msg)) {
+    return "Too many sign-in emails for now. Please wait a little while and try again (an admin can remove this limit in Supabase by connecting Resend SMTP).";
+  }
+  return msg || fallback;
+}
+
 export function LoginForm({ next }: { next: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -36,7 +47,7 @@ export function LoginForm({ next }: { next: string }) {
       setMessage(`Check ${email} for a sign-in link.`);
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Could not send the link. Please try again.");
+      setMessage(readError(error, "Could not send the link. Please try again."));
     }
   }
 
@@ -54,7 +65,7 @@ export function LoginForm({ next }: { next: string }) {
       if (error) throw error;
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Could not start Google sign-in.");
+      setMessage(readError(error, "Could not start Google sign-in."));
     }
   }
 
