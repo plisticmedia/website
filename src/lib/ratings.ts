@@ -6,6 +6,8 @@ export type RatingsRunResult = {
   matched: number;
   processed: number;
   remaining: number;
+  publishedTotal: number;
+  error?: string;
 };
 
 type Row = {
@@ -26,29 +28,48 @@ type Row = {
  */
 export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
   if (!googlePlacesConfigured()) {
-    return { updated: 0, matched: 0, processed: 0, remaining: 0 };
+    return { updated: 0, matched: 0, processed: 0, remaining: 0, publishedTotal: 0 };
   }
 
   const supabase = createSupabaseServiceRoleClient();
 
-  // Stalest first (never-fetched come first as NULLs), and only listings we can
-  // actually resolve: those with a place id already, or an address to search by.
-  const { data } = await supabase
+  // Diagnostic: how many published listings exist at all (independent of the
+  // batch query below), so the admin message can distinguish "nothing to do"
+  // from "can't see the data".
+  const { count: publishedTotal } = await supabase
+    .from("services")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "published");
+
+  // Stalest first (never-fetched come first as NULLs). We try to match every
+  // published listing to Google by name + area, using the street address too
+  // when it's available for a tighter match.
+  const { data, error } = await supabase
     .from("services")
     .select("id, title, address, postcode, google_place_id, locations(name)")
     .eq("status", "published")
-    .or("google_place_id.not.is.null,address.not.is.null,postcode.not.is.null")
     .order("google_rating_updated_at", { ascending: true, nullsFirst: true })
     .limit(limit);
+
+  if (error) {
+    return { updated: 0, matched: 0, processed: 0, remaining: 0, publishedTotal: publishedTotal ?? 0, error: error.message };
+  }
 
   const rows = (data ?? []) as unknown as Row[];
 
   let updated = 0;
   let matched = 0;
   for (const row of rows) {
-    const place = row.google_place_id
+    let place = row.google_place_id
       ? await getPlaceRating(row.google_place_id)
       : await findPlace(buildQuery(row));
+
+    // For a fresh name search (no stored place id), only trust the match when
+    // the returned Google name overlaps the listing name — guards against
+    // attaching an unrelated business's rating.
+    if (place && !row.google_place_id && !namesOverlap(row.title, place.name)) {
+      place = null;
+    }
 
     if (place) {
       matched += 1;
@@ -77,14 +98,33 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
     .from("services")
     .select("id", { count: "exact", head: true })
     .eq("status", "published")
-    .is("google_rating_updated_at", null)
-    .or("google_place_id.not.is.null,address.not.is.null,postcode.not.is.null");
+    .is("google_rating_updated_at", null);
 
-  return { updated, matched, processed: rows.length, remaining: count ?? 0 };
+  return { updated, matched, processed: rows.length, remaining: count ?? 0, publishedTotal: publishedTotal ?? 0 };
 }
 
 function buildQuery(row: Row): string {
   return [row.title, row.address, row.postcode, row.locations?.name, "Scotland"]
     .filter(Boolean)
     .join(", ");
+}
+
+const NAME_STOPWORDS = new Set(["the", "ltd", "limited", "llp", "and", "co", "company", "uk", "scotland"]);
+
+/** Loose check that two business names refer to the same place: they share a
+ *  meaningful word. Tolerant enough for "Ltd"/punctuation differences. */
+function namesOverlap(a: string, b: string | null): boolean {
+  if (!b) return false;
+  const tokens = (s: string) =>
+    new Set(
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((t) => t.length >= 3 && !NAME_STOPWORDS.has(t)),
+    );
+  const ta = tokens(a);
+  const tb = tokens(b);
+  for (const t of ta) if (tb.has(t)) return true;
+  return false;
 }
