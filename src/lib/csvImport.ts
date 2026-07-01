@@ -65,20 +65,39 @@ export async function importListingsFromCsv(
     const r: Record<string, string> = {};
     headers.forEach((h, i) => { r[h] = cells[i] ?? ""; });
 
-    const title = pick(r, ["name", "businessname", "business", "company", "studio"]);
+    const title = pick(r, [
+      "name", "businessname", "business", "company", "studio",
+      "companyorindividualname", "companyorindividual", "individualorcompanyname",
+    ]);
     if (!title) { result.skipped += 1; continue; }
     const slug = slugify(title);
+
+    // Respect publish consent when the form asked for it.
+    const consent = pick(r, [
+      "imhappyforthedetailsabovetobepublishedinthescotlandmediadirectory", "consent", "publish",
+    ]);
+    if (consent && /^(n|no|false|0)/i.test(consent)) { result.skipped += 1; continue; }
 
     const { data: dupe } = await supabase.from("services").select("id").eq("slug", slug).maybeSingle();
     if (dupe?.id) { result.skipped += 1; continue; }
 
-    const serviceNames = pick(r, ["services", "service", "category", "categories", "discipline"])
-      .split(/[,;|]/).map((s) => s.trim()).filter(Boolean);
-    const description = pick(r, ["description", "about", "bio", "summary"]);
-    const summary = pick(r, ["summary", "tagline"]) || description.slice(0, 280);
-    const locationName = pick(r, ["location", "area", "region", "city", "town"]);
+    const serviceNames = [
+      pick(r, ["services", "service", "category", "categories", "discipline", "whatcategorybestdescribesyourservices"]),
+      pick(r, ["ifyouselectedotherpleasetelluswhatyoudo", "other"]),
+    ]
+      .filter(Boolean)
+      .join(",")
+      .split(/[,;|]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const shortDesc = pick(r, ["ashortdescriptionofyourcompanyandwhatyoudo", "description", "about", "bio"]);
+    const longDesc = pick(r, ["tellusmoreaboutyourbusiness"]);
+    const summary = (pick(r, ["summary", "tagline"]) || shortDesc || title).slice(0, 280);
+    const description = [shortDesc, longDesc].filter(Boolean).join("\n\n") || shortDesc || null;
+    const locationName = pick(r, ["location", "area", "region", "city", "town", "whereisyourcompanybased", "wheredoesyourbusinessoperate"]);
     const website = pick(r, ["website", "url", "site", "weblink"]);
-    const logo = pick(r, ["logo", "logourl", "logolink"]);
+    const logo = pick(r, ["logo", "logourl", "logolink", "logoorprofileimage", "profileimage"]);
     const partnerFlag = pick(r, ["founding", "foundingpartner", "trusted", "trustedpartner", "partner", "featured"]);
     const isFeatured = /^(y|yes|true|1)/i.test(partnerFlag);
 
@@ -86,6 +105,13 @@ export async function importListingsFromCsv(
     for (const net of ["instagram", "linkedin", "facebook", "tiktok", "twitter", "youtube"]) {
       const v = pick(r, [net]);
       if (v) social[net] = v;
+    }
+    const genericSocial = pick(r, ["anysocialmedialinksyoudliketoinclude", "socialmedia", "socials", "social"]);
+    if (genericSocial) {
+      if (/instagram/i.test(genericSocial)) social.instagram ||= genericSocial;
+      else if (/linkedin/i.test(genericSocial)) social.linkedin ||= genericSocial;
+      else if (/facebook/i.test(genericSocial)) social.facebook ||= genericSocial;
+      else social.link ||= genericSocial;
     }
 
     const categoryIds: string[] = [];
