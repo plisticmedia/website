@@ -5,15 +5,33 @@
  */
 export type LatLng = { lat: number; lng: number };
 
+// Values that aren't a single geographic point — skip for map pins.
+const LOCATION_STOPWORDS = new Set([
+  "remote", "scotlandwide", "ukwide", "nationwide", "online", "everywhere",
+  "various", "anywhere", "na", "hybrid", "flexible",
+]);
+
+/** From a possibly-messy location ("Glasgow, Ayrshire, London") pick the first real place. */
+export function cleanLocation(location: string | null | undefined): string | null {
+  if (!location) return null;
+  const parts = location.split(/[,/&]|\band\b/i).map((s) => s.trim()).filter(Boolean);
+  for (const p of parts) {
+    const key = p.toLowerCase().replace(/[^a-z]/g, "");
+    if (key && !LOCATION_STOPWORDS.has(key)) return p;
+  }
+  return null;
+}
+
 export function geocodeQuery(parts: {
   address?: string | null;
   postcode?: string | null;
   location?: string | null;
 }): string {
-  return [parts.address, parts.postcode, parts.location, "Scotland"]
+  const pieces = [parts.address, parts.postcode, cleanLocation(parts.location)]
     .map((p) => (p ?? "").trim())
-    .filter(Boolean)
-    .join(", ");
+    .filter(Boolean);
+  if (pieces.length === 0) return "";
+  return [...pieces, "Scotland"].join(", ");
 }
 
 export async function geocode(query: string): Promise<LatLng | null> {
