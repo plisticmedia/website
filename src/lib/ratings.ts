@@ -46,7 +46,7 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
   // when it's available for a tighter match.
   const { data, error } = await supabase
     .from("services")
-    .select("id, title, address, postcode, google_place_id, locations(name)")
+    .select("id, title, address, postcode, google_place_id, locations!location_id(name)")
     .eq("status", "published")
     .order("google_rating_updated_at", { ascending: true, nullsFirst: true })
     .limit(limit);
