@@ -71,6 +71,40 @@ export async function geocodeMissing() {
   revalidatePath("/directory");
 }
 
+/**
+ * Clear a wrong/unwanted Google rating from a listing and stop it being
+ * auto-matched again (place id set to the "SKIP" sentinel). Use when the
+ * automatic match latched onto the wrong business.
+ */
+export async function clearRating(id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("services")
+    .update({
+      google_place_id: "SKIP",
+      google_rating: null,
+      google_rating_count: null,
+      google_rating_updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/directory");
+}
+
+/** Re-enable automatic Google matching for a listing previously cleared. */
+export async function recheckRating(id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("services")
+    .update({ google_place_id: null, google_rating: null, google_rating_count: null, google_rating_updated_at: null })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
 // ---------------------------------------------------------------------------
 // Claim-a-listing moderation
 // ---------------------------------------------------------------------------

@@ -4,9 +4,10 @@ import { MapPin, Search, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getCategories, getLocations, getMapPoints, getPublishedServices, getUnlocatedServices } from "@/lib/services";
+import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
+import { isDisplayableImage, initialOf } from "@/lib/images";
+import { DirectoryFilters } from "./DirectoryFilters";
 import { MapSection } from "./MapSection";
-import { RemotePanel } from "./RemotePanel";
 import styles from "./Directory.module.css";
 
 export const metadata: Metadata = {
@@ -25,23 +26,27 @@ function gbp(value: number | null) {
 export default async function DirectoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; location?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; location?: string; rating?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
 
-  const filters = { q: params.q, category: params.category, location: params.location };
-  const [{ services, pageCount, total }, categories, locations, mapPoints, unlocated] = await Promise.all([
+  const filters = {
+    q: params.q,
+    category: params.category,
+    location: params.location,
+    rating: params.rating ? Number(params.rating) : undefined,
+  };
+  const [{ services, pageCount, total }, categories, locations, mapPoints] = await Promise.all([
     getPublishedServices({ ...filters, page }),
     getCategories(),
     getLocations(),
     getMapPoints(filters),
-    getUnlocatedServices(filters),
   ]);
 
   const buildHref = (next: Record<string, string | number | undefined>) => {
     const sp = new URLSearchParams();
-    const merged = { q: params.q, category: params.category, location: params.location, page, ...next };
+    const merged = { q: params.q, category: params.category, location: params.location, rating: params.rating, page, ...next };
     Object.entries(merged).forEach(([k, v]) => {
       if (v !== undefined && v !== "" && !(k === "page" && v === 1)) sp.set(k, String(v));
     });
@@ -67,6 +72,7 @@ export default async function DirectoryPage({
             <form className={styles.searchBar} action="/directory" method="get">
               {params.category && <input type="hidden" name="category" value={params.category} />}
               {params.location && <input type="hidden" name="location" value={params.location} />}
+              {params.rating && <input type="hidden" name="rating" value={params.rating} />}
               <div className={styles.searchInput}>
                 <Search aria-hidden="true" size={18} />
                 <input
@@ -85,51 +91,23 @@ export default async function DirectoryPage({
         </section>
 
         <section className={`p-container ${styles.body}`}>
-          <p className={styles.filterLabel}>Service</p>
-          <nav className={styles.filters} aria-label="Filter by service">
-            <Link href={buildHref({ category: undefined, page: 1 })} className={!params.category ? styles.chipActive : styles.chip}>
-              All services
-            </Link>
-            {categories.map((c) => (
-              <Link
-                key={c.id}
-                href={buildHref({ category: c.slug, page: 1 })}
-                className={params.category === c.slug ? styles.chipActive : styles.chip}
-              >
-                {c.name}
-              </Link>
-            ))}
-          </nav>
-
-          <p className={styles.filterLabel}>Location</p>
-          <nav className={styles.filters} aria-label="Filter by location">
-            <Link href={buildHref({ location: undefined, page: 1 })} className={!params.location ? styles.chipActive : styles.chip}>
-              All of Scotland
-            </Link>
-            {locations.map((l) => (
-              <Link
-                key={l.id}
-                href={buildHref({ location: l.slug, page: 1 })}
-                className={params.location === l.slug ? styles.chipActive : styles.chip}
-              >
-                {l.name}
-              </Link>
-            ))}
-          </nav>
+          <DirectoryFilters
+            categories={categories}
+            locations={locations}
+            current={{ q: params.q, category: params.category, location: params.location, rating: params.rating }}
+          />
 
           <p className={styles.resultCount} aria-live="polite">
             {total} {total === 1 ? "listing" : "listings"}
-            {mapPoints.length > 0 && total !== mapPoints.length ? ` · ${mapPoints.length} on the map` : ""}
             {" · "}
             <Link href="/directory/density" className={styles.densityLink}>
-              See where services cluster →
+              See them on the map →
             </Link>
           </p>
 
-          {(mapPoints.length > 0 || unlocated.length > 0) && (
-            <div className={`${styles.mapLayout} ${mapPoints.length > 0 && unlocated.length > 0 ? styles.withPanel : ""}`}>
-              {mapPoints.length > 0 && <MapSection points={mapPoints} />}
-              <RemotePanel items={unlocated} />
+          {mapPoints.length > 0 && (
+            <div className={styles.mapWrap}>
+              <MapSection points={mapPoints} />
             </div>
           )}
 
@@ -142,15 +120,18 @@ export default async function DirectoryPage({
                   .map((p) => p.price_gbp)
                   .filter((p): p is number => p != null)
                   .sort((a, b) => a - b)[0];
+                const cardImg = isDisplayableImage(s.cover_image_url) ? s.cover_image_url : null;
                 return (
                   <li key={s.id}>
-                    <Link href={`/directory/${s.slug}`} className={styles.card}>
+                    <Link href={`/directory/${s.slug}`} className={`${styles.card} ${s.is_featured ? styles.cardFeatured : ""}`}>
                       <div className={styles.cardImage}>
-                        {s.cover_image_url ? (
+                        {cardImg ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={s.cover_image_url} alt="" loading="lazy" />
+                          <img src={cardImg} alt="" loading="lazy" />
                         ) : (
-                          <span className={styles.cardImagePlaceholder} aria-hidden="true" />
+                          <span className={styles.cardImageInitial} aria-hidden="true">
+                            {initialOf(s.title)}
+                          </span>
                         )}
                         {s.is_featured && (
                           <span className={styles.featured}>

@@ -7,6 +7,7 @@ export type DirectoryQuery = {
   q?: string;
   category?: string;
   location?: string;
+  rating?: number;
   page?: number;
 };
 
@@ -81,6 +82,10 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
     builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
   }
 
+  if (query.rating) {
+    builder = builder.gte("google_rating", query.rating);
+  }
+
   const { data, count, error } = await builder
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false })
@@ -142,6 +147,9 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
     const term = `%${query.q.replace(/[%_]/g, "")}%`;
     builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
   }
+  if (query.rating) {
+    builder = builder.gte("google_rating", query.rating);
+  }
 
   const { data, error } = await builder.limit(1000);
   if (error) throw new Error(`Failed to load map points: ${error.message}`);
@@ -191,6 +199,9 @@ export async function getUnlocatedServices(query: DirectoryQuery = {}): Promise<
   if (query.q) {
     const term = `%${query.q.replace(/[%_]/g, "")}%`;
     builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
+  }
+  if (query.rating) {
+    builder = builder.gte("google_rating", query.rating);
   }
 
   const { data, error } = await builder.limit(500);

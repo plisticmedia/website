@@ -101,6 +101,87 @@
   margin-bottom: 1.8rem;
 }
 
+/* Compact dropdown filter bar */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 190px;
+}
+
+.filterField > span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.filterField select {
+  appearance: none;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  border: 1px solid var(--p-line);
+  border-radius: 12px;
+  background: var(--p-white)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235d6b71' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")
+    no-repeat right 0.9rem center;
+  font-family: var(--p-body);
+  font-size: 0.95rem;
+  color: var(--p-ink);
+  cursor: pointer;
+}
+
+.filterField select:focus-visible {
+  outline: 2px solid var(--p-azure);
+  outline-offset: 1px;
+}
+
+.filterClear {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--p-line);
+  border-radius: 12px;
+  background: var(--p-white);
+  color: var(--p-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.filterClear:hover {
+  border-color: var(--p-azure);
+  color: var(--p-azure-deep);
+}
+
+/* Trusted-partner card: clearly distinct from the rest */
+.cardFeatured {
+  border: 2px solid var(--p-lemon, #f5c84b);
+  box-shadow: 0 10px 34px rgba(245, 200, 75, 0.28);
+}
+
+.cardFeatured:hover {
+  box-shadow: 0 18px 50px rgba(245, 200, 75, 0.4);
+}
+
+/* Branded placeholder when a listing has no usable image */
+.cardImageInitial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--p-display);
+  font-size: 3.4rem;
+  color: var(--p-white);
+  background: linear-gradient(135deg, var(--p-azure, #1faae9), var(--p-ink, #161616));
+}
+
 /* Map beside a panel of businesses that can't be pinned (Scotland-wide / remote). */
 .mapLayout {
   display: grid;
