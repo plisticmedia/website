@@ -13,8 +13,12 @@ export function RatingsButton() {
       const res = await fetch("/api/admin/ratings", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed.");
+      if (data.error) {
+        setMessage(`Database error: ${data.error}`);
+        return;
+      }
       setMessage(
-        `Checked ${data.processed}, matched ${data.matched} on Google, ${data.updated} now show a rating. ${data.remaining} still to check.`,
+        `${data.publishedTotal} published listings found. Checked ${data.processed}, matched ${data.matched} on Google, ${data.updated} now show a rating. ${data.remaining} still to check.`,
       );
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed.");

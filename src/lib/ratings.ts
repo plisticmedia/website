@@ -6,6 +6,8 @@ export type RatingsRunResult = {
   matched: number;
   processed: number;
   remaining: number;
+  publishedTotal: number;
+  error?: string;
 };
 
 type Row = {
@@ -26,20 +28,32 @@ type Row = {
  */
 export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
   if (!googlePlacesConfigured()) {
-    return { updated: 0, matched: 0, processed: 0, remaining: 0 };
+    return { updated: 0, matched: 0, processed: 0, remaining: 0, publishedTotal: 0 };
   }
 
   const supabase = createSupabaseServiceRoleClient();
 
+  // Diagnostic: how many published listings exist at all (independent of the
+  // batch query below), so the admin message can distinguish "nothing to do"
+  // from "can't see the data".
+  const { count: publishedTotal } = await supabase
+    .from("services")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "published");
+
   // Stalest first (never-fetched come first as NULLs). We try to match every
   // published listing to Google by name + area, using the street address too
   // when it's available for a tighter match.
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("services")
     .select("id, title, address, postcode, google_place_id, locations(name)")
     .eq("status", "published")
     .order("google_rating_updated_at", { ascending: true, nullsFirst: true })
     .limit(limit);
+
+  if (error) {
+    return { updated: 0, matched: 0, processed: 0, remaining: 0, publishedTotal: publishedTotal ?? 0, error: error.message };
+  }
 
   const rows = (data ?? []) as unknown as Row[];
 
@@ -86,7 +100,7 @@ export async function refreshRatings(limit = 20): Promise<RatingsRunResult> {
     .eq("status", "published")
     .is("google_rating_updated_at", null);
 
-  return { updated, matched, processed: rows.length, remaining: count ?? 0 };
+  return { updated, matched, processed: rows.length, remaining: count ?? 0, publishedTotal: publishedTotal ?? 0 };
 }
 
 function buildQuery(row: Row): string {
