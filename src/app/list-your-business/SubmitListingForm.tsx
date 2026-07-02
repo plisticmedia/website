@@ -63,8 +63,13 @@ export function SubmitListingForm({
       </label>
 
       <label className={styles.field}>
-        <span>Describe what you do *</span>
-        <textarea name="description" rows={5} required maxLength={2000} placeholder="A few sentences about your business and services." />
+        <span>Short description *</span>
+        <textarea name="description" rows={3} required maxLength={500} placeholder="One or two sentences — this is the summary shown on your card." />
+      </label>
+
+      <label className={styles.field}>
+        <span>Tell us more about your business <em>(optional)</em></span>
+        <textarea name="about" rows={5} maxLength={3000} placeholder="Your story, your approach, what makes you different, who you work with." />
       </label>
 
       <fieldset className={styles.group}>
@@ -106,6 +111,21 @@ export function SubmitListingForm({
       </label>
 
       <label className={styles.field}>
+        <span>Showreel or video <em>(optional — a YouTube or Vimeo link, shown on your profile)</em></span>
+        <input name="showreel" type="url" maxLength={300} placeholder="https://youtube.com/…" />
+      </label>
+
+      <label className={styles.field}>
+        <span>Notable work &amp; credits <em>(optional)</em></span>
+        <textarea name="credits" rows={3} maxLength={2000} placeholder="Recent projects, clients or credits you're proud of." />
+      </label>
+
+      <label className={styles.field}>
+        <span>Availability <em>(optional)</em></span>
+        <input name="availability" type="text" maxLength={200} placeholder="e.g. Booking from August 2026" />
+      </label>
+
+      <label className={styles.field}>
         <span>Website <em>(optional)</em></span>
         <input name="website" type="url" maxLength={300} placeholder="https://" />
       </label>
@@ -130,6 +150,14 @@ export function SubmitListingForm({
           <input name="other" type="url" maxLength={300} placeholder="Your Google Business link" />
         </label>
       </div>
+
+      <label className={styles.check} style={{ alignItems: "flex-start" }}>
+        <input type="checkbox" name="consent" required style={{ marginTop: "0.2rem" }} />
+        <span>
+          I&apos;m authorised to list this business and I&apos;m happy for these details to be published in the Plistic
+          directory. *
+        </span>
+      </label>
 
       {status === "error" && (
         <p className={`${styles.status} ${styles.error}`} aria-live="polite">

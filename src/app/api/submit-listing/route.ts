@@ -3,6 +3,7 @@ import { brand } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { getSessionProfile } from "@/lib/auth";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
+import { toEmbedUrl } from "@/lib/images";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -41,15 +42,23 @@ export async function POST(request: Request) {
 
   const title = clean(form.get("title"), 160);
   const email = clean(form.get("email"), 180).toLowerCase();
-  const shortDesc = clean(form.get("description"), 2000);
+  const shortDesc = clean(form.get("description"), 500);
+  const about = clean(form.get("about"), 3000);
+  const credits = clean(form.get("credits"), 2000);
+  const availability = clean(form.get("availability"), 200);
+  const showreel = clean(form.get("showreel"), 300);
   const website = clean(form.get("website"), 300);
   const address = clean(form.get("address"), 300);
   const postcode = clean(form.get("postcode"), 20);
+  const consent = form.get("consent") === "on" || form.get("consent") === "true";
   const serviceSlugs = form.getAll("services").map((v) => String(v)).filter(Boolean).slice(0, 20);
   const areaSlugs = form.getAll("areas").map((v) => String(v)).filter(Boolean).slice(0, 30);
 
   if (!title || !shortDesc || serviceSlugs.length === 0) {
     return NextResponse.json({ error: "Please add your name, a short description and at least one service." }, { status: 400 });
+  }
+  if (!consent) {
+    return NextResponse.json({ error: "Please confirm you're happy for these details to be listed." }, { status: 400 });
   }
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
@@ -112,7 +121,9 @@ export async function POST(request: Request) {
       is_featured: false,
       title,
       summary: shortDesc.slice(0, 280),
-      description: shortDesc,
+      description: [shortDesc, about].filter(Boolean).join("\n\n") || shortDesc,
+      credits: credits || null,
+      availability: availability || null,
       category_id: catIds[0],
       location_id: areaIds[0] ?? null,
       website_url: website || null,
@@ -132,6 +143,10 @@ export async function POST(request: Request) {
   await supabase.from("listing_services").insert(catIds.map((cid) => ({ service_id: inserted.id, category_id: cid })));
   if (areaIds.length) {
     await supabase.from("service_areas").insert(areaIds.map((lid) => ({ service_id: inserted.id, location_id: lid })));
+  }
+  // A valid YouTube/Vimeo showreel becomes an embedded portfolio item.
+  if (showreel && toEmbedUrl(showreel)) {
+    await supabase.from("service_media").insert({ service_id: inserted.id, url: showreel, kind: "embed", sort_order: 0 });
   }
 
   // Best-effort admin notification (never blocks the response).
