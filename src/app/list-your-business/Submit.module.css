@@ -39,6 +39,52 @@
   padding-block: clamp(2rem, 4vw, 3rem);
 }
 
+.benefits {
+  max-width: 760px;
+  margin-bottom: 2.4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--p-line);
+}
+
+.benefits h2 {
+  margin: 0 0 1.2rem;
+  font-family: var(--p-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.benefits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.benefits li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+.benefits li svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--p-azure-deep, #0c6f9e);
+}
+
+.benefits strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.benefits li p {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--p-muted);
+}
+
 .form {
   position: relative;
   max-width: 760px;
