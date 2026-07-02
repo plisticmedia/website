@@ -88,9 +88,12 @@ export default async function DirectoryPage({
                 Search
               </button>
             </form>
-            <p style={{ marginTop: "1rem" }}>
+            <p style={{ marginTop: "1rem", display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
               <Link href="/list-your-business" style={{ color: "var(--p-white)", fontWeight: 600 }}>
                 Run a creative business? List it free →
+              </Link>
+              <Link href="/showcase" style={{ color: "var(--p-white)", fontWeight: 600 }}>
+                See the talent showcase →
               </Link>
             </p>
           </div>
@@ -154,6 +157,12 @@ export default async function DirectoryPage({
                           ) : null;
                         })()}
                         <h2>{s.title}</h2>
+                        {(s.verified || s.founding) && (
+                          <span className={styles.cardBadges}>
+                            {s.founding && <span className={styles.cardFounding}>Founding partner</span>}
+                            {s.verified && <span className={styles.cardVerified}>Verified</span>}
+                          </span>
+                        )}
                         {s.google_rating != null && (
                           <GoogleRating rating={s.google_rating} count={s.google_rating_count} size={13} />
                         )}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { brand } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,9 @@ type EmailPayload = {
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
+  if (!rateLimit(`earn:${clientIp(request)}`, 6, 10 * 60 * 1000)) {
+    return jsonError("Too many submissions just now — please try again shortly.", 429);
+  }
   let body: unknown;
 
   try {

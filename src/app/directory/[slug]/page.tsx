@@ -9,7 +9,7 @@ import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
 import { requestClaim } from "./actions";
 import styles from "./Listing.module.css";
@@ -60,9 +60,21 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const seller = service.profiles;
 
+  const viewer = await getSessionProfile();
+
+  // Count a public view (best-effort; skip the owner and admins).
+  if (viewer?.id !== service.seller_id && viewer?.role !== "admin") {
+    try {
+      const svc = createSupabaseServiceRoleClient();
+      await svc.from("services").update({ view_count: (service.view_count ?? 0) + 1 }).eq("id", service.id);
+    } catch {
+      /* view counting must never break the page */
+    }
+  }
+
   // Claim-a-listing: only for unowned (imported) listings.
   const isUnowned = !service.seller_id;
-  const profile = isUnowned ? await getSessionProfile() : null;
+  const profile = isUnowned ? viewer : null;
   let claimState: "none" | "guest" | "pending" = "none";
   if (isUnowned) {
     if (!profile) {

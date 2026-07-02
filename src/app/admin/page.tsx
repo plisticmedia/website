@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, releaseOwner, setFeatured } from "./actions";
+import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, releaseOwner, setFeatured, setFounding, setVerified } from "./actions";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
@@ -25,7 +25,7 @@ export default async function AdminPage() {
   // Admin RLS policies grant full read access across these tables.
   const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships, claims, missingGeo] =
     await Promise.all([
-      supabase.from("services").select("id, title, slug, status, is_featured, created_at, seller_id, claim_token, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
+      supabase.from("services").select("id, title, slug, status, is_featured, verified, founding, created_at, seller_id, claim_token, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("enquiries").select("id, buyer_name, buyer_email, status, created_at, services(title)").order("created_at", { ascending: false }),
       supabase.from("referrals").select("id, referrer_name, referrer_email, referred_name, status, created_at").order("created_at", { ascending: false }),
       supabase.from("partnerships").select("id, partner_name, partner_email, partner_discipline, status, created_at").order("created_at", { ascending: false }),
@@ -37,7 +37,7 @@ export default async function AdminPage() {
       supabase.from("services").select("id", { count: "exact", head: true }).is("latitude", null).not("location_id", "is", null),
     ]);
 
-  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; created_at: string; seller_id: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
+  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
   const enq = (enquiries.data ?? []) as unknown as Array<{ id: string; buyer_name: string; buyer_email: string; status: string; created_at: string; services: { title: string } | null }>;
   const refs = (referrals.data ?? []) as Array<Record<string, string>>;
@@ -176,6 +176,12 @@ export default async function AdminPage() {
                           <button className={`${styles.btnSmall} ${styles.btnTrust}`} type="submit">Make trusted</button>
                         </form>
                       )}
+                      <form action={setVerified.bind(null, s.id, !s.verified)}>
+                        <button className={styles.btnSmall} type="submit">{s.verified ? "Unverify" : "Verify"}</button>
+                      </form>
+                      <form action={setFounding.bind(null, s.id, !s.founding)}>
+                        <button className={styles.btnSmall} type="submit">{s.founding ? "Un-found" : "Founding"}</button>
+                      </form>
                       {s.google_place_id === "SKIP" ? (
                         <form action={recheckRating.bind(null, s.id)}>
                           <button className={styles.btnSmall} type="submit">Re-check Google</button>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { brand } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { getSessionProfile } from "@/lib/auth";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -21,6 +22,9 @@ function clean(v: FormDataEntryValue | null, max = 300) {
  * service role because submitters aren't signed in.
  */
 export async function POST(request: Request) {
+  if (!rateLimit(`submit:${clientIp(request)}`, 5, 30 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many submissions just now — please try again shortly." }, { status: 429 });
+  }
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "Submissions aren't configured yet." }, { status: 503 });
   }
