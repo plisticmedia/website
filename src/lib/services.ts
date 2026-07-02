@@ -221,6 +221,22 @@ export async function getUnlocatedServices(query: DirectoryQuery = {}): Promise<
     .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.title.localeCompare(b.title));
 }
 
+/** Curated showcase: published listings that are verified or founding partners. */
+export async function getShowcaseServices(): Promise<ServiceWithRelations[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select(LISTING_SELECT)
+    .eq("status", "published")
+    .or("verified.eq.true,founding.eq.true")
+    .order("founding", { ascending: false })
+    .order("is_featured", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (error) throw new Error(`Failed to load showcase: ${error.message}`);
+  return (data ?? []) as unknown as ServiceWithRelations[];
+}
+
 /** Public listing detail by slug. Returns null if not published / not found. */
 export async function getServiceBySlug(slug: string): Promise<ServiceWithRelations | null> {
   const supabase = await createSupabaseServerClient();

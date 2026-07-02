@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { getSellerServices } from "@/lib/services";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import styles from "./Listings.module.css";
 
 export const metadata: Metadata = { title: "My listings | Plistic" };
@@ -26,6 +27,14 @@ export default async function ListingsPage({
   const profile = await requireUser("/dashboard/listings");
   const services = await getSellerServices(profile.id);
   const { claimed } = await searchParams;
+
+  // Enquiry counts per listing for the insights line.
+  const supabase = await createSupabaseServerClient();
+  const { data: enq } = await supabase.from("enquiries").select("service_id").eq("seller_id", profile.id);
+  const enquiryCount = new Map<string, number>();
+  for (const e of (enq ?? []) as Array<{ service_id: string }>) {
+    enquiryCount.set(e.service_id, (enquiryCount.get(e.service_id) ?? 0) + 1);
+  }
 
   return (
     <>
@@ -86,7 +95,9 @@ export default async function ListingsPage({
                     <div className={styles.rowMain}>
                       <strong>{s.title}</strong>
                       <span className={styles.rowMeta}>
-                        {s.categories?.name ?? "Uncategorised"} · {s.service_packages.length} package(s)
+                        {s.categories?.name ?? "Uncategorised"} · {s.view_count ?? 0} view
+                        {(s.view_count ?? 0) === 1 ? "" : "s"} · {enquiryCount.get(s.id) ?? 0} enquir
+                        {(enquiryCount.get(s.id) ?? 0) === 1 ? "y" : "ies"}
                       </span>
                     </div>
                     <span className={`${styles.status} ${styles[`status_${s.status}`] ?? ""}`}>

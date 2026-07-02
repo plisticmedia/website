@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { brand } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,9 @@ function jsonError(error: string, status: number) {
 }
 
 export async function POST(request: Request) {
+  if (!rateLimit(`enquiries:${clientIp(request)}`, 8, 10 * 60 * 1000)) {
+    return jsonError("Too many messages just now — please try again shortly.", 429);
+  }
   let body: unknown;
   try {
     body = await request.json();

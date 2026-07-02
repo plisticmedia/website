@@ -151,6 +151,28 @@ export async function approveClaim(claimId: string) {
   revalidatePath("/admin");
 }
 
+/** Admin: toggle the free "Verified" trust badge (distinct from paid featured). */
+export async function setVerified(id: string, verified: boolean) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("services").update({ verified }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/directory");
+  revalidatePath("/showcase");
+}
+
+/** Admin: toggle "Founding partner" status (curated launch cohort). */
+export async function setFounding(id: string, founding: boolean) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("services").update({ founding }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/directory");
+  revalidatePath("/showcase");
+}
+
 /** Admin: release ownership of a listing (back to unclaimed). Undoes a claim. */
 export async function releaseOwner(id: string) {
   await requireAdmin();

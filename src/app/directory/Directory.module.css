@@ -401,6 +401,34 @@
   color: var(--p-azure-deep);
 }
 
+.cardBadges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.cardVerified,
+.cardFounding {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+
+.cardVerified {
+  color: var(--p-white);
+  background: var(--p-azure-deep, #0c6f9e);
+}
+
+.cardFounding {
+  color: var(--p-white);
+  background: var(--p-ink, #161616);
+}
+
 .cardBody h2 {
   margin: 0;
   font-family: var(--p-display);
