@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, Inbox, Sparkles, UserRound } from "lucide-react";
+import { ClipboardList, Inbox, UserRound } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { FeatureCard } from "./FeatureCard";
 import styles from "./DashboardPage.module.css";
 
 export const metadata: Metadata = {
@@ -13,8 +15,22 @@ export const metadata: Metadata = {
 // Per-user, auth-gated page — never statically prerender.
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ featured?: string }>;
+}) {
   const profile = await requireUser("/dashboard");
+  const { featured } = await searchParams;
+
+  const supabase = await createSupabaseServerClient();
+  const { data: sub } = await supabase
+    .from("sponsorships")
+    .select("status")
+    .eq("seller_id", profile.id)
+    .eq("status", "active")
+    .maybeSingle();
+  const featuredActive = !!sub;
 
   return (
     <>
@@ -34,6 +50,12 @@ export default async function DashboardPage() {
             </form>
           </header>
 
+          {featured === "success" && (
+            <p className={styles.adminNote} role="status">
+              Thanks — your subscription is active. Your listings are being featured (this can take a few seconds).
+            </p>
+          )}
+
           <div className={styles.grid}>
             <DashboardCard
               icon={<ClipboardList aria-hidden="true" size={20} />}
@@ -47,12 +69,7 @@ export default async function DashboardPage() {
               body="Buyer enquiries about your listings will arrive here and by email."
               href="/dashboard/enquiries"
             />
-            <DashboardCard
-              icon={<Sparkles aria-hidden="true" size={20} />}
-              title="Feature a listing"
-              body="Boost a listing to the top of the directory with a monthly subscription."
-              soon
-            />
+            <FeatureCard active={featuredActive} />
             <DashboardCard
               icon={<UserRound aria-hidden="true" size={20} />}
               title="Profile"
