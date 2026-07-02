@@ -57,7 +57,7 @@ export default async function ListYourBusinessPage() {
                 <Mail aria-hidden="true" size={18} />
                 <div>
                   <strong>Free enquiries</strong>
-                  <p>Buyers message you directly. Leads land in your inbox and by email — no commission on the base tier.</p>
+                  <p>Buyers message you directly. Leads land in your inbox and by email.</p>
                 </div>
               </li>
               <li>
