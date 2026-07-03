@@ -85,6 +85,7 @@
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
+  cursor: pointer;
   transition:
     background 180ms ease,
     color 180ms ease,

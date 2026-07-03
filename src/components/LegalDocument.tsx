@@ -1,4 +1,5 @@
 import type { LegalDocumentData, LegalSection } from "@/data/legal";
+import { PrintButton } from "@/components/PrintButton";
 import styles from "@/app/legal.module.css";
 
 type LegalDocumentProps = {
@@ -13,9 +14,7 @@ export function LegalDocument({ document }: LegalDocumentProps) {
         <h2>{document.documentTitle}</h2>
         <p>{document.companyLine}</p>
         <p className={styles.updated}>Last updated: {document.lastUpdated}</p>
-        <a className={styles.download} href={document.pdfPath}>
-          Download PDF
-        </a>
+        <PrintButton className={styles.download} />
       </header>
       {document.sections.map((section) => (
         <LegalSectionView key={section.title} level={2} section={section} />
