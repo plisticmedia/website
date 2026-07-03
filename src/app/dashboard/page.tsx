@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, Inbox, UserRound, Wallet } from "lucide-react";
+import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
@@ -70,6 +70,18 @@ export default async function DashboardPage({
               href="/dashboard/enquiries"
             />
             <FeatureCard active={featuredActive} />
+            <DashboardCard
+              icon={<Receipt aria-hidden="true" size={20} />}
+              title="Sales"
+              body="Bookings buyers have made. Mark work delivered to release your payout."
+              href="/dashboard/sales"
+            />
+            <DashboardCard
+              icon={<ShoppingBag aria-hidden="true" size={20} />}
+              title="My orders"
+              body="Services you've booked from others, and their status."
+              href="/dashboard/orders"
+            />
             <DashboardCard
               icon={<Wallet aria-hidden="true" size={20} />}
               title="Payouts"
