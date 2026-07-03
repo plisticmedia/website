@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { slugify } from "@/lib/services";
 import { geocode, geocodeQuery } from "@/lib/geocode";
+import { toEmbedUrl } from "@/lib/images";
 import type { ServiceStatus } from "@/lib/types";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -284,6 +285,38 @@ export async function uploadMedia(serviceId: string, formData: FormData) {
   if (!service.cover_image_url) {
     await supabase.from("services").update({ cover_image_url: url }).eq("id", serviceId);
   }
+
+  revalidatePath(`/dashboard/listings/${serviceId}`);
+}
+
+/**
+ * Add a showreel / video to the portfolio gallery from a YouTube or Vimeo link.
+ * Stored as a `kind: "embed"` media row; the public profile renders it as a
+ * responsive iframe.
+ */
+export async function addEmbed(serviceId: string, formData: FormData) {
+  const profile = await requireUser("/dashboard/listings");
+  const supabase = await createSupabaseServerClient();
+
+  const url = str(formData, "showreel", 400);
+  if (!url) throw new Error("Please paste a YouTube or Vimeo link.");
+  if (!toEmbedUrl(url)) {
+    throw new Error("That doesn't look like a YouTube or Vimeo link.");
+  }
+
+  // Confirm ownership before writing the child row.
+  const { data: owned } = await supabase
+    .from("services")
+    .select("id")
+    .eq("id", serviceId)
+    .eq("seller_id", profile.id)
+    .maybeSingle();
+  if (!owned) throw new Error("Listing not found.");
+
+  const { error } = await supabase
+    .from("service_media")
+    .insert({ service_id: serviceId, url, kind: "embed" });
+  if (error) throw new Error(error.message);
 
   revalidatePath(`/dashboard/listings/${serviceId}`);
 }
