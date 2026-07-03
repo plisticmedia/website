@@ -46,6 +46,10 @@ export async function POST(request: Request) {
         await syncSubscription(supabase, event.data.object as Stripe.Subscription);
         break;
       }
+      case "account.updated": {
+        await syncConnectAccount(supabase, event.data.object as Stripe.Account);
+        break;
+      }
       default:
         break;
     }
@@ -87,6 +91,20 @@ async function syncSubscription(supabase: Supabase, sub: Stripe.Subscription, se
   );
 
   await featureSeller(supabase, sellerId, status === "active");
+}
+
+/**
+ * Sync a Connect Express account's onboarding state onto the seller's profile.
+ * Drives whether their packages can be booked (payouts_enabled).
+ */
+async function syncConnectAccount(supabase: Supabase, account: Stripe.Account) {
+  await supabase
+    .from("profiles")
+    .update({
+      payouts_enabled: !!account.payouts_enabled,
+      charges_enabled: !!account.charges_enabled,
+    })
+    .eq("stripe_connect_account_id", account.id);
 }
 
 async function sellerByCustomer(supabase: Supabase, customerId: string): Promise<string | null> {
