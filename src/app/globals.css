@@ -2012,3 +2012,17 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* Print: strip site chrome so a saved legal PDF is just the document itself. */
+@media print {
+  .launch-banner,
+  .site-header,
+  .site-footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}
