@@ -321,7 +321,12 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-auto-rows: 1fr; /* every card the same height, regardless of content */
   gap: 1.4rem;
+}
+
+.grid > li {
+  display: flex; /* let the card stretch to the full row height */
 }
 
 .card {
