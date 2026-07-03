@@ -352,13 +352,13 @@
   justify-content: center;
 }
 
-/* Logos are capped + centred so every card reads at a consistent size,
-   regardless of the uploaded image's shape. */
+/* Logos are normalised to a consistent HEIGHT (with a max width so very wide
+   wordmarks don't overrun) — a "logo wall" look that reads uniform regardless
+   of each logo's shape. */
 .cardImage img {
-  max-width: 68%;
-  max-height: 58%;
+  height: 46%;
   width: auto;
-  height: auto;
+  max-width: 76%;
   object-fit: contain;
   display: block;
 }
