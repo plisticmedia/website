@@ -22,7 +22,7 @@ export const termsDocument: LegalDocumentData = {
   heroDescription: "Plistic's current terms and conditions of service.",
   documentTitle: "Terms and Conditions of Service",
   companyLine: "A trading name of Songplistic Ltd, a company registered in Scotland",
-  lastUpdated: "30 June 2026 (Version 7)",
+  lastUpdated: "3 July 2026 (Version 8)",
   pdfPath: "/assets/legal/plistic-terms-and-conditions-v5.pdf",
   sections: [
     {
@@ -323,7 +323,8 @@ export const termsDocument: LegalDocumentData = {
         {
           title: "17.1 An introduction service",
           paragraphs: [
-            "The Directory lists independent creative and media providers (\"Sellers\" or \"Partners\") so potential buyers can find and contact them. Plistic simply introduces buyers and Sellers. Plistic is not a party to any contract, agreement, or transaction between a buyer and a Seller, takes no commission on those transactions, and is not responsible for the work, conduct, pricing, deliverables, or any act or omission of any Seller or buyer. Any agreement you enter into with a Seller (or buyer) is solely between you and that other party.",
+            "The Directory lists independent creative and media providers (\"Sellers\" or \"Partners\") so potential buyers can find and contact them. Where a buyer contacts a Seller through the Directory - for example by sending an enquiry - and then arranges work with them directly, Plistic is only making an introduction. In that case Plistic is not a party to any contract, agreement, or transaction between the buyer and the Seller, takes no commission on it, and is not responsible for the work, conduct, pricing, deliverables, or any act or omission of any Seller or buyer. Any agreement you enter into that way is solely between you and that other party.",
+            "Separately, some Sellers offer packages that can be booked and paid for through the platform (\"Marketplace Bookings\"). Marketplace Bookings are governed by Section 18. For those, Plistic facilitates payment and charges a commission, but Plistic still does not itself carry out the Seller's work and is not the supplier of the services.",
           ],
         },
         {
@@ -359,7 +360,75 @@ export const termsDocument: LegalDocumentData = {
       ],
     },
     {
-      title: "18. Contact",
+      title: "18. Marketplace Bookings and Payments",
+      paragraphs: [
+        "This section applies where a Seller has enabled online booking on one or more of their packages and a buyer books and pays for that package through the Plistic platform (a \"Marketplace Booking\"). It is in addition to Section 17.",
+      ],
+      subsections: [
+        {
+          title: "18.1 The contract is between buyer and Seller",
+          paragraphs: [
+            "A Marketplace Booking is a contract for the Seller's services between the buyer and the Seller. Plistic is not the supplier of those services and is not a party to that contract. The Seller alone is responsible for carrying out the work, for its quality, scope, timing, and for any warranties, and for dealing with the buyer in good faith. Plistic's role is limited to operating the Directory and facilitating the payment described below.",
+          ],
+        },
+        {
+          title: "18.2 Payment and escrow",
+          paragraphs: [
+            "Payment for a Marketplace Booking is taken from the buyer at the point of booking, through our payment provider, Stripe. The payment is then held securely (in escrow) and is not paid out to the Seller straight away. It is released to the Seller once the booking is completed as described in Section 18.5. Plistic does not see or store buyers' card details; these are handled by Stripe.",
+          ],
+        },
+        {
+          title: "18.3 Commission",
+          paragraphs: [
+            "Plistic charges the Seller a commission on each Marketplace Booking for operating the platform and facilitating payment. The commission is currently 10% of the booking value, reduced to 5% for Sellers with an active featured membership. The commission rate that applies to a booking is the rate in effect at the time the booking is made, and is deducted from the amount paid out to the Seller. Plistic may change its commission rates from time to time; any change applies only to bookings made after the change.",
+          ],
+        },
+        {
+          title: "18.4 Seller payouts",
+          paragraphs: [
+            "To receive Marketplace Booking payments, a Seller must set up a connected payout account through Stripe and complete Stripe's identity and verification requirements. Payouts are made by Stripe to the Seller's connected account, less Plistic's commission and any applicable payment-processing fees. Plistic does not hold Sellers' bank details. Sellers are responsible for their own tax affairs, including any VAT, on the income they receive.",
+          ],
+        },
+        {
+          title: "18.5 Delivery, confirmation, and release of funds",
+          paragraphs: [
+            "When the Seller has completed the work, they mark the booking as delivered. The buyer is then asked to confirm they are satisfied, which releases the held funds to the Seller. If the buyer neither confirms nor raises an issue (see Section 18.7) within 14 days of the booking being marked delivered, the funds are automatically released to the Seller. Confirming, or allowing automatic release, does not remove any legal rights the buyer may have against the Seller.",
+          ],
+        },
+        {
+          title: "18.6 Cancellations and refunds",
+          paragraphs: [
+            "Before funds are released, a buyer who has a problem with a booking may raise an issue and request a refund (see Section 18.7). Where Plistic still holds the payment, Plistic can refund the buyer in full or release the funds to the Seller. Once funds have been released to the Seller (including by automatic release), any refund, redo, or further remedy is a matter between the buyer and the Seller under their contract; Plistic is not obliged to refund amounts it no longer holds.",
+          ],
+        },
+        {
+          title: "18.7 Disputes",
+          paragraphs: [
+            "If a buyer is not satisfied, they may raise a dispute through their account before the funds are released. Raising a dispute pauses the automatic release. Plistic will look at the information provided by both sides and decide, acting reasonably, whether to refund the buyer or release the funds to the Seller. This decision relates only to the payment Plistic is holding; it is not a legal determination of the underlying contract between buyer and Seller, and it does not affect either party's right to pursue the other separately. Both buyers and Sellers agree to engage with this process honestly and in good faith.",
+          ],
+        },
+        {
+          title: "18.8 Reviews",
+          paragraphs: [
+            "Only a buyer who has completed a Marketplace Booking with a Seller may leave a review of that Seller through the platform. Reviews must be honest, based on genuine experience, and must not be unlawful, defamatory, or abusive. Plistic may remove reviews that breach these Terms. Reviews are shown for up to 12 months and then expire, so that a Seller's rating reflects recent work.",
+          ],
+        },
+        {
+          title: "18.9 Seller obligations for Marketplace Bookings",
+          paragraphs: [
+            "In addition to Section 17.3, a Seller offering Marketplace Bookings agrees that their package descriptions, prices, and delivery times are accurate and not misleading; that they will deliver the work as described and within the stated timeframe; that they are legally able to supply the services and will comply with all applicable law; and that they, not Plistic, are the supplier of the services to the buyer.",
+          ],
+        },
+        {
+          title: "18.10 Plistic's liability for Marketplace Bookings",
+          paragraphs: [
+            "Subject to Section 13, Plistic's responsibility in relation to a Marketplace Booking is limited to operating the platform and handling the payment as described in this Section 18. Plistic is not liable for the Seller's work or conduct, for a Seller's failure to deliver, or for any loss arising from the contract between a buyer and a Seller. Where Plistic holds funds pending release, it does so as a payment facilitator and not as a trustee, bank, or insurer.",
+          ],
+        },
+      ],
+    },
+    {
+      title: "19. Contact",
       paragraphs: [
         `If you have any questions about these Terms, please contact us at ${legalEmail}.`,
         "Plistic is the trading name of Songplistic Ltd, a company registered in Scotland under company number SC699049. Registered office: 2 West Drive Cottage, Stracathro, Brechin, Scotland, DD9 7QF.",
@@ -373,7 +442,7 @@ export const privacyDocument: LegalDocumentData = {
   heroDescription: "How Plistic collects, uses, and protects personal data.",
   documentTitle: "Privacy Policy",
   companyLine: "A trading name of Songplistic Ltd, a company registered in Scotland",
-  lastUpdated: "19th June 2026",
+  lastUpdated: "3rd July 2026",
   pdfPath: "/assets/legal/plistic-privacy-policy-v3.pdf",
   sections: [
     {
@@ -427,6 +496,7 @@ export const privacyDocument: LegalDocumentData = {
           title: "2.7 Partner Directory",
           paragraphs: [
             "If you create a Seller account in our partner directory, we collect the email address you sign in with and the profile and listing details you choose to publish (including any images or media you upload). If you submit an enquiry on a Seller's listing, we collect your name, email, and message - and share these with the relevant Seller so they can reply to you directly (see Sections 6 and 7).",
+            "If you book and pay for a Seller's package through the platform (a Marketplace Booking), we collect the information needed to process that payment and manage your order - such as your email address, the order details, and payment confirmation information. Card payments are handled by our payment provider, Stripe; we do not see or store your full card details. We share the order details with the relevant Seller so they can carry out the work, and Sellers who receive payouts provide their own details directly to Stripe.",
           ],
         },
       ],
@@ -462,7 +532,8 @@ export const privacyDocument: LegalDocumentData = {
     {
       title: "5. Payments and Invoicing",
       paragraphs: [
-        "We do not currently take payment through our website. Once a project is confirmed, we issue invoices directly by email, and payment is arranged separately between you and us. Details of how to pay are provided on the invoice itself.",
+        "For our own production projects, we issue invoices directly by email once a project is confirmed, and payment is arranged separately between you and us. Details of how to pay are provided on the invoice itself.",
+        "For directory Marketplace Bookings - where you book and pay for a Seller's package through the platform - payment is taken through our payment provider, Stripe. Stripe processes your card payment and (for Sellers) makes payouts; it acts as an independent payment processor. We do not see or store your full card details. See Section 6 for more on Stripe as a third party.",
       ],
     },
     {
@@ -476,6 +547,7 @@ export const privacyDocument: LegalDocumentData = {
         "Mailchimp - to manage our CRM and send email communications to existing contacts.",
         "Supabase - the database, sign-in, and file storage that power the partner directory and our website forms.",
         "Resend - to send transactional emails such as enquiry notifications, confirmations, and sign-in links.",
+        "Stripe - to process marketplace payments securely and make payouts to Sellers. Where you make a booking, Stripe receives the payment information needed to take and process that payment.",
         "Vercel - website and application hosting.",
         "Our accountant - for invoicing, tax, and financial record-keeping.",
         "Any freelancer or third party we bring onto a specific project (for example, a guest researcher or specialist) - only where relevant to delivering that project, and only the information they need.",
@@ -485,7 +557,7 @@ export const privacyDocument: LegalDocumentData = {
         {
           title: "",
           paragraphs: [
-            "Several of these providers (including Calendly, Google, Mailchimp, Resend, and Vercel) are based in or transfer data to the United States, so using them involves transferring some personal data outside the UK. Each safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
+            "Several of these providers (including Calendly, Google, Mailchimp, Resend, Stripe, and Vercel) are based in or transfer data to the United States, so using them involves transferring some personal data outside the UK. Each safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
           ],
         },
       ],
