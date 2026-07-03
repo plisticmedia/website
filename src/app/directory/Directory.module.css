@@ -321,12 +321,7 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: 1fr; /* every card the same height, regardless of content */
   gap: 1.4rem;
-}
-
-.grid > li {
-  display: flex; /* let the card stretch to the full row height */
 }
 
 .card {
@@ -400,7 +395,12 @@
   flex: 1;
 }
 
+/* One line only — wrapping tag lists were making some cards taller than others. */
 .cardCat {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
