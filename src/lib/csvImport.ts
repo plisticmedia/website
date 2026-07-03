@@ -1,8 +1,28 @@
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** Minimal CSV parser: handles quotes, escaped quotes, commas and newlines. */
-export function parseCsv(text: string): string[][] {
+/** Strip a leading UTF-8 byte-order mark (Excel adds one to CSV exports). */
+export function stripBom(text: string): string {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+}
+
+/**
+ * Guess the column delimiter from the header line. Excel in some locales exports
+ * semicolon-separated files; pasted/exported data is sometimes tab-separated.
+ * Falls back to comma.
+ */
+export function detectDelimiter(headerLine: string): string {
+  const counts: Array<[string, number]> = [
+    [",", (headerLine.match(/,/g) || []).length],
+    [";", (headerLine.match(/;/g) || []).length],
+    ["\t", (headerLine.match(/\t/g) || []).length],
+  ];
+  counts.sort((a, b) => b[1] - a[1]);
+  return counts[0][1] > 0 ? counts[0][0] : ",";
+}
+
+/** Minimal CSV parser: handles quotes, escaped quotes, the given delimiter and newlines. */
+export function parseCsv(text: string, delimiter = ","): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -14,7 +34,7 @@ export function parseCsv(text: string): string[][] {
         if (text[i + 1] === '"') { field += '"'; i += 1; } else inQuotes = false;
       } else field += c;
     } else if (c === '"') inQuotes = true;
-    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === delimiter) { row.push(field); field = ""; }
     else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
     else if (c === "\r") { /* ignore */ }
     else field += c;
@@ -50,6 +70,52 @@ function pick(r: Record<string, string>, keys: string[]) {
   return "";
 }
 
+// Every header we recognise as the business/listing name. Broad on purpose so a
+// research spreadsheet doesn't get silently skipped for an unexpected column name.
+const TITLE_KEYS = [
+  "name", "businessname", "business", "company", "companyname", "studio", "brand", "agency",
+  "organisation", "organization", "organisationname", "organizationname",
+  "tradingname", "listingname", "listing", "provider", "supplier",
+  "companyorindividualname", "companyorindividual", "individualorcompanyname",
+  "nameofbusiness", "nameofcompany", "nameofyourbusiness", "businessorindividual",
+  "fullname", "contactname", "yourname",
+];
+
+const LOGO_KEYS = [
+  "logo", "logourl", "logolink", "logoimage", "logoorprofileimage", "profileimage",
+  "brandimage", "brandlogo", "image", "imageurl", "picture", "photo",
+];
+
+/** Extract the listing title, falling back to the first non-empty cell. */
+function deriveTitle(
+  r: Record<string, string>,
+  headers: string[],
+  cells: string[],
+): { title: string; usedFallback: boolean } {
+  const known = pick(r, TITLE_KEYS);
+  if (known) return { title: known, usedFallback: false };
+  // Fallback: first non-empty cell that isn't obviously a URL/email/number. This
+  // rescues CSVs whose name column has an unrecognised header.
+  for (const cell of cells) {
+    const v = (cell ?? "").trim();
+    if (!v) continue;
+    if (/^https?:\/\//i.test(v)) continue;
+    if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) continue;
+    if (/^[\d\s.,+()-]+$/.test(v)) continue;
+    if (/[a-z]/i.test(v)) return { title: v.slice(0, 140), usedFallback: true };
+  }
+  void headers;
+  return { title: "", usedFallback: false };
+}
+
+function consentSaysNo(r: Record<string, string>): boolean {
+  const consent = pick(r, [
+    "imhappyforthedetailsabovetobepublishedinthescotlandmediadirectory", "consent", "publish",
+    "consenttopublish", "happytobelisted",
+  ]);
+  return !!consent && /^(n|no|false|0)/i.test(consent);
+}
+
 async function ensureTaxon(supabase: SupabaseClient, table: "categories" | "locations", name: string) {
   const slug = slugify(name);
   if (!slug) return null;
@@ -59,7 +125,87 @@ async function ensureTaxon(supabase: SupabaseClient, table: "categories" | "loca
   return (data?.id as string) ?? null;
 }
 
-export type ImportResult = { created: number; updated: number; skipped: number; errors: string[] };
+export type SkippedRow = { row: number; name: string; reason: string };
+export type ImportResult = {
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: string[];
+  skippedRows: SkippedRow[];
+  headers: string[];
+  delimiter: string;
+  dataRows: number;
+  usedNameFallback: boolean;
+  dryRun: boolean;
+};
+
+/** Human-readable delimiter name for reporting. */
+function delimiterName(d: string): string {
+  return d === "\t" ? "tab" : d === ";" ? "semicolon" : "comma";
+}
+
+/**
+ * Parse a CSV without touching the database and report what WOULD be imported.
+ * Used by the admin "Preview" button and unit tests. Explains every skip.
+ */
+export function previewCsv(csvText: string): {
+  delimiter: string;
+  delimiterName: string;
+  headers: string[];
+  dataRows: number;
+  wouldImport: { row: number; title: string; usedFallback: boolean }[];
+  skippedRows: SkippedRow[];
+  usedNameFallback: boolean;
+} {
+  const text = stripBom(csvText ?? "");
+  const firstLine = text.split(/\r?\n/, 1)[0] ?? "";
+  const delimiter = detectDelimiter(firstLine);
+  const matrix = parseCsv(text, delimiter);
+  const wouldImport: { row: number; title: string; usedFallback: boolean }[] = [];
+  const skippedRows: SkippedRow[] = [];
+  let usedNameFallback = false;
+
+  if (matrix.length < 2) {
+    return {
+      delimiter,
+      delimiterName: delimiterName(delimiter),
+      headers: matrix[0]?.map((h) => h.trim()) ?? [],
+      dataRows: 0,
+      wouldImport,
+      skippedRows: [{ row: 0, name: "", reason: "CSV had no data rows (need a header row plus at least one row)." }],
+      usedNameFallback,
+    };
+  }
+  const rawHeaders = matrix[0].map((h) => h.trim());
+  const headers = matrix[0].map(norm);
+
+  matrix.slice(1).forEach((cells, idx) => {
+    const rowNum = idx + 2; // 1-based, +1 for header
+    const r: Record<string, string> = {};
+    headers.forEach((h, i) => { r[h] = cells[i] ?? ""; });
+    const { title, usedFallback } = deriveTitle(r, headers, cells);
+    if (!title) {
+      skippedRows.push({ row: rowNum, name: "", reason: "No business name found in any recognised column or the first column." });
+      return;
+    }
+    if (usedFallback) usedNameFallback = true;
+    if (consentSaysNo(r)) {
+      skippedRows.push({ row: rowNum, name: title, reason: "Consent-to-publish column said no." });
+      return;
+    }
+    wouldImport.push({ row: rowNum, title, usedFallback });
+  });
+
+  return {
+    delimiter,
+    delimiterName: delimiterName(delimiter),
+    headers: rawHeaders,
+    dataRows: matrix.length - 1,
+    wouldImport,
+    skippedRows,
+    usedNameFallback,
+  };
+}
 
 /** Import listings from raw CSV text using a service-role client. */
 export async function importListingsFromCsv(
@@ -67,31 +213,46 @@ export async function importListingsFromCsv(
   csvText: string,
   publish: boolean,
   source?: string,
+  opts?: { dryRun?: boolean },
 ): Promise<ImportResult> {
-  const matrix = parseCsv(csvText);
-  const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
+  const dryRun = !!opts?.dryRun;
+  const text = stripBom(csvText ?? "");
+  const firstLine = text.split(/\r?\n/, 1)[0] ?? "";
+  const delimiter = detectDelimiter(firstLine);
+  const matrix = parseCsv(text, delimiter);
+
+  const result: ImportResult = {
+    created: 0, updated: 0, skipped: 0, errors: [], skippedRows: [],
+    headers: [], delimiter: delimiterName(delimiter), dataRows: Math.max(0, matrix.length - 1),
+    usedNameFallback: false, dryRun,
+  };
   if (matrix.length < 2) {
-    result.errors.push("CSV had no data rows.");
+    result.errors.push("CSV had no data rows (need a header row plus at least one row).");
     return result;
   }
+  result.headers = matrix[0].map((h) => h.trim());
   const headers = matrix[0].map(norm);
 
+  let rowNum = 1;
   for (const cells of matrix.slice(1)) {
+    rowNum += 1;
     const r: Record<string, string> = {};
     headers.forEach((h, i) => { r[h] = cells[i] ?? ""; });
 
-    const title = pick(r, [
-      "name", "businessname", "business", "company", "studio",
-      "companyorindividualname", "companyorindividual", "individualorcompanyname",
-    ]);
-    if (!title) { result.skipped += 1; continue; }
+    const { title, usedFallback } = deriveTitle(r, headers, cells);
+    if (!title) {
+      result.skipped += 1;
+      result.skippedRows.push({ row: rowNum, name: "", reason: "No business name found in any recognised column or the first column." });
+      continue;
+    }
+    if (usedFallback) result.usedNameFallback = true;
     const slug = slugify(title);
 
-    // Respect publish consent when the form asked for it.
-    const consent = pick(r, [
-      "imhappyforthedetailsabovetobepublishedinthescotlandmediadirectory", "consent", "publish",
-    ]);
-    if (consent && /^(n|no|false|0)/i.test(consent)) { result.skipped += 1; continue; }
+    if (consentSaysNo(r)) {
+      result.skipped += 1;
+      result.skippedRows.push({ row: rowNum, name: title, reason: "Consent-to-publish column said no." });
+      continue;
+    }
 
     // A listing may already exist. Update owner-less (imported) ones from the
     // sheet; never overwrite a listing a seller has claimed.
@@ -100,12 +261,16 @@ export async function importListingsFromCsv(
       .select("id, seller_id, claim_token")
       .eq("slug", slug)
       .maybeSingle();
-    if (dupe?.id && dupe.seller_id) { result.skipped += 1; continue; }
+    if (dupe?.id && dupe.seller_id) {
+      result.skipped += 1;
+      result.skippedRows.push({ row: rowNum, name: title, reason: "A claimed listing with this name already exists (left untouched)." });
+      continue;
+    }
     // Stable per-listing claim link (kept on re-import).
     const claimToken = (dupe as { claim_token?: string | null } | null)?.claim_token ?? randomUUID().replace(/-/g, "");
 
     const serviceNames = [
-      pick(r, ["services", "service", "category", "categories", "discipline", "whatcategorybestdescribesyourservices"]),
+      pick(r, ["services", "service", "category", "categories", "discipline", "disciplines", "whatcategorybestdescribesyourservices", "whatdoyoudo"]),
       pick(r, ["ifyouselectedotherpleasetelluswhatyoudo", "other"]),
     ]
       .filter(Boolean)
@@ -114,25 +279,25 @@ export async function importListingsFromCsv(
       .map((s) => s.trim())
       .filter(Boolean);
 
-    const shortDesc = pick(r, ["ashortdescriptionofyourcompanyandwhatyoudo", "description", "about", "bio"]);
-    const longDesc = pick(r, ["tellusmoreaboutyourbusiness"]);
+    const shortDesc = pick(r, ["ashortdescriptionofyourcompanyandwhatyoudo", "description", "about", "bio", "summary", "overview"]);
+    const longDesc = pick(r, ["tellusmoreaboutyourbusiness", "moreinfo", "details"]);
     const summary = (pick(r, ["summary", "tagline"]) || shortDesc || title).slice(0, 280);
     const description = [shortDesc, longDesc].filter(Boolean).join("\n\n") || shortDesc || null;
     // Base location -> map pin + shown publicly (geocoded from address/postcode/town).
     const explicitAddress = pick(r, ["businessaddress", "address", "streetaddress"]);
-    const baseText = pick(r, ["whereisyourcompanybased", "basedin", "location", "city", "town"]);
+    const baseText = pick(r, ["whereisyourcompanybased", "basedin", "location", "city", "town", "basedlocation"]);
     const postcode = pick(r, ["postcode", "postalcode", "zip"]);
     // Operating areas -> coverage (Location filter + density). Split multi-values.
     const operatesText = pick(r, [
       "wheredoesyourbusinessoperate", "whichareasofscotlanddoyouworkin", "whichareasdoyouworkin",
-      "areasyouworkin", "areasyoucover", "areasyouoperatein", "operates", "coverage", "area", "region",
+      "areasyouworkin", "areasyoucover", "areasyouoperatein", "operates", "coverage", "area", "areas", "region", "regions",
     ]);
     const areaNames = (operatesText || baseText)
       .split(/[,;|/]|\band\b/i)
       .map((s) => s.trim())
       .filter(Boolean);
-    const website = pick(r, ["website", "url", "site", "weblink"]);
-    const logo = pick(r, ["logo", "logourl", "logolink", "logoorprofileimage", "profileimage"]);
+    const website = pick(r, ["website", "url", "site", "weblink", "websiteurl", "web"]);
+    const logo = pick(r, LOGO_KEYS);
     const partnerFlag = pick(r, ["founding", "foundingpartner", "trusted", "trustedpartner", "partner", "featured"]);
     const isFeatured = /^(y|yes|true|1)/i.test(partnerFlag);
 
@@ -160,6 +325,13 @@ export async function importListingsFromCsv(
     if (googleProfile) social.google = googleProfile;
     // If the Google link embeds a real place id, use it for an accurate rating.
     const placeIdFromUrl = googleProfile ? googleProfile.match(/ChIJ[-\w]+/)?.[0] ?? null : null;
+
+    if (dryRun) {
+      // Report what would happen without writing anything.
+      if (dupe?.id) result.updated += 1;
+      else result.created += 1;
+      continue;
+    }
 
     const categoryIds: string[] = [];
     for (const name of serviceNames) {
@@ -199,7 +371,12 @@ export async function importListingsFromCsv(
     if (dupe?.id) {
       // Update an existing imported (owner-less) listing; keep its status/featured.
       const { error } = await supabase.from("services").update(content).eq("id", dupe.id);
-      if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+      if (error) {
+        result.errors.push(`Row ${rowNum} (${title}): ${error.message}`);
+        result.skipped += 1;
+        result.skippedRows.push({ row: rowNum, name: title, reason: `Database error: ${error.message}` });
+        continue;
+      }
       serviceId = dupe.id;
       result.updated += 1;
     } else {
@@ -215,7 +392,12 @@ export async function importListingsFromCsv(
         })
         .select("id")
         .single();
-      if (error) { result.errors.push(`${title}: ${error.message}`); result.skipped += 1; continue; }
+      if (error) {
+        result.errors.push(`Row ${rowNum} (${title}): ${error.message}`);
+        result.skipped += 1;
+        result.skippedRows.push({ row: rowNum, name: title, reason: `Database error: ${error.message}` });
+        continue;
+      }
       serviceId = inserted.id;
       result.created += 1;
     }
