@@ -249,6 +249,8 @@
 }
 
 .package {
+  display: flex;
+  flex-direction: column;
   padding: 1.3rem;
   background: var(--p-white);
   border: 1px solid var(--p-line);
@@ -298,6 +300,17 @@
   flex-shrink: 0;
   margin-top: 0.2rem;
   color: var(--p-azure-deep);
+}
+
+.bookWrap {
+  margin-top: auto;
+  padding-top: 0.8rem;
+}
+
+.bookError {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  color: var(--p-coral, #f06d45);
 }
 
 .sidebar {

@@ -105,6 +105,35 @@
   color: var(--p-muted);
 }
 
+.bookableTag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--p-white);
+  background: var(--p-azure-deep, #0c6f9e);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.linkBtn {
+  margin-top: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--p-azure-deep);
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
 .status {
   padding: 0.25rem 0.7rem;
   font-size: 0.72rem;

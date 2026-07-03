@@ -25,6 +25,7 @@ export type ServicePackage = {
   delivery_days: number | null;
   features: string[];
   sort_order: number;
+  is_bookable: boolean;
 };
 
 export type ServiceMedia = {
@@ -41,6 +42,7 @@ export type SellerProfile = {
   bio: string | null;
   avatar_url: string | null;
   website_url: string | null;
+  payouts_enabled: boolean | null;
 };
 
 export type Service = {

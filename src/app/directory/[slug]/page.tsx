@@ -12,6 +12,7 @@ import { getServiceBySlug } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
+import { BookButton } from "./BookButton";
 import { requestClaim } from "./actions";
 import styles from "./Listing.module.css";
 
@@ -265,28 +266,36 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             {packages.length > 0 && (
               <div className={styles.packages}>
                 <h2>Packages</h2>
-                <p className={styles.packagesNote}>Indicative pricing — confirm details directly with the seller.</p>
+                <p className={styles.packagesNote}>
+                  {packages.some((p) => p.is_bookable && p.price_gbp != null && p.price_gbp > 0 && !!seller?.payouts_enabled)
+                    ? "Book securely through Plistic — your payment is held safely and released once the work is delivered."
+                    : "Indicative pricing — confirm details directly with the seller."}
+                </p>
                 <div className={styles.packageGrid}>
-                  {packages.map((p) => (
-                    <article key={p.id} className={styles.package}>
-                      <h3>{p.name}</h3>
-                      {p.price_gbp != null && <p className={styles.packagePrice}>{gbp(p.price_gbp)}</p>}
-                      {p.delivery_days != null && (
-                        <p className={styles.packageMeta}>
-                          <Clock3 aria-hidden="true" size={14} /> {p.delivery_days} day delivery
-                        </p>
-                      )}
-                      {p.features.length > 0 && (
-                        <ul>
-                          {p.features.map((f, i) => (
-                            <li key={i}>
-                              <Check aria-hidden="true" size={14} /> {f}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </article>
-                  ))}
+                  {packages.map((p) => {
+                    const bookable = p.is_bookable && p.price_gbp != null && p.price_gbp > 0 && !!seller?.payouts_enabled;
+                    return (
+                      <article key={p.id} className={styles.package}>
+                        <h3>{p.name}</h3>
+                        {p.price_gbp != null && <p className={styles.packagePrice}>{gbp(p.price_gbp)}</p>}
+                        {p.delivery_days != null && (
+                          <p className={styles.packageMeta}>
+                            <Clock3 aria-hidden="true" size={14} /> {p.delivery_days} day delivery
+                          </p>
+                        )}
+                        {p.features.length > 0 && (
+                          <ul>
+                            {p.features.map((f, i) => (
+                              <li key={i}>
+                                <Check aria-hidden="true" size={14} /> {f}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {bookable && <BookButton packageId={p.id} priceLabel={gbp(p.price_gbp) ?? ""} />}
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             )}
