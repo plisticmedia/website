@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { getCategories, getLocations, getSellerServiceById } from "@/lib/services";
 import {
+  addEmbed,
   addPackage,
   deleteListing,
   deleteMedia,
@@ -47,6 +48,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const social = service.social_links ?? {};
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const media = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
+  const photos = media.filter((m) => m.kind !== "embed");
+  const showreels = media.filter((m) => m.kind === "embed");
 
   return (
     <>
@@ -188,10 +191,10 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           {/* Media */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Photos</h2>
-            <p className={styles.sub}>The first image becomes your cover. JPG/PNG/WebP, up to 5 MB.</p>
-            {media.length > 0 && (
+            <p className={styles.sub}>Showcase your work. The first image becomes your cover. JPG/PNG/WebP, up to 5 MB.</p>
+            {photos.length > 0 && (
               <div className={styles.mediaGrid}>
-                {media.map((m) => (
+                {photos.map((m) => (
                   <div key={m.id} className={styles.mediaItem}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={m.url} alt="" />
@@ -209,6 +212,30 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <button type="submit" className="p-btn p-btn--ghost">
                 <Upload aria-hidden="true" size={16} /> Upload
               </button>
+            </form>
+          </div>
+
+          {/* Showreel / video */}
+          <div className={styles.block}>
+            <h2 className={styles.sectionTitle}>Showreel &amp; video</h2>
+            <p className={styles.sub}>Paste a YouTube or Vimeo link and it plays right on your profile.</p>
+            {showreels.length > 0 && (
+              <ul className={styles.packageList}>
+                {showreels.map((m) => (
+                  <li key={m.id}>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer">{m.url}</a>
+                    <form action={deleteMedia.bind(null, m.id, service.id)}>
+                      <button type="submit" aria-label="Remove video" className={styles.mediaDelete}>
+                        <Trash2 aria-hidden="true" size={15} />
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form action={addEmbed.bind(null, service.id)} className={styles.uploadForm}>
+              <input name="showreel" type="url" required placeholder="https://youtube.com/watch?v=… or vimeo.com/…" style={{ flex: 1, minWidth: "240px" }} />
+              <button type="submit" className="p-btn p-btn--ghost">Add video</button>
             </form>
           </div>
 
