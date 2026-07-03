@@ -114,6 +114,42 @@
   color: #b23c1c;
 }
 
+.reviewForm {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--p-line);
+}
+
+.reviewForm label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-muted);
+}
+
+.reviewForm select,
+.reviewForm textarea {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+  background: var(--p-white);
+}
+
+.reviewForm textarea {
+  flex: 1;
+  min-width: 220px;
+  resize: vertical;
+}
+
 .empty {
   padding: 3rem 0;
   text-align: center;

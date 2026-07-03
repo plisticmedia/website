@@ -8,7 +8,7 @@ import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
-import { getServiceBySlug } from "@/lib/services";
+import { getServiceBySlug, getServiceReviews } from "@/lib/services";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
@@ -61,6 +61,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const gallery = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const seller = service.profiles;
+  const { reviews, average: reviewAvg, count: reviewCount } = await getServiceReviews(service.id);
 
   const viewer = await getSessionProfile();
 
@@ -124,6 +125,25 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             ratingValue: service.google_rating,
             reviewCount: service.google_rating_count,
           },
+        }
+      : reviewAvg != null && reviewCount > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: reviewAvg,
+              reviewCount,
+            },
+          }
+        : {}),
+    ...(reviews.length > 0
+      ? {
+          review: reviews.slice(0, 20).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+            author: { "@type": "Person", name: r.buyer_name ?? "Verified buyer" },
+            ...(r.body ? { reviewBody: r.body } : {}),
+            datePublished: r.created_at.slice(0, 10),
+          })),
         }
       : {}),
   };
@@ -297,6 +317,32 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {reviewCount > 0 && (
+              <div className={styles.reviews}>
+                <h2>
+                  Reviews{" "}
+                  <span className={styles.reviewsAvg}>
+                    ★ {reviewAvg} · {reviewCount} verified {reviewCount === 1 ? "review" : "reviews"}
+                  </span>
+                </h2>
+                <p className={styles.reviewsNote}>From buyers who booked through Plistic.</p>
+                <ul className={styles.reviewList}>
+                  {reviews.map((r) => (
+                    <li key={r.id} className={styles.review}>
+                      <div className={styles.reviewStars} aria-label={`${r.rating} out of 5`}>
+                        {"★".repeat(r.rating)}
+                        <span className={styles.reviewStarsOff}>{"★".repeat(5 - r.rating)}</span>
+                      </div>
+                      {r.body && <p className={styles.reviewBody}>{r.body}</p>}
+                      <p className={styles.reviewMeta}>
+                        {r.buyer_name ?? "Verified buyer"} · {new Date(r.created_at).toLocaleDateString("en-GB")}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>

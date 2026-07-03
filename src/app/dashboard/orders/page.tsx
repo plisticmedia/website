@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { confirmReceipt } from "./actions";
+import { confirmReceipt, leaveReview } from "./actions";
 import styles from "./Orders.module.css";
 
 export const metadata: Metadata = { title: "My orders | Plistic" };
@@ -42,6 +42,10 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     .eq("buyer_id", profile.id)
     .order("created_at", { ascending: false });
   const orders = (data ?? []) as unknown as OrderRow[];
+
+  // Which orders the buyer has already reviewed (to hide the review form).
+  const { data: reviewRows } = await supabase.from("reviews").select("order_id").eq("buyer_id", profile.id);
+  const reviewed = new Set(((reviewRows ?? []) as { order_id: string }[]).map((r) => r.order_id));
 
   return (
     <>
@@ -92,6 +96,22 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       </form>
                     )}
                   </div>
+                  {o.status === "completed" && !reviewed.has(o.id) && (
+                    <form action={leaveReview.bind(null, o.id)} className={styles.reviewForm}>
+                      <label>
+                        <span>Rate your experience</span>
+                        <select name="rating" defaultValue="5" required>
+                          <option value="5">★★★★★ Excellent</option>
+                          <option value="4">★★★★ Good</option>
+                          <option value="3">★★★ Okay</option>
+                          <option value="2">★★ Poor</option>
+                          <option value="1">★ Bad</option>
+                        </select>
+                      </label>
+                      <textarea name="body" rows={2} maxLength={2000} placeholder="Share a few words about the work (optional)" />
+                      <button type="submit" className="p-btn p-btn--ghost">Leave review</button>
+                    </form>
+                  )}
                 </li>
               ))}
             </ul>
