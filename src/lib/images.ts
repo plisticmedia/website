@@ -22,7 +22,12 @@ export function toDisplayImage(value: string | null | undefined, width = 1000): 
   return first;
 }
 
-function extractDriveId(url: string): string | null {
+/** True if the URL is a Google Drive/Docs link (not directly hot-linkable). */
+export function isDriveUrl(url: string | null | undefined): boolean {
+  return !!url && /drive\.google\.|docs\.google\./i.test(url);
+}
+
+export function extractDriveId(url: string): string | null {
   const m =
     url.match(/\/file\/d\/([-\w]{16,})/) ||
     url.match(/[?&]id=([-\w]{16,})/) ||

@@ -8,6 +8,7 @@ import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim,
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
+import { RehostLogosButton } from "./RehostLogosButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -72,6 +73,7 @@ export default async function AdminPage() {
           {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
           <RatingsButton />
           <ConsolidateButton />
+          <RehostLogosButton />
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />
