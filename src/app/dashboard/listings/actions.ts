@@ -50,6 +50,8 @@ function listingFields(formData: FormData, categoryIds: string[], areaIds: strin
     website_url: website || null,
     address: str(formData, "address", 240) || null,
     postcode: str(formData, "postcode", 20) || null,
+    credits: str(formData, "credits", 2000) || null,
+    availability: str(formData, "availability", 400) || null,
     social_links: social,
   };
 }
@@ -292,4 +294,67 @@ export async function deleteMedia(id: string, serviceId: string) {
   const { error } = await supabase.from("service_media").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath(`/dashboard/listings/${serviceId}`);
+}
+
+/**
+ * Upload (or replace) the listing's logo — the mark shown on directory cards and
+ * at the top of the profile. Stored in our own Storage so it always renders
+ * (unlike hot-linked Google Drive images).
+ */
+export async function uploadLogo(serviceId: string, formData: FormData) {
+  const profile = await requireUser("/dashboard/listings");
+  const supabase = await createSupabaseServerClient();
+
+  const file = formData.get("logo");
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("Please choose a logo image to upload.");
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    throw new Error("Logos must be 5 MB or smaller.");
+  }
+  if (!ALLOWED_IMAGE.includes(file.type)) {
+    throw new Error("Please upload a JPG, PNG, WebP, AVIF or GIF image.");
+  }
+
+  // Confirm ownership.
+  const { data: service } = await supabase
+    .from("services")
+    .select("id")
+    .eq("id", serviceId)
+    .eq("seller_id", profile.id)
+    .maybeSingle();
+  if (!service) throw new Error("Listing not found.");
+
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  // Storage RLS requires the seller's uid as the top folder.
+  const path = `${profile.id}/${serviceId}/logo-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("service-media")
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { data: pub } = supabase.storage.from("service-media").getPublicUrl(path);
+  const { error } = await supabase
+    .from("services")
+    .update({ logo_url: pub.publicUrl })
+    .eq("id", serviceId)
+    .eq("seller_id", profile.id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/dashboard/listings/${serviceId}`);
+  revalidatePath("/directory");
+}
+
+export async function removeLogo(serviceId: string) {
+  const profile = await requireUser("/dashboard/listings");
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("services")
+    .update({ logo_url: null })
+    .eq("id", serviceId)
+    .eq("seller_id", profile.id);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/dashboard/listings/${serviceId}`);
+  revalidatePath("/directory");
 }
