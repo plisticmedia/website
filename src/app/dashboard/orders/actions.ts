@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
-import { sendEmail, siteUrl } from "@/lib/email";
+import { sendEmail, siteUrl, adminEmail } from "@/lib/email";
 import { releaseOrder } from "@/lib/orders";
 
 // Orders are read-only for clients (RLS), so every state change goes through the
@@ -105,4 +105,46 @@ export async function leaveReview(orderId: string, formData: FormData) {
   const { data: svc } = await supabase.from("services").select("slug").eq("id", order.service_id).maybeSingle();
   revalidatePath("/dashboard/orders");
   if (svc?.slug) revalidatePath(`/directory/${svc.slug}`);
+}
+
+/**
+ * Buyer raises an issue on an order before funds are released. Moves the order
+ * to `disputed`, which excludes it from auto-release, and notifies Plistic to
+ * mediate (refund or release). Allowed while the order is in progress or
+ * delivered — never after it's completed/paid out.
+ */
+export async function raiseDispute(orderId: string, formData: FormData) {
+  const profile = await requireUser("/dashboard/orders");
+  const supabase = createSupabaseServiceRoleClient();
+
+  const reasonRaw = formData.get("reason");
+  const reason = typeof reasonRaw === "string" ? reasonRaw.trim().slice(0, 2000) : "";
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, status, buyer_id, service_id")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order || order.buyer_id !== profile.id) throw new Error("Order not found.");
+  if (order.status !== "in_progress" && order.status !== "delivered") {
+    throw new Error("This order can't be disputed.");
+  }
+
+  const { error } = await supabase
+    .from("disputes")
+    .insert({ order_id: orderId, raised_by: profile.id, reason: reason || null });
+  if (error) throw new Error(error.message);
+
+  await supabase.from("orders").update({ status: "disputed" }).eq("id", orderId);
+  await supabase.from("order_events").insert({ order_id: orderId, type: "disputed", data: { reason } });
+
+  const { data: svc } = await supabase.from("services").select("title").eq("id", order.service_id).maybeSingle();
+  void sendEmail({
+    to: adminEmail(),
+    subject: `Order dispute raised — ${(svc?.title as string) ?? "listing"}`,
+    text: `A buyer raised an issue on order ${orderId}.\n\nReason: ${reason || "(none given)"}\n\nResolve it (refund or release) in the admin dashboard: ${siteUrl()}/admin`,
+  }).catch(() => {});
+
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/sales");
 }

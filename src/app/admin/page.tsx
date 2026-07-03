@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, moderateService, recheckRating, rejectClaim, releaseOwner, setFeatured, setFounding, setVerified } from "./actions";
+import { approveClaim, clearRating, moderateService, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, setFeatured, setFounding, setVerified } from "./actions";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
@@ -24,7 +24,7 @@ export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
 
   // Admin RLS policies grant full read access across these tables.
-  const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships, claims, missingGeo] =
+  const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships, claims, disputes, missingGeo] =
     await Promise.all([
       supabase.from("services").select("id, title, slug, status, is_featured, verified, founding, created_at, seller_id, claim_token, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("enquiries").select("id, buyer_name, buyer_email, status, created_at, services(title)").order("created_at", { ascending: false }),
@@ -35,6 +35,7 @@ export default async function AdminPage() {
       supabase.from("bookings").select("id, name, email, scheduled_at, status, created_at").order("created_at", { ascending: false }),
       supabase.from("sponsorships").select("id, seller_id, status, current_period_end").order("created_at", { ascending: false }),
       supabase.from("claims").select("id, evidence, created_at, services(title, slug), profiles(display_name)").eq("status", "pending").order("created_at", { ascending: false }),
+      supabase.from("disputes").select("id, reason, status, created_at, orders(id, amount_gbp, commission_gbp, services(title, slug))").eq("status", "open").order("created_at", { ascending: false }),
       supabase.from("services").select("id", { count: "exact", head: true }).is("latitude", null).not("location_id", "is", null),
     ]);
 
@@ -53,6 +54,13 @@ export default async function AdminPage() {
     created_at: string;
     services: { title: string; slug: string } | null;
     profiles: { display_name: string | null } | null;
+  }>;
+  const disputeRows = (disputes.data ?? []) as unknown as Array<{
+    id: string;
+    reason: string | null;
+    status: string;
+    created_at: string;
+    orders: { id: string; amount_gbp: number; commission_gbp: number; services: { title: string; slug: string } | null } | null;
   }>;
 
   return (
@@ -83,6 +91,48 @@ export default async function AdminPage() {
             <Stat label="Partnerships" value={parts.length} />
             <Stat label="Active sponsors" value={sponsorRows.filter((s) => s.status === "active").length} />
           </div>
+
+          {/* Order disputes — money is held until resolved */}
+          {disputeRows.length > 0 && (
+            <>
+              <h2 className={styles.sectionTitle}>Order disputes ({disputeRows.length})</h2>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr><th>Order</th><th>Amount</th><th>Reason</th><th>Date</th><th>Resolve</th></tr>
+                  </thead>
+                  <tbody>
+                    {disputeRows.map((d) => (
+                      <tr key={d.id}>
+                        <td>
+                          {d.orders?.services?.slug ? (
+                            <Link href={`/directory/${d.orders.services.slug}`} target="_blank">
+                              {d.orders.services.title}
+                            </Link>
+                          ) : "—"}
+                        </td>
+                        <td>£{Number(d.orders?.amount_gbp ?? 0).toFixed(2)}</td>
+                        <td>{d.reason ?? "—"}</td>
+                        <td>{fmt(d.created_at)}</td>
+                        <td className={styles.actions}>
+                          {d.orders?.id && (
+                            <>
+                              <form action={refundDispute.bind(null, d.orders.id)}>
+                                <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Refund buyer</button>
+                              </form>
+                              <form action={releaseDispute.bind(null, d.orders.id)}>
+                                <button className={styles.btnSmall} type="submit">Release to seller</button>
+                              </form>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
 
           {/* Claim requests */}
           {claimRows.length > 0 && (

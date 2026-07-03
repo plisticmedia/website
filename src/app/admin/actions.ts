@@ -5,6 +5,8 @@ import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/l
 import { requireAdmin } from "@/lib/auth";
 import { geocode, geocodeQuery } from "@/lib/geocode";
 import { sendEmail, siteUrl } from "@/lib/email";
+import { getStripe } from "@/lib/stripe";
+import { releaseOrder } from "@/lib/orders";
 import type { ServiceStatus } from "@/lib/types";
 
 /** Admin moderation: publish or remove any listing. RLS admin policy permits this. */
@@ -181,6 +183,76 @@ export async function releaseOwner(id: string) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/directory");
+}
+
+/**
+ * Resolve a dispute by refunding the buyer. Because the escrow model never
+ * transferred the funds (they're still on the platform balance), a straight
+ * refund on the payment intent returns the full amount. SECURITY-SENSITIVE.
+ */
+export async function refundDispute(orderId: string, formData?: FormData) {
+  await requireAdmin();
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, status, stripe_payment_intent_id, service_id, buyer_email, seller_id")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order || order.status !== "disputed") throw new Error("Order isn't in dispute.");
+  if (!order.stripe_payment_intent_id) throw new Error("No payment to refund.");
+
+  await getStripe().refunds.create({ payment_intent: order.stripe_payment_intent_id as string });
+
+  const note = typeof formData?.get("note") === "string" ? String(formData.get("note")).slice(0, 1000) : null;
+  await supabase.from("orders").update({ status: "refunded" }).eq("id", orderId);
+  await supabase
+    .from("disputes")
+    .update({ status: "resolved_refund", resolved_at: new Date().toISOString(), resolution_note: note })
+    .eq("order_id", orderId);
+  await supabase.from("order_events").insert({ order_id: orderId, type: "refunded", data: { note } });
+
+  if (order.buyer_email) {
+    void sendEmail({
+      to: order.buyer_email as string,
+      subject: "Your Plistic order has been refunded",
+      text: `We've refunded your order in full. It can take a few days to appear on your statement.`,
+    }).catch(() => {});
+  }
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/sales");
+}
+
+/**
+ * Resolve a dispute in the seller's favour: release the held funds to them.
+ * Reuses the shared escrow release. SECURITY-SENSITIVE.
+ */
+export async function releaseDispute(orderId: string, formData?: FormData) {
+  await requireAdmin();
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data: order } = await supabase.from("orders").select("id, status").eq("id", orderId).maybeSingle();
+  if (!order || order.status !== "disputed") throw new Error("Order isn't in dispute.");
+
+  // releaseOrder acts on a `delivered` order; move it there first.
+  await supabase.from("orders").update({ status: "delivered" }).eq("id", orderId);
+  const res = await releaseOrder(orderId);
+  if (!res.ok) {
+    // Put it back into dispute so it isn't left half-resolved.
+    await supabase.from("orders").update({ status: "disputed" }).eq("id", orderId);
+    throw new Error(res.error ?? "Couldn't release the order.");
+  }
+
+  const note = typeof formData?.get("note") === "string" ? String(formData.get("note")).slice(0, 1000) : null;
+  await supabase
+    .from("disputes")
+    .update({ status: "resolved_release", resolved_at: new Date().toISOString(), resolution_note: note })
+    .eq("order_id", orderId);
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/sales");
 }
 
 export async function rejectClaim(claimId: string) {
