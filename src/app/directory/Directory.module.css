@@ -345,26 +345,20 @@
 .cardImage {
   position: relative;
   aspect-ratio: 16 / 10;
-  background: #f4f7f8;
+  background: #ffffff;
   border-bottom: 1px solid var(--p-line);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Each logo sits on its own white rounded "chip": white-background logos merge
-   into it, transparent ones get a clean frame, and all read uniformly on the
-   off-white tile. Normalised to a consistent height with a max width. */
+/* White logo area so white-background logos blend in; each logo is capped on
+   both height and width so none dominates and they read consistently. */
 .cardImage img {
-  height: 62%;
+  max-height: 46%;
+  max-width: 64%;
   width: auto;
-  max-width: 82%;
-  box-sizing: border-box;
-  padding: 0.7rem 0.95rem;
-  background: #ffffff;
-  border: 1px solid var(--p-line);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(20, 24, 30, 0.06);
+  height: auto;
   object-fit: contain;
   display: block;
 }
