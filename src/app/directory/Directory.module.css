@@ -160,15 +160,16 @@
   color: var(--p-azure-deep);
 }
 
-/* Trusted-partner card: a clear gold outline + halo so it stands apart */
+/* Trusted-partner card: bold gold frame, halo + warm tint so it clearly stands apart */
 .cardFeatured {
-  border: 2px solid var(--p-lemon, #f5c84b);
-  box-shadow: 0 0 0 4px rgba(245, 200, 75, 0.18), 0 14px 40px rgba(245, 200, 75, 0.32);
+  border: 3px solid var(--p-lemon, #f5c84b);
+  background: linear-gradient(180deg, rgba(245, 200, 75, 0.16), var(--p-white) 44%);
+  box-shadow: 0 0 0 5px rgba(245, 200, 75, 0.22), 0 16px 46px rgba(245, 200, 75, 0.42);
 }
 
 .cardFeatured:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 0 4px rgba(245, 200, 75, 0.28), 0 20px 52px rgba(245, 200, 75, 0.42);
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 5px rgba(245, 200, 75, 0.32), 0 22px 56px rgba(245, 200, 75, 0.5);
 }
 
 /* Refined monogram when a listing has no logo — intentional, not a stock placeholder. */
