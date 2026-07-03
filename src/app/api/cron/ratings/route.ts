@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { refreshRatings } from "@/lib/ratings";
+import { sweepAutoReleases } from "@/lib/orders";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 /**
- * Scheduled Google-ratings refresh (see the cron entry in vercel.json).
+ * Daily maintenance cron (see vercel.json). Refreshes Google ratings and, since
+ * Hobby caps us at 2 cron jobs, also sweeps marketplace escrow: any delivered
+ * order past its 14-day buyer-confirmation window is auto-released to the seller.
+ *
  * Protected by CRON_SECRET: Vercel Cron sends `Authorization: Bearer <secret>`
  * when the env var is set. If no secret is configured, only Vercel's own cron
  * header is trusted.
@@ -24,5 +28,12 @@ export async function GET(request: Request) {
   }
 
   const result = await refreshRatings(30);
-  return NextResponse.json({ ok: true, ...result });
+  // Escrow auto-release is best-effort; never let a Stripe hiccup fail the cron.
+  let releases = { released: 0, failed: 0 };
+  try {
+    releases = await sweepAutoReleases();
+  } catch (err) {
+    console.error("[cron] auto-release sweep failed", err);
+  }
+  return NextResponse.json({ ok: true, ...result, releases });
 }
