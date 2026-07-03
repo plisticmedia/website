@@ -253,6 +253,43 @@ export async function getServiceBySlug(slug: string): Promise<ServiceWithRelatio
   return (data as unknown as ServiceWithRelations) ?? null;
 }
 
+export type ServiceReview = {
+  id: string;
+  rating: number;
+  body: string | null;
+  created_at: string;
+  buyer_name: string | null;
+};
+
+/**
+ * Public, non-expired reviews for a listing plus their average. RLS ("reviews:
+ * public read") already limits this to non-expired reviews on published
+ * listings, so no extra filtering is needed here.
+ */
+export async function getServiceReviews(
+  serviceId: string,
+): Promise<{ reviews: ServiceReview[]; average: number | null; count: number }> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("id, rating, body, created_at, profiles ( display_name )")
+    .eq("service_id", serviceId)
+    .order("created_at", { ascending: false });
+
+  type Row = { id: string; rating: number; body: string | null; created_at: string; profiles: { display_name: string | null } | null };
+  const rows = (data ?? []) as unknown as Row[];
+  const reviews: ServiceReview[] = rows.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    body: r.body,
+    created_at: r.created_at,
+    buyer_name: r.profiles?.display_name ?? null,
+  }));
+  const count = reviews.length;
+  const average = count > 0 ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / count) * 10) / 10 : null;
+  return { reviews, average, count };
+}
+
 /** All listings owned by the signed-in seller (any status). RLS scopes to the owner. */
 export async function getSellerServices(sellerId: string): Promise<ServiceWithRelations[]> {
   const supabase = await createSupabaseServerClient();

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { sendEmail, siteUrl } from "@/lib/email";
 import { releaseOrder } from "@/lib/orders";
 
@@ -69,4 +69,40 @@ export async function confirmReceipt(orderId: string) {
 
   revalidatePath("/dashboard/orders");
   revalidatePath("/dashboard/sales");
+}
+
+/**
+ * Buyer leaves a verified review for a completed order. RLS enforces that the
+ * order is the buyer's own and completed; the unique order_id blocks duplicates.
+ */
+export async function leaveReview(orderId: string, formData: FormData) {
+  const profile = await requireUser("/dashboard/orders");
+  const supabase = await createSupabaseServerClient();
+
+  const rating = Number(formData.get("rating"));
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) throw new Error("Please choose a rating from 1 to 5.");
+  const bodyRaw = formData.get("body");
+  const body = typeof bodyRaw === "string" ? bodyRaw.trim().slice(0, 2000) : "";
+
+  // Read the order (RLS lets the buyer see their own) to get the listing id.
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, service_id, buyer_id, status")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order || order.buyer_id !== profile.id) throw new Error("Order not found.");
+  if (order.status !== "completed") throw new Error("You can review once the order is complete.");
+
+  const { error } = await supabase.from("reviews").insert({
+    order_id: orderId,
+    service_id: order.service_id,
+    buyer_id: profile.id,
+    rating,
+    body: body || null,
+  });
+  if (error) throw new Error(error.message);
+
+  const { data: svc } = await supabase.from("services").select("slug").eq("id", order.service_id).maybeSingle();
+  revalidatePath("/dashboard/orders");
+  if (svc?.slug) revalidatePath(`/directory/${svc.slug}`);
 }
