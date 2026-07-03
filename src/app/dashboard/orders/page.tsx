@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { confirmReceipt, leaveReview } from "./actions";
+import { confirmReceipt, leaveReview, raiseDispute } from "./actions";
 import styles from "./Orders.module.css";
 
 export const metadata: Metadata = { title: "My orders | Plistic" };
@@ -96,6 +96,15 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       </form>
                     )}
                   </div>
+                  {(o.status === "in_progress" || o.status === "delivered") && (
+                    <details className={styles.dispute}>
+                      <summary>Something wrong? Report a problem</summary>
+                      <form action={raiseDispute.bind(null, o.id)} className={styles.disputeForm}>
+                        <textarea name="reason" rows={2} maxLength={2000} placeholder="Tell us what went wrong — Plistic will step in to help." required />
+                        <button type="submit" className="p-btn p-btn--ghost">Raise issue</button>
+                      </form>
+                    </details>
+                  )}
                   {o.status === "completed" && !reviewed.has(o.id) && (
                     <form action={leaveReview.bind(null, o.id)} className={styles.reviewForm}>
                       <label>

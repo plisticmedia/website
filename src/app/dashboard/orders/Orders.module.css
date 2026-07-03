@@ -150,6 +150,36 @@
   resize: vertical;
 }
 
+.dispute {
+  flex-basis: 100%;
+  margin-top: 0.3rem;
+}
+
+.dispute summary {
+  font-size: 0.82rem;
+  color: var(--p-muted);
+  cursor: pointer;
+}
+
+.disputeForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+.disputeForm textarea {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
 .empty {
   padding: 3rem 0;
   text-align: center;
