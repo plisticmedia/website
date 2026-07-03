@@ -219,16 +219,59 @@ export async function addPackage(serviceId: string, formData: FormData) {
     .map((f) => f.trim())
     .filter(Boolean);
 
+  // "Bookable online" is only honoured once the seller can actually receive
+  // payouts — otherwise we'd show a Book button we can't pay out against.
+  const wantsBookable = formData.get("bookable") === "on";
+  const bookable = wantsBookable && (await sellerPayoutsEnabled(supabase, profile.id));
+
   const { error } = await supabase.from("service_packages").insert({
     service_id: serviceId,
     name,
     price_gbp: price !== null && Number.isFinite(price) ? price : null,
     delivery_days: days !== null && Number.isFinite(days) ? days : null,
     features,
+    is_bookable: bookable,
   });
 
   if (error) throw new Error(error.message);
   revalidatePath(`/dashboard/listings/${serviceId}`);
+  revalidatePath("/directory");
+}
+
+/** Whether the seller has completed Connect onboarding and can receive payouts. */
+async function sellerPayoutsEnabled(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  sellerId: string,
+): Promise<boolean> {
+  const { data } = await supabase.from("profiles").select("payouts_enabled").eq("id", sellerId).maybeSingle();
+  return !!data?.payouts_enabled;
+}
+
+/** Toggle a package's bookable-online flag (owner + payouts required to enable). */
+export async function setPackageBookable(packageId: string, serviceId: string, bookable: boolean) {
+  const profile = await requireUser("/dashboard/listings");
+  const supabase = await createSupabaseServerClient();
+
+  // Confirm ownership of the parent listing.
+  const { data: owned } = await supabase
+    .from("services")
+    .select("id")
+    .eq("id", serviceId)
+    .eq("seller_id", profile.id)
+    .maybeSingle();
+  if (!owned) throw new Error("Listing not found.");
+
+  const next = bookable ? await sellerPayoutsEnabled(supabase, profile.id) : false;
+
+  const { error } = await supabase
+    .from("service_packages")
+    .update({ is_bookable: next })
+    .eq("id", packageId)
+    .eq("service_id", serviceId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/dashboard/listings/${serviceId}`);
+  revalidatePath("/directory");
 }
 
 export async function deletePackage(id: string, serviceId: string) {

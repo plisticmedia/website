@@ -14,10 +14,12 @@ import {
   deletePackage,
   removeLogo,
   setListingStatus,
+  setPackageBookable,
   updateListing,
   uploadLogo,
   uploadMedia,
 } from "../actions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import styles from "../Listings.module.css";
 
 export const metadata: Metadata = { title: "Edit listing | Plistic" };
@@ -50,6 +52,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const media = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
   const photos = media.filter((m) => m.kind !== "embed");
   const showreels = media.filter((m) => m.kind === "embed");
+
+  // Bookable packages need a payout account; gate the option on that.
+  const supabase = await createSupabaseServerClient();
+  const { data: prof } = await supabase.from("profiles").select("payouts_enabled").eq("id", profile.id).maybeSingle();
+  const payoutsReady = !!prof?.payouts_enabled;
 
   return (
     <>
@@ -242,7 +249,15 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           {/* Packages */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Packages</h2>
-            <p className={styles.sub}>Display pricing only — buyers enquire and arrange directly with you.</p>
+            <p className={styles.sub}>
+              Set out your pricing tiers. Mark a package &quot;bookable&quot; to accept secure payment through
+              Plistic — the money is held until you deliver, then paid out to you (minus commission).{" "}
+              {!payoutsReady && (
+                <>
+                  To turn on bookings, <Link href="/dashboard/payouts">connect a payout account</Link> first.
+                </>
+              )}
+            </p>
             {packages.length > 0 && (
               <ul className={styles.packageList}>
                 {packages.map((p) => (
@@ -250,7 +265,15 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                     <div>
                       <strong>{p.name}</strong> — {gbp(p.price_gbp)}
                       {p.delivery_days != null && <span className={styles.rowMeta}> · {p.delivery_days} days</span>}
+                      {p.is_bookable && <span className={styles.bookableTag}>Bookable online</span>}
                       {p.features.length > 0 && <div className={styles.rowMeta}>{p.features.join(", ")}</div>}
+                      {(payoutsReady || p.is_bookable) && p.price_gbp != null && p.price_gbp > 0 && (
+                        <form action={setPackageBookable.bind(null, p.id, service.id, !p.is_bookable)}>
+                          <button type="submit" className={styles.linkBtn}>
+                            {p.is_bookable ? "Turn off online booking" : "Make bookable online"}
+                          </button>
+                        </form>
+                      )}
                     </div>
                     <form action={deletePackage.bind(null, p.id, service.id)}>
                       <button type="submit" aria-label="Delete package" className={styles.mediaDelete}>
@@ -280,6 +303,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 <span>Features (one per line)</span>
                 <textarea name="features" rows={3} placeholder={"2 cameras\nEdited highlight reel\nSocial cut-downs"} />
               </label>
+              {payoutsReady && (
+                <label className={styles.checkItem}>
+                  <input type="checkbox" name="bookable" /> Make this bookable online (accept secure payment through Plistic)
+                </label>
+              )}
               <button type="submit" className="p-btn p-btn--ghost">Add package</button>
             </form>
           </div>

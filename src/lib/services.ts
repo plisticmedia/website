@@ -25,8 +25,8 @@ const LISTING_SELECT = `
   locations!location_id ( slug, name ),
   listing_services ( categories ( slug, name ) ),
   service_areas ( locations ( slug, name ) ),
-  profiles ( id, display_name, bio, avatar_url, website_url ),
-  service_packages ( id, service_id, name, price_gbp, delivery_days, features, sort_order ),
+  profiles ( id, display_name, bio, avatar_url, website_url, payouts_enabled ),
+  service_packages ( id, service_id, name, price_gbp, delivery_days, features, sort_order, is_bookable ),
   service_media ( id, service_id, url, kind, sort_order )
 `;
 
