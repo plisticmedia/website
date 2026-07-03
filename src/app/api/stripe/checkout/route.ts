@@ -13,8 +13,9 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => ({}))) as { plan?: string };
   const plan = body.plan === "monthly" ? "monthly" : "yearly";
-  const priceId =
-    plan === "monthly" ? process.env.STRIPE_FEATURED_PRICE_MONTHLY : process.env.STRIPE_FEATURED_PRICE_YEARLY;
+  const priceId = (
+    plan === "monthly" ? process.env.STRIPE_FEATURED_PRICE_MONTHLY : process.env.STRIPE_FEATURED_PRICE_YEARLY
+  )?.trim();
   if (!priceId || !process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Payments aren't set up yet." }, { status: 503 });
   }

@@ -13,7 +13,7 @@ type Supabase = ReturnType<typeof createSupabaseServiceRoleClient>;
  * SECURITY-SENSITIVE — human review before relying on it in production.
  */
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   const sig = request.headers.get("stripe-signature");
   if (!secret || !sig || !process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Stripe webhook not configured." }, { status: 400 });
