@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock3, Check, ExternalLink, MapPin, Sparkles, BadgeCheck, Star, CalendarClock, Award } from "lucide-react";
@@ -62,14 +63,18 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
 
   const viewer = await getSessionProfile();
 
-  // Count a public view (best-effort; skip the owner and admins).
+  // Count a public view AFTER the page has been sent, so it never adds to load
+  // time. Best-effort; skip the owner and admins.
   if (viewer?.id !== service.seller_id && viewer?.role !== "admin") {
-    try {
-      const svc = createSupabaseServiceRoleClient();
-      await svc.from("services").update({ view_count: (service.view_count ?? 0) + 1 }).eq("id", service.id);
-    } catch {
-      /* view counting must never break the page */
-    }
+    const serviceId = service.id;
+    const nextCount = (service.view_count ?? 0) + 1;
+    after(async () => {
+      try {
+        await createSupabaseServiceRoleClient().from("services").update({ view_count: nextCount }).eq("id", serviceId);
+      } catch {
+        /* view counting must never break the page */
+      }
+    });
   }
 
   // Claim-a-listing: only for unowned (imported) listings.
@@ -131,7 +136,12 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           <p className={styles.breadcrumb}>
             <Link href="/directory">← Back to directory</Link>
           </p>
-          <div className={styles.header}>
+          {service.is_featured && (
+            <div className={styles.trustedBanner}>
+              <Sparkles aria-hidden="true" size={16} /> Trusted partner — featured by Plistic
+            </div>
+          )}
+          <div className={`${styles.header} ${service.is_featured ? styles.headerTrusted : ""}`}>
             <div>
               {(() => {
                 const tags = service.listing_services
