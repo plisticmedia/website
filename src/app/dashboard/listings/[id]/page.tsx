@@ -11,8 +11,10 @@ import {
   deleteListing,
   deleteMedia,
   deletePackage,
+  removeLogo,
   setListingStatus,
   updateListing,
+  uploadLogo,
   uploadMedia,
 } from "../actions";
 import styles from "../Listings.module.css";
@@ -126,6 +128,14 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <textarea name="description" rows={6} maxLength={6000} defaultValue={service.description ?? ""} />
             </label>
             <label className={styles.field}>
+              <span>Notable work / credits</span>
+              <textarea name="credits" rows={3} maxLength={2000} defaultValue={service.credits ?? ""} placeholder="e.g. BBC Scotland, Celtic Connections, brand films for…" />
+            </label>
+            <label className={styles.field}>
+              <span>Availability</span>
+              <input name="availability" type="text" maxLength={400} defaultValue={service.availability ?? ""} placeholder="e.g. Booking from August, open to short-notice work" />
+            </label>
+            <label className={styles.field}>
               <span>Website</span>
               <input name="website_url" type="text" maxLength={300} defaultValue={service.website_url ?? ""} placeholder="yourstudio.com" />
             </label>
@@ -153,6 +163,27 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
             <input type="hidden" name="category_id" value={service.category_id ?? ""} />
             <button type="submit" className="p-btn">Save details</button>
           </form>
+
+          {/* Logo */}
+          <div className={styles.block}>
+            <h2 className={styles.sectionTitle}>Logo</h2>
+            <p className={styles.sub}>Shown on your directory card and at the top of your profile. A square or wide logo on a transparent/white background works best. JPG/PNG/WebP, up to 5 MB.</p>
+            {service.logo_url && (
+              <div className={styles.logoPreview}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={service.logo_url} alt={`${service.title} logo`} />
+                <form action={removeLogo.bind(null, service.id)}>
+                  <button type="submit" className="p-btn p-btn--ghost">Remove logo</button>
+                </form>
+              </div>
+            )}
+            <form action={uploadLogo.bind(null, service.id)} className={styles.uploadForm}>
+              <input type="file" name="logo" accept="image/*" required />
+              <button type="submit" className="p-btn p-btn--ghost">
+                <Upload aria-hidden="true" size={16} /> {service.logo_url ? "Replace logo" : "Upload logo"}
+              </button>
+            </form>
+          </div>
 
           {/* Media */}
           <div className={styles.block}>
