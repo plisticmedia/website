@@ -7,11 +7,14 @@ import { siteUrl } from "@/lib/email";
 export const runtime = "nodejs";
 
 /** Starts a Stripe Checkout session for the per-account featured subscription. */
-export async function POST() {
+export async function POST(request: Request) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
 
-  const priceId = process.env.STRIPE_FEATURED_PRICE_ID;
+  const body = (await request.json().catch(() => ({}))) as { plan?: string };
+  const plan = body.plan === "monthly" ? "monthly" : "yearly";
+  const priceId =
+    plan === "monthly" ? process.env.STRIPE_FEATURED_PRICE_MONTHLY : process.env.STRIPE_FEATURED_PRICE_YEARLY;
   if (!priceId || !process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Payments aren't set up yet." }, { status: 503 });
   }
