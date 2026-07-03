@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { syncConnectStatus } from "@/lib/connect";
 import { PayoutsButton } from "./PayoutsButton";
 import styles from "../DashboardPage.module.css";
 
@@ -19,8 +20,16 @@ export default async function PayoutsPage() {
     .eq("id", profile.id)
     .maybeSingle();
 
-  const started = !!prof?.stripe_connect_account_id;
-  const ready = !!prof?.payouts_enabled;
+  const accountId = prof?.stripe_connect_account_id as string | null;
+
+  // Ask Stripe directly for the latest status (don't wait on the webhook).
+  let ready = !!prof?.payouts_enabled;
+  if (accountId && process.env.STRIPE_SECRET_KEY) {
+    const fresh = await syncConnectStatus(accountId);
+    if (fresh) ready = fresh.payouts_enabled;
+  }
+
+  const started = !!accountId;
   // Started onboarding but Stripe hasn't confirmed payouts yet.
   const pending = started && !ready;
 
@@ -57,7 +66,8 @@ export default async function PayoutsPage() {
                 <h2>⏳ Verification in progress</h2>
                 <p>
                   Stripe is still verifying your details. This usually takes a few minutes, but can take longer if
-                  more information is needed. You can reopen onboarding to finish any remaining steps.
+                  more information is needed. You can reopen onboarding to finish any remaining steps, or{" "}
+                  <Link href="/dashboard/payouts">refresh this page</Link> to check again.
                 </p>
                 <PayoutsButton label="Continue setup" />
               </>
