@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { LaunchOfferPopup } from "@/components/LaunchOfferPopup";
@@ -115,14 +115,18 @@ export default function DocumentaryPage() {
               <p className={styles.kicker}>Next step</p>
               <h2 id="documentary-cta">Have a story that needs telling?</h2>
               <p>
-                Tell us a little about your project and book a call directly - no form to complete first, no waiting to
-                hear back.
+                Get an instant range through our quote tool, or tell us a little about your project and book a call
+                directly - no form to complete first, no waiting to hear back.
               </p>
             </div>
             <div className={styles.ctaActions}>
-              <Link className={`p-btn ${styles.whiteButton}`} href="/book">
+              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing">
+                Get an instant estimate
+                <ArrowRight aria-hidden="true" size={18} />
+              </Link>
+              <Link className={`p-btn ${styles.outlineButton}`} href="/book">
                 <CalendarDays aria-hidden="true" size={18} />
-                Book a call to discuss your project
+                Book a call
               </Link>
             </div>
           </div>

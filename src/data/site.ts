@@ -4,7 +4,7 @@ export const brand = {
   locationLine: "Made in Scotland",
   email: "hello@plisticmedia.com",
   bookingLabel: "Book a Call",
-  quoteLabel: "Get a Quote",
+  quoteLabel: "Get an instant estimate",
 };
 
 export const calendlyBookingUrl = "https://calendly.com/kayla-megan-burns/30min";
@@ -17,7 +17,7 @@ export const launchOfferExpiresAt = "2026-08-14T23:59:59+01:00";
 export const launchOffer = {
   eyebrow: "Launch early access",
   body: "Up to 50% off event filming, podcasting and documentaries until 14 August.",
-  cta: "Start a quote",
+  cta: "Get an instant estimate",
 };
 
 export const navItems = [

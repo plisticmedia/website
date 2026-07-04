@@ -61,7 +61,7 @@ export function LaunchOfferPopup({ service }: LaunchOfferPopupProps) {
       </div>
       <div className={styles.actions}>
         <Link href={offer.quoteHref}>
-          Check range
+          Get an instant estimate
           <ArrowRight aria-hidden="true" size={15} />
         </Link>
         <Link href={bookingPagePath}>

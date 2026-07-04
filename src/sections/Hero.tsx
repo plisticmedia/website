@@ -91,7 +91,7 @@ export function Hero() {
 
           <div className={styles.cta}>
             <Link className={styles.btn} href="/pricing">
-              Get a Quote
+              Get an instant estimate
               <ArrowRight aria-hidden="true" size={18} />
             </Link>
             <Link className={`${styles.btn} ${styles.btnGhost}`} href={bookingPagePath}>
