@@ -45,7 +45,7 @@ export default async function LoginPage({
             </h1>
             <p className={styles.lead}>
               Create your free account or sign in to manage listings, respond to enquiries, and feature your
-              services. New here? Signing in with your email creates your account automatically.
+              services. Use an email and password, continue with Google, or get a one-time email link.
             </p>
           </div>
           <div className={styles.formColumn}>

@@ -47,6 +47,21 @@ export async function releaseOrder(orderId: string): Promise<{ ok: boolean; erro
   const payoutGbp = Math.round((Number(order.amount_gbp) - Number(order.commission_gbp)) * 100) / 100;
   const amountPence = Math.round(payoutGbp * 100);
 
+  // Tie the transfer to the original charge via `source_transaction`. Without
+  // this, the platform's funds are still settling (pending) right after payment
+  // and the transfer fails with "insufficient available balance" — in live mode
+  // that settlement delay is days. Linking the charge lets Stripe release the
+  // seller's share against that specific payment as it settles.
+  let sourceTransaction: string | undefined;
+  if (order.stripe_payment_intent_id) {
+    try {
+      const pi = await getStripe().paymentIntents.retrieve(order.stripe_payment_intent_id as string);
+      sourceTransaction = typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? undefined;
+    } catch (err) {
+      console.error("[orders] could not resolve charge for transfer", orderId, err);
+    }
+  }
+
   let transferId: string;
   try {
     const transfer = await getStripe().transfers.create({
@@ -54,6 +69,7 @@ export async function releaseOrder(orderId: string): Promise<{ ok: boolean; erro
       currency: (order.currency as string) || "gbp",
       destination: seller.stripe_connect_account_id as string,
       transfer_group: (order.transfer_group as string) || `order_${orderId}`,
+      ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
       metadata: { order_id: orderId },
     });
     transferId = transfer.id;

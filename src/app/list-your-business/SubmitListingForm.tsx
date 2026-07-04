@@ -112,7 +112,7 @@ export function SubmitListingForm({
 
       <label className={styles.field}>
         <span>Showreel or video <em>(optional — a YouTube or Vimeo link, shown on your profile)</em></span>
-        <input name="showreel" type="url" maxLength={300} placeholder="https://youtube.com/…" />
+        <input name="showreel" type="text" inputMode="url" maxLength={300} placeholder="youtube.com/… or vimeo.com/…" />
       </label>
 
       <label className={styles.field}>
@@ -127,27 +127,27 @@ export function SubmitListingForm({
 
       <label className={styles.field}>
         <span>Website <em>(optional)</em></span>
-        <input name="website" type="url" maxLength={300} placeholder="https://" />
+        <input name="website" type="text" inputMode="url" maxLength={300} placeholder="yourstudio.com" />
       </label>
 
       <div className={styles.row}>
         <label className={styles.field}>
           <span>Instagram <em>(optional)</em></span>
-          <input name="instagram" type="url" maxLength={300} placeholder="https://instagram.com/…" />
+          <input name="instagram" type="text" inputMode="url" maxLength={300} placeholder="instagram.com/yourstudio" />
         </label>
         <label className={styles.field}>
           <span>LinkedIn <em>(optional)</em></span>
-          <input name="linkedin" type="url" maxLength={300} placeholder="https://linkedin.com/…" />
+          <input name="linkedin" type="text" inputMode="url" maxLength={300} placeholder="linkedin.com/company/…" />
         </label>
       </div>
       <div className={styles.row}>
         <label className={styles.field}>
           <span>Facebook <em>(optional)</em></span>
-          <input name="facebook" type="url" maxLength={300} placeholder="https://facebook.com/…" />
+          <input name="facebook" type="text" inputMode="url" maxLength={300} placeholder="facebook.com/yourstudio" />
         </label>
         <label className={styles.field}>
           <span>Google listing <em>(optional — for reviews)</em></span>
-          <input name="other" type="url" maxLength={300} placeholder="Your Google Business link" />
+          <input name="other" type="text" inputMode="url" maxLength={300} placeholder="Your Google Business link" />
         </label>
       </div>
 

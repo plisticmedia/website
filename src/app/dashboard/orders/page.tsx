@@ -32,9 +32,13 @@ type OrderRow = {
   services: { title: string | null; slug: string | null } | null;
 };
 
-export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order?: string; msg?: string; err?: string }>;
+}) {
   const profile = await requireUser("/dashboard/orders");
-  const { order } = await searchParams;
+  const { order, msg, err } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("orders")
@@ -67,6 +71,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             <p className={styles.banner} role="status">
               Payment received — your order is confirmed. The supplier has been notified.
             </p>
+          )}
+          {msg && (
+            <p className={styles.banner} role="status">{msg}</p>
+          )}
+          {err && (
+            <p className={styles.bannerErr} role="alert">{err}</p>
           )}
 
           {orders.length === 0 ? (
