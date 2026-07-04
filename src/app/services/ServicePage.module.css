@@ -155,7 +155,7 @@
   margin: 0;
   font-family: var(--p-display);
   text-transform: uppercase;
-  line-height: 0.9;
+  line-height: 1.02;
   letter-spacing: 0.005em;
   font-size: clamp(2rem, 4.8vw, 4.2rem);
   color: var(--p-ink);

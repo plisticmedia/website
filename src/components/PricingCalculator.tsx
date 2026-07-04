@@ -29,9 +29,9 @@ const currency = new Intl.NumberFormat("en-GB", {
 
 const serviceOptions: Array<{ id: ServiceChoice; label: string; detail: string }> = [
   { id: "podcast", label: "Podcast", detail: "Series scope" },
-  { id: "event", label: "Event", detail: "Capture package" },
-  { id: "musicVideo", label: "Music video", detail: "Creative scope" },
-  { id: "documentary", label: "Doc", detail: "Story brief" },
+  { id: "event", label: "Event Filming", detail: "Capture package" },
+  { id: "musicVideo", label: "Music Video", detail: "Creative scope" },
+  { id: "documentary", label: "Documentary", detail: "Story brief" },
   { id: "coaching", label: "Coaching", detail: "Prep session" },
   { id: "other", label: "Other", detail: "Open brief" },
 ];
@@ -502,7 +502,7 @@ function EstimateLeadForm({
         </p>
       ) : null}
       <button className="p-btn" type="submit" disabled={status === "submitting"}>
-        {status === "submitting" ? "Sending..." : "Send estimate"}
+        {status === "submitting" ? "Sending..." : isBrief ? "Send brief" : "Send estimate"}
       </button>
     </form>
   );
