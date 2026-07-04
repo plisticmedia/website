@@ -194,3 +194,12 @@
   color: #1f7a4d;
   font-size: 0.92rem;
 }
+
+.bannerErr {
+  margin: 0 0 1.4rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  background: rgba(240, 109, 69, 0.12);
+  color: #b23c1c;
+  font-size: 0.92rem;
+}

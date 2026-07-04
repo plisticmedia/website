@@ -153,6 +153,48 @@
   justify-content: center;
 }
 
+.altRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.linkBtn {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-azure-deep);
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+.switchMode {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--p-muted);
+  text-align: center;
+  cursor: pointer;
+}
+
+.switchMode:hover {
+  color: var(--p-azure-deep);
+  text-decoration: underline;
+}
+
 .status {
   display: inline-flex;
   align-items: center;

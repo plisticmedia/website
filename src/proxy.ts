@@ -12,6 +12,8 @@ const publicPaths = new Set([
   // Public sign-up funnel: businesses can list themselves before public launch.
   "/list-your-business",
   "/api/submit-listing",
+  // Password reset must always resolve, even without the coming-soon cookie.
+  "/reset-password",
 ]);
 // Prefixes always allowed: framework assets, static assets, the auth
 // callback/confirm routes (so magic-link sign-in resolves even before the gate

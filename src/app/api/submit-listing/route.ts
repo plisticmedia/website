@@ -16,6 +16,11 @@ function slugify(s: string) {
 function clean(v: FormDataEntryValue | null, max = 300) {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
+/** Turn a bare domain into a full URL so submitters don't have to type https://. */
+function normalizeUrl(v: string): string {
+  if (!v) return "";
+  return /^https?:\/\//i.test(v) ? v : `https://${v.replace(/^\/+/, "")}`;
+}
 
 /**
  * Public "list your business" submission. Uploads the logo to our own storage
@@ -46,8 +51,8 @@ export async function POST(request: Request) {
   const about = clean(form.get("about"), 3000);
   const credits = clean(form.get("credits"), 2000);
   const availability = clean(form.get("availability"), 200);
-  const showreel = clean(form.get("showreel"), 300);
-  const website = clean(form.get("website"), 300);
+  const showreel = normalizeUrl(clean(form.get("showreel"), 300));
+  const website = normalizeUrl(clean(form.get("website"), 300));
   const address = clean(form.get("address"), 300);
   const postcode = clean(form.get("postcode"), 20);
   const consent = form.get("consent") === "on" || form.get("consent") === "true";
@@ -66,7 +71,7 @@ export async function POST(request: Request) {
 
   const social: Record<string, string> = {};
   for (const net of ["instagram", "linkedin", "facebook", "tiktok", "youtube", "other"]) {
-    const v = clean(form.get(net), 300);
+    const v = normalizeUrl(clean(form.get(net), 300));
     if (v) social[net === "other" ? "link" : net] = v;
   }
 

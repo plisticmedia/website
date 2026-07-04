@@ -33,8 +33,13 @@ type SaleRow = {
   services: { title: string | null; slug: string | null } | null;
 };
 
-export default async function SalesPage() {
+export default async function SalesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ msg?: string; err?: string }>;
+}) {
   const profile = await requireUser("/dashboard/sales");
+  const { msg, err } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("orders")
@@ -51,6 +56,9 @@ export default async function SalesPage() {
           <p className={styles.kicker}>
             <Link href="/dashboard">Dashboard</Link> / Sales
           </p>
+          {msg && <p className={styles.banner} role="status">{msg}</p>}
+          {err && <p className={styles.bannerErr} role="alert">{err}</p>}
+
           <div className={styles.head}>
             <h1>Sales</h1>
             <p className={styles.lead}>
