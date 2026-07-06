@@ -1,4 +1,4 @@
-import { brand } from "@/data/site";
+import { brand, fromEmail } from "@/data/site";
 
 /**
  * Sends a plain-text email via Resend. No-ops (returns false) when
@@ -7,7 +7,7 @@ import { brand } from "@/data/site";
  */
 export async function sendEmail(opts: { to: string | string[]; subject: string; text: string }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EARN_FROM_EMAIL ?? `Plistic <${brand.email}>`;
+  const from = process.env.EARN_FROM_EMAIL?.trim() || fromEmail;
   if (!apiKey) {
     console.info("[email] skipped (no RESEND_API_KEY)", { subject: opts.subject });
     return false;
