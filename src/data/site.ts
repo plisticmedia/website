@@ -7,6 +7,12 @@ export const brand = {
   quoteLabel: "Get an instant estimate",
 };
 
+// Default "From" for outbound email. MUST be on a domain verified in Resend —
+// `updates.plisticmedia.com` is verified; the bare `plisticmedia.com` is not, so
+// sending from it fails authentication and lands in spam. Replies still go to
+// brand.email (the real inbox) via reply_to. An env var can override this.
+export const fromEmail = "Plistic <hello@updates.plisticmedia.com>";
+
 export const calendlyBookingUrl = "https://calendly.com/kayla-megan-burns/30min";
 const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
 export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;

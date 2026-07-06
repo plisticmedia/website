@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { brand } from "@/data/site";
+import { brand, fromEmail } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 
@@ -94,7 +94,7 @@ async function sendEnquiryEmails(
   buyer: { name: string; email: string; message: string },
 ) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = clean(process.env.EARN_FROM_EMAIL, 240) || `Plistic <${brand.email}>`;
+  const from = clean(process.env.EARN_FROM_EMAIL, 240) || fromEmail;
   if (!apiKey) return;
 
   // Seller's email lives on the auth user.

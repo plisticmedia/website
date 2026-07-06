@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { brand } from "@/data/site";
+import { brand, fromEmail } from "@/data/site";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const notifyTo = getRecipients(process.env.EARN_NOTIFY_EMAIL ?? brand.email);
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EARN_FROM_EMAIL ?? `Plistic <${brand.email}>`;
+  const from = process.env.EARN_FROM_EMAIL?.trim() || fromEmail;
 
   if (notifyTo.length === 0) {
     return jsonError("The notification email is not configured.", 503);
