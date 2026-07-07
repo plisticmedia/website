@@ -300,6 +300,10 @@ export async function importListingsFromCsv(
     const logo = pick(r, LOGO_KEYS);
     const partnerFlag = pick(r, ["founding", "foundingpartner", "trusted", "trustedpartner", "partner", "featured"]);
     const isFeatured = /^(y|yes|true|1)/i.test(partnerFlag);
+    // Public contact email — stored as submitter_email so we can email a claim
+    // invite, and so the business auto-owns its page when it claims with that email.
+    const emailRaw = pick(r, ["publicemail", "email", "contactemail", "emailaddress", "businessemail", "publicemailaddress", "contact"]).toLowerCase();
+    const submitterEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw) ? emailRaw : "";
 
     // Social + Google links. Robust: scan EVERY answer for links so we never
     // miss them just because the form column was named unexpectedly.
@@ -358,6 +362,7 @@ export async function importListingsFromCsv(
       postcode: postcode || null,
       social_links: social,
       claim_token: claimToken,
+      ...(submitterEmail ? { submitter_email: submitterEmail } : {}),
       ...(source ? { source } : {}),
       // Only set the Google place when the profile link contained a real id;
       // never wipe an existing match on re-import.
@@ -369,8 +374,24 @@ export async function importListingsFromCsv(
 
     let serviceId: string;
     if (dupe?.id) {
-      // Update an existing imported (owner-less) listing; keep its status/featured.
-      const { error } = await supabase.from("services").update(content).eq("id", dupe.id);
+      // Non-destructive update: only overwrite fields the sheet actually
+      // provides, so a re-import (e.g. to add emails) never wipes enrichment
+      // added afterwards — logos, geocoded coordinates, ratings.
+      const upd: Record<string, unknown> = { title, claim_token: claimToken };
+      if (summary) upd.summary = summary;
+      if (description) upd.description = description;
+      if (categoryIds[0]) upd.category_id = categoryIds[0];
+      if (areaIds[0]) upd.location_id = areaIds[0];
+      if (website) upd.website_url = website;
+      if (logo) { upd.logo_url = logo; upd.cover_image_url = logo; }
+      if (explicitAddress || baseText) upd.address = explicitAddress || baseText;
+      if (postcode) upd.postcode = postcode;
+      if (Object.keys(social).length) upd.social_links = social;
+      if (submitterEmail) upd.submitter_email = submitterEmail;
+      if (source) upd.source = source;
+      if (placeIdFromUrl) upd.google_place_id = placeIdFromUrl;
+
+      const { error } = await supabase.from("services").update(upd).eq("id", dupe.id);
       if (error) {
         result.errors.push(`Row ${rowNum} (${title}): ${error.message}`);
         result.skipped += 1;
