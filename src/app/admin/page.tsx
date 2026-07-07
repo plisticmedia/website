@@ -9,6 +9,7 @@ import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
 import { RehostLogosButton } from "./RehostLogosButton";
+import { PublishImportedButton } from "./PublishImportedButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic" };
@@ -82,6 +83,7 @@ export default async function AdminPage() {
           <RatingsButton />
           <ConsolidateButton />
           <RehostLogosButton />
+          <PublishImportedButton count={svc.filter((s) => s.status === "pending" && !s.seller_id).length} />
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />
