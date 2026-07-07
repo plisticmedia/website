@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE, verifySiteAccessPassword } from "@/lib/siteAccess";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 const thirtyDays = 60 * 60 * 24 * 30;
 
@@ -7,6 +8,15 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const password = String(formData.get("password") ?? "");
   const nextPath = getSafeNextPath(formData.get("next"));
+
+  // Throttle guesses so the coming-soon password can't be brute-forced.
+  if (!rateLimit(`site-access:${clientIp(request)}`, 10, 10 * 60 * 1000)) {
+    const url = new URL("/coming-soon", request.url);
+    url.searchParams.set("error", "1");
+    url.searchParams.set("next", nextPath);
+    return NextResponse.redirect(url, { status: 303 });
+  }
+
   const isValidPassword = await verifySiteAccessPassword(password);
 
   if (!isValidPassword) {
