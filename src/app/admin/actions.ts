@@ -202,7 +202,11 @@ export async function refundDispute(orderId: string, formData?: FormData) {
   if (!order || order.status !== "disputed") throw new Error("Order isn't in dispute.");
   if (!order.stripe_payment_intent_id) throw new Error("No payment to refund.");
 
-  await getStripe().refunds.create({ payment_intent: order.stripe_payment_intent_id as string });
+  // Idempotency key guards against a double refund on a double-click.
+  await getStripe().refunds.create(
+    { payment_intent: order.stripe_payment_intent_id as string },
+    { idempotencyKey: `order_refund_${orderId}` },
+  );
 
   const note = typeof formData?.get("note") === "string" ? String(formData.get("note")).slice(0, 1000) : null;
   await supabase.from("orders").update({ status: "refunded" }).eq("id", orderId);

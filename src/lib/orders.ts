@@ -64,14 +64,18 @@ export async function releaseOrder(orderId: string): Promise<{ ok: boolean; erro
 
   let transferId: string;
   try {
-    const transfer = await getStripe().transfers.create({
-      amount: amountPence,
-      currency: (order.currency as string) || "gbp",
-      destination: seller.stripe_connect_account_id as string,
-      transfer_group: (order.transfer_group as string) || `order_${orderId}`,
-      ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
-      metadata: { order_id: orderId },
-    });
+    const transfer = await getStripe().transfers.create(
+      {
+        amount: amountPence,
+        currency: (order.currency as string) || "gbp",
+        destination: seller.stripe_connect_account_id as string,
+        transfer_group: (order.transfer_group as string) || `order_${orderId}`,
+        ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
+        metadata: { order_id: orderId },
+      },
+      // At-most-once even if buyer-confirm and the auto-release cron race.
+      { idempotencyKey: `order_release_${orderId}` },
+    );
     transferId = transfer.id;
   } catch (err) {
     console.error("[orders] transfer failed", orderId, err);

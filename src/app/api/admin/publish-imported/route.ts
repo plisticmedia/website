@@ -5,10 +5,12 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 
 /**
- * Publish all imported (unclaimed) listings that are still "in review" in one go,
- * so a seed import doesn't have to be approved one listing at a time. Only
- * touches ownerless (seller_id IS NULL) pending listings — never a business's
- * own draft/pending edit. Admin-only.
+ * Publish all imported (seed) listings that are still "in review" in one go, so
+ * a CSV import doesn't have to be approved one listing at a time. Scoped to
+ * ownerless (seller_id IS NULL) pending listings that came from an import
+ * (source IS NOT NULL) — so it never publishes a business's own draft, and never
+ * auto-publishes unreviewed public "list your business" submissions (which have
+ * no source and should be checked individually for spam). Admin-only.
  */
 export async function POST() {
   const profile = await getSessionProfile();
@@ -22,6 +24,7 @@ export async function POST() {
     .update({ status: "published" })
     .eq("status", "pending")
     .is("seller_id", null)
+    .not("source", "is", null)
     .select("id");
 
   if (error) {
