@@ -9,6 +9,7 @@ import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
 import { RehostLogosButton } from "./RehostLogosButton";
+import { WebsiteLogosButton } from "./WebsiteLogosButton";
 import { PublishImportedButton } from "./PublishImportedButton";
 import styles from "./Admin.module.css";
 
@@ -83,6 +84,7 @@ export default async function AdminPage() {
           <RatingsButton />
           <ConsolidateButton />
           <RehostLogosButton />
+          <WebsiteLogosButton />
           <PublishImportedButton count={svc.filter((s) => s.status === "pending" && !s.seller_id && !!s.source).length} />
 
           <div className={styles.stats}>
