@@ -14,7 +14,7 @@ import { PublishImportedButton } from "./PublishImportedButton";
 import { ClaimInvitesPanel } from "./ClaimInvitesPanel";
 import styles from "./Admin.module.css";
 
-export const metadata: Metadata = { title: "Admin | Plistic" };
+export const metadata: Metadata = { title: "Admin | Plistic", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 function fmt(iso: string | null) {

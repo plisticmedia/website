@@ -4,7 +4,14 @@ const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.plisticmedia.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        // Keep private / functional areas out of search results.
+        disallow: ["/admin", "/dashboard", "/api/", "/claim/", "/reset-password", "/login"],
+      },
+    ],
     sitemap: `${BASE}/sitemap.xml`,
   };
 }

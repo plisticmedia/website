@@ -10,6 +10,7 @@ import styles from "./DashboardPage.module.css";
 
 export const metadata: Metadata = {
   title: "Seller dashboard | Plistic",
+  robots: { index: false, follow: false },
 };
 
 // Per-user, auth-gated page — never statically prerender.
