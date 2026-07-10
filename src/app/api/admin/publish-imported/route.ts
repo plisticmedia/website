@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionProfile } from "@/lib/auth";
+import { getAdminApiContext } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -13,9 +13,9 @@ export const runtime = "nodejs";
  * no source and should be checked individually for spam). Admin-only.
  */
 export async function POST() {
-  const profile = await getSessionProfile();
-  if (!profile || profile.role !== "admin") {
-    return NextResponse.json({ error: "Admins only." }, { status: 403 });
+  const ctx = await getAdminApiContext();
+  if ("error" in ctx) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
   const supabase = createSupabaseServiceRoleClient();
 

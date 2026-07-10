@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt } from "lucide-react";
+import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt, ShieldCheck } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
@@ -94,6 +94,12 @@ export default async function DashboardPage({
               title="Profile"
               body="Your public seller profile, bio, and avatar."
               href="/dashboard/profile"
+            />
+            <DashboardCard
+              icon={<ShieldCheck aria-hidden="true" size={20} />}
+              title="Security"
+              body="Turn on two-factor authentication to protect your account."
+              href="/dashboard/security"
             />
           </div>
 

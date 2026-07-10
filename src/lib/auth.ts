@@ -3,6 +3,34 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type UserRole = "seller" | "admin";
 
+export type MfaStatus = {
+  /** The account has at least one verified TOTP authenticator. */
+  hasFactor: boolean;
+  /** This session has been stepped up with a second factor (AAL2). */
+  aal2: boolean;
+};
+
+/**
+ * Reads the current session's multi-factor state: whether the account has a
+ * verified authenticator, and whether *this* session has completed a second
+ * factor. Used to enforce 2FA on admins. Fails safe (no factor / not stepped
+ * up) if the MFA API is unavailable.
+ */
+export async function getMfaStatus(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+): Promise<MfaStatus> {
+  try {
+    const [{ data: aal }, { data: factors }] = await Promise.all([
+      supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+      supabase.auth.mfa.listFactors(),
+    ]);
+    const verifiedTotp = (factors?.totp ?? []).filter((f) => f.status === "verified");
+    return { hasFactor: verifiedTotp.length > 0, aal2: aal?.currentLevel === "aal2" };
+  } catch {
+    return { hasFactor: false, aal2: false };
+  }
+}
+
 export type SessionProfile = {
   id: string;
   email: string | null;
@@ -42,11 +70,54 @@ export async function requireUser(nextPath = "/dashboard"): Promise<SessionProfi
   return profile;
 }
 
-/** Redirects non-admins away. Use to gate /admin. */
+/**
+ * Gates /admin: signed in, admin role, AND two-factor completed.
+ * Admins with no authenticator are sent to set one up; admins who have one but
+ * haven't stepped up this session are sent to the verify page. Every admin page
+ * and mutating server action funnels through here, so 2FA is enforced platform-wide.
+ */
 export async function requireAdmin(): Promise<SessionProfile> {
   const profile = await requireUser("/admin");
   if (profile.role !== "admin") {
     redirect("/dashboard");
   }
+  const supabase = await createSupabaseServerClient();
+  const mfa = await getMfaStatus(supabase);
+  if (!mfa.hasFactor) {
+    redirect("/dashboard/security?admin=1");
+  }
+  if (!mfa.aal2) {
+    redirect("/admin/verify");
+  }
   return profile;
+}
+
+/**
+ * Lighter admin gate for the step-up page itself: requires the admin role but
+ * tolerates AAL1, so /admin/verify can render without redirecting to itself.
+ */
+export async function requireAdminRole(): Promise<SessionProfile> {
+  const profile = await requireUser("/admin");
+  if (profile.role !== "admin") {
+    redirect("/dashboard");
+  }
+  return profile;
+}
+
+/**
+ * Guard for admin API route handlers: returns the profile, or an error with the
+ * HTTP status to send. Enforces admin role + AAL2 (2FA), matching requireAdmin.
+ */
+export async function getAdminApiContext(): Promise<
+  { profile: SessionProfile } | { error: string; status: number }
+> {
+  const profile = await getSessionProfile();
+  if (!profile) return { error: "Sign in required.", status: 401 };
+  if (profile.role !== "admin") return { error: "Admins only.", status: 403 };
+  const supabase = await createSupabaseServerClient();
+  const mfa = await getMfaStatus(supabase);
+  if (!mfa.hasFactor || !mfa.aal2) {
+    return { error: "Two-factor authentication required.", status: 403 };
+  }
+  return { profile };
 }

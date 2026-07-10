@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionProfile } from "@/lib/auth";
+import { getAdminApiContext } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { sendEmail, siteUrl } from "@/lib/email";
 import { renderClaimInvite, renderClaimFollowUp } from "@/lib/claimInvite";
@@ -14,8 +14,8 @@ function seedUnclaimed(supabase: Svc) {
 }
 
 async function requireAdmin() {
-  const profile = await getSessionProfile();
-  return !!profile && profile.role === "admin";
+  const ctx = await getAdminApiContext();
+  return !("error" in ctx);
 }
 
 /** Status + previews of the exact emails that would be sent, and the no-email list. */
