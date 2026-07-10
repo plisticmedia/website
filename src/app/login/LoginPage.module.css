@@ -121,6 +121,38 @@
   color: var(--p-ink);
 }
 
+.intent {
+  border: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.intent legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-ink);
+  margin-bottom: 0.5rem;
+  padding: 0;
+}
+.intent label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--p-line);
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--p-paper);
+}
+.intent label span { display: flex; flex-direction: column; font-size: 0.82rem; color: var(--p-muted); font-weight: 500; }
+.intent label strong { font-size: 0.92rem; color: var(--p-ink); }
+.intent input { margin-top: 0.2rem; accent-color: var(--p-azure); }
+.intentActive {
+  border-color: var(--p-azure) !important;
+  background: rgba(31, 170, 233, 0.06) !important;
+}
+
 .inputWrap {
   display: flex;
   align-items: center;

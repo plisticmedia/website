@@ -25,6 +25,7 @@ function readError(error: unknown, fallback: string): string {
 export function LoginForm({ next }: { next: string }) {
   const [mode, setMode] = useState<Mode>("password");
   const [signUp, setSignUp] = useState(false);
+  const [accountType, setAccountType] = useState<"buyer" | "business">("buyer");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
 
@@ -45,7 +46,7 @@ export function LoginForm({ next }: { next: string }) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: callbackUrl },
+          options: { emailRedirectTo: callbackUrl, data: { account_type: accountType } },
         });
         if (error) throw error;
         if (data.session) {
@@ -151,6 +152,37 @@ export function LoginForm({ next }: { next: string }) {
 
       {mode === "password" ? (
         <form onSubmit={handlePassword} aria-label="Sign in with a password">
+          {signUp && (
+            <fieldset className={styles.intent}>
+              <legend>I&apos;m signing up to…</legend>
+              <label className={accountType === "buyer" ? styles.intentActive : ""}>
+                <input
+                  type="radio"
+                  name="account_type"
+                  value="buyer"
+                  checked={accountType === "buyer"}
+                  onChange={() => setAccountType("buyer")}
+                />
+                <span>
+                  <strong>Hire &amp; book</strong>
+                  Find and pay for creative services
+                </span>
+              </label>
+              <label className={accountType === "business" ? styles.intentActive : ""}>
+                <input
+                  type="radio"
+                  name="account_type"
+                  value="business"
+                  checked={accountType === "business"}
+                  onChange={() => setAccountType("business")}
+                />
+                <span>
+                  <strong>List my business</strong>
+                  Get found and hired on Plistic
+                </span>
+              </label>
+            </fieldset>
+          )}
           <label className={styles.field}>
             <span>Email address</span>
             <div className={styles.inputWrap}>

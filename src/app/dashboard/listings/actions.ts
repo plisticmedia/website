@@ -126,8 +126,26 @@ export async function createListing(formData: FormData) {
   await syncListingServices(supabase, data.id, categoryIds);
   await syncServiceAreas(supabase, data.id, areaIds);
 
+  // Listing a service makes this a business account (reveals the seller tools).
+  if (profile.accountType !== "business") {
+    await supabase.from("profiles").update({ account_type: "business" }).eq("id", profile.id);
+  }
+
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/listings");
   redirect(`/dashboard/listings/${data.id}`);
+}
+
+/**
+ * Upgrade a buyer account to a business one, revealing the seller tools.
+ * Used by the "List your business" action on a buyer's dashboard.
+ */
+export async function becomeBusiness() {
+  const profile = await requireUser("/dashboard");
+  const supabase = await createSupabaseServerClient();
+  await supabase.from("profiles").update({ account_type: "business" }).eq("id", profile.id);
+  revalidatePath("/dashboard");
+  redirect("/dashboard/listings/new");
 }
 
 export async function updateListing(id: string, formData: FormData) {
