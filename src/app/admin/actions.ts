@@ -185,6 +185,31 @@ export async function releaseOwner(id: string) {
   revalidatePath("/directory");
 }
 
+/** Remove someone's admin access (demote to a normal seller account). */
+export async function revokeAdmin(userId: string) {
+  const me = await requireAdmin();
+  if (userId === me.id) throw new Error("You can't remove your own admin access.");
+  const supabase = createSupabaseServiceRoleClient();
+  const { error } = await supabase.from("profiles").update({ role: "seller" }).eq("id", userId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
+/** Grant admin access to an existing account by email. */
+export async function grantAdmin(formData: FormData) {
+  await requireAdmin();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email) throw new Error("Enter an email address.");
+  const supabase = createSupabaseServiceRoleClient();
+  // Find the signed-up account with this email.
+  const { data: list } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  const user = list?.users?.find((u: { email?: string | null }) => (u.email ?? "").toLowerCase() === email);
+  if (!user) throw new Error("No account with that email — ask them to sign up first, then grant access.");
+  const { error } = await supabase.from("profiles").update({ role: "admin" }).eq("id", user.id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
 /**
  * Resolve a dispute by refunding the buyer. Because the escrow model never
  * transferred the funds (they're still on the platform balance), a straight
