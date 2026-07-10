@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown, LayoutDashboard, LogIn, Menu, Store, X } from "lucide-react";
 import { bookingPagePath, brand, caseStudies, navItems, services } from "@/data/site";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -16,6 +17,36 @@ import {
 
 export function SiteHeader() {
   const [activeMenu, setActiveMenu] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  // null = still checking; used to avoid a sign-in/dashboard flash.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) setSignedIn(!!data.user);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (active) setSignedIn(!!session?.user);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const accountHref = signedIn ? "/dashboard" : "/login";
+  const accountLabel = signedIn ? "Dashboard" : "Sign in";
+  const AccountIcon = signedIn ? LayoutDashboard : LogIn;
 
   return (
     <header className="site-header">
@@ -148,10 +179,60 @@ export function SiteHeader() {
           )}
         </NavigationMenuList>
       </NavigationMenu>
-      <Link className="header-cta" href={bookingPagePath}>
-        {brand.bookingLabel}
-        <ArrowUpRight aria-hidden="true" size={16} />
-      </Link>
+
+      <div className="header-actions">
+        <Link className="header-account" href={accountHref}>
+          <AccountIcon aria-hidden="true" size={16} />
+          <span>{accountLabel}</span>
+        </Link>
+        <Link className="header-cta" href={bookingPagePath}>
+          {brand.bookingLabel}
+          <ArrowUpRight aria-hidden="true" size={16} />
+        </Link>
+        <button
+          type="button"
+          className="header-burger"
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu aria-hidden="true" size={22} />
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <div className="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="mobile-menu-backdrop" onClick={() => setMobileOpen(false)} />
+          <nav className="mobile-menu-panel" aria-label="Mobile navigation">
+            <div className="mobile-menu-head">
+              <span>Menu</span>
+              <button type="button" aria-label="Close menu" onClick={() => setMobileOpen(false)}>
+                <X aria-hidden="true" size={22} />
+              </button>
+            </div>
+            <ul className="mobile-menu-list">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} onClick={() => setMobileOpen(false)}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mobile-menu-foot">
+              <Link href="/list-your-business" className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
+                <Store aria-hidden="true" size={18} /> List your business
+              </Link>
+              <Link href={accountHref} className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
+                <AccountIcon aria-hidden="true" size={18} /> {accountLabel}
+              </Link>
+              <Link href={bookingPagePath} className="p-btn" onClick={() => setMobileOpen(false)}>
+                {brand.bookingLabel} <ArrowUpRight aria-hidden="true" size={16} />
+              </Link>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
