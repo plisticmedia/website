@@ -243,16 +243,19 @@ export async function getServiceBySlug(slug: string): Promise<ServiceWithRelatio
   // No status filter here — RLS governs visibility: the public can read only
   // published listings, while an admin (or the owner) can also read a listing
   // still "in review", so they can preview it before it goes live.
+  // Use limit(2) + pick (not maybeSingle) so a stray duplicate slug can never
+  // throw and take the page down; prefer the published row when there's a tie.
   const { data, error } = await supabase
     .from("services")
     .select(LISTING_SELECT)
     .eq("slug", slug)
-    .maybeSingle();
+    .limit(2);
 
   if (error) {
     throw new Error(`Failed to load listing: ${error.message}`);
   }
-  return (data as unknown as ServiceWithRelations) ?? null;
+  const rows = (data as unknown as ServiceWithRelations[]) ?? [];
+  return rows.find((r) => r.status === "published") ?? rows[0] ?? null;
 }
 
 export type ServiceReview = {
