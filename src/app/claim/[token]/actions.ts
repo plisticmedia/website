@@ -45,10 +45,11 @@ export async function claimListing(token: string, formData: FormData) {
     (!!emailDomain(email) && emailDomain(email) === siteDomain(svc.website_url)) ||
     (!!email && !!svc.submitter_email && svc.submitter_email.toLowerCase() === email);
 
-  // Record consent at the moment of claim.
+  // Record consent at the moment of claim, and mark this a business account
+  // (claiming a listing is the act of declaring you're a business).
   await supabase
     .from("profiles")
-    .update({ marketing_opt_in: marketingOptIn, consent_at: new Date().toISOString() })
+    .update({ marketing_opt_in: marketingOptIn, consent_at: new Date().toISOString(), account_type: "business" })
     .eq("id", profile.id);
 
   if (autoApprove) {

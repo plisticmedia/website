@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type UserRole = "seller" | "admin";
+export type AccountType = "buyer" | "business";
 
 export type MfaStatus = {
   /** The account has at least one verified TOTP authenticator. */
@@ -35,6 +36,8 @@ export type SessionProfile = {
   id: string;
   email: string | null;
   role: UserRole;
+  /** How the account presents: a member of the public hiring, or a listed business. */
+  accountType: AccountType;
   displayName: string | null;
 };
 
@@ -47,16 +50,27 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
 
   if (!user) return null;
 
-  const { data: profile } = await supabase
+  // Try with account_type; fall back to the pre-migration shape so a deploy that
+  // lands before migration 0018 doesn't null the whole profile (which would drop
+  // admin role and lock admins out). Everyone is treated as 'business' until then.
+  let profile: { role?: string; account_type?: string; display_name?: string | null } | null = null;
+  const withType = await supabase
     .from("profiles")
-    .select("role, display_name")
+    .select("role, account_type, display_name")
     .eq("id", user.id)
     .single();
+  if (withType.error) {
+    const basic = await supabase.from("profiles").select("role, display_name").eq("id", user.id).single();
+    profile = basic.data;
+  } else {
+    profile = withType.data;
+  }
 
   return {
     id: user.id,
     email: user.email ?? null,
     role: (profile?.role as UserRole) ?? "seller",
+    accountType: (profile?.account_type as AccountType) ?? "business",
     displayName: profile?.display_name ?? null,
   };
 }

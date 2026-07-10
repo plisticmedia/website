@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt, ShieldCheck } from "lucide-react";
+import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt, ShieldCheck, Search, Store } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { becomeBusiness } from "./listings/actions";
 import { FeatureCard } from "./FeatureCard";
 import styles from "./DashboardPage.module.css";
 
@@ -24,13 +25,17 @@ export default async function DashboardPage({
   const profile = await requireUser("/dashboard");
   const { featured } = await searchParams;
 
+  const isBusiness = profile.accountType === "business" || profile.role === "admin";
+
   const supabase = await createSupabaseServerClient();
-  const { data: sub } = await supabase
-    .from("sponsorships")
-    .select("status")
-    .eq("seller_id", profile.id)
-    .eq("status", "active")
-    .maybeSingle();
+  const { data: sub } = isBusiness
+    ? await supabase
+        .from("sponsorships")
+        .select("status")
+        .eq("seller_id", profile.id)
+        .eq("status", "active")
+        .maybeSingle()
+    : { data: null };
   const featuredActive = !!sub;
 
   return (
@@ -40,9 +45,13 @@ export default async function DashboardPage({
         <section className={`p-container ${styles.inner}`}>
           <header className={styles.head}>
             <div>
-              <p className={styles.kicker}>Seller dashboard</p>
+              <p className={styles.kicker}>{isBusiness ? "Business dashboard" : "Your account"}</p>
               <h1>Welcome{profile.displayName ? `, ${profile.displayName}` : ""}.</h1>
-              <p className={styles.lead}>Signed in as {profile.email}.</p>
+              <p className={styles.lead}>
+                {isBusiness
+                  ? `Signed in as ${profile.email}.`
+                  : `Signed in as ${profile.email}. Browse and book services from Scotland's creative scene.`}
+              </p>
             </div>
             <form action="/auth/signout" method="post">
               <button type="submit" className="p-btn p-btn--ghost">
@@ -58,41 +67,47 @@ export default async function DashboardPage({
           )}
 
           <div className={styles.grid}>
-            <DashboardCard
-              icon={<ClipboardList aria-hidden="true" size={20} />}
-              title="My listings"
-              body="Create and manage the services you offer in the directory."
-              href="/dashboard/listings"
-            />
-            <DashboardCard
-              icon={<Inbox aria-hidden="true" size={20} />}
-              title="Enquiries"
-              body="Buyer enquiries about your listings will arrive here and by email."
-              href="/dashboard/enquiries"
-            />
-            <FeatureCard active={featuredActive} />
-            <DashboardCard
-              icon={<Receipt aria-hidden="true" size={20} />}
-              title="Sales"
-              body="Bookings buyers have made. Mark work delivered to release your payout."
-              href="/dashboard/sales"
-            />
+            {isBusiness && (
+              <>
+                <DashboardCard
+                  icon={<ClipboardList aria-hidden="true" size={20} />}
+                  title="My listings"
+                  body="Create and manage the services you offer in the directory."
+                  href="/dashboard/listings"
+                />
+                <DashboardCard
+                  icon={<Inbox aria-hidden="true" size={20} />}
+                  title="Enquiries"
+                  body="Buyer enquiries about your listings will arrive here and by email."
+                  href="/dashboard/enquiries"
+                />
+                <FeatureCard active={featuredActive} />
+                <DashboardCard
+                  icon={<Receipt aria-hidden="true" size={20} />}
+                  title="Sales"
+                  body="Bookings buyers have made. Mark work delivered to release your payout."
+                  href="/dashboard/sales"
+                />
+              </>
+            )}
             <DashboardCard
               icon={<ShoppingBag aria-hidden="true" size={20} />}
               title="My orders"
-              body="Services you've booked from others, and their status."
+              body="Services you've booked, and their status."
               href="/dashboard/orders"
             />
-            <DashboardCard
-              icon={<Wallet aria-hidden="true" size={20} />}
-              title="Payouts"
-              body="Connect a payout account to sell bookable services and get paid securely."
-              href="/dashboard/payouts"
-            />
+            {isBusiness && (
+              <DashboardCard
+                icon={<Wallet aria-hidden="true" size={20} />}
+                title="Payouts"
+                body="Connect a payout account to sell bookable services and get paid securely."
+                href="/dashboard/payouts"
+              />
+            )}
             <DashboardCard
               icon={<UserRound aria-hidden="true" size={20} />}
               title="Profile"
-              body="Your public seller profile, bio, and avatar."
+              body={isBusiness ? "Your public seller profile, bio, and avatar." : "Your name and account details."}
               href="/dashboard/profile"
             />
             <DashboardCard
@@ -101,7 +116,30 @@ export default async function DashboardPage({
               body="Turn on two-factor authentication to protect your account."
               href="/dashboard/security"
             />
+            {!isBusiness && (
+              <DashboardCard
+                icon={<Search aria-hidden="true" size={20} />}
+                title="Browse the directory"
+                body="Find and book photographers, film-makers, studios and more."
+                href="/directory"
+              />
+            )}
           </div>
+
+          {!isBusiness && (
+            <div className={styles.upgrade}>
+              <div>
+                <span className={styles.upgradeIcon} aria-hidden="true"><Store size={20} /></span>
+                <div>
+                  <h2>Are you a business?</h2>
+                  <p>List your services on Plistic to get found and hired. It&apos;s free to start.</p>
+                </div>
+              </div>
+              <form action={becomeBusiness}>
+                <button type="submit" className="p-btn">List my business</button>
+              </form>
+            </div>
+          )}
 
           {profile.role === "admin" && (
             <p className={styles.adminNote}>

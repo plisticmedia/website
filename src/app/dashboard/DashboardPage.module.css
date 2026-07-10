@@ -115,3 +115,29 @@
   color: var(--p-azure-deep);
   font-weight: 600;
 }
+
+.upgrade {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  background: linear-gradient(100deg, rgba(31, 170, 233, 0.08), rgba(31, 170, 233, 0.02));
+}
+.upgrade > div { display: flex; gap: 0.9rem; align-items: center; }
+.upgrade h2 { margin: 0; font-size: 1.1rem; }
+.upgrade p { margin: 0.2rem 0 0; color: var(--p-muted); font-size: 0.92rem; }
+.upgradeIcon {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: rgba(31, 170, 233, 0.12);
+  color: var(--p-azure-deep, #0c6f9e);
+}
