@@ -17,10 +17,16 @@ for anything in the "Running it" section.
 - **Resend** sends all email (verified sender domain `updates.plisticmedia.com`).
 - Variable names are documented in `.env.example`.
 
+## ⚠️ Before you launch
+See **`docs/PRE-LAUNCH.md`** — the single "don't forget" checklist (migrations to
+run, email/2FA setup, the professional security review that must happen before
+real payments, and the planned first-login tour).
+
 ## Database setup (one-time, in Supabase SQL Editor)
-Run these once, in order (each is idempotent — safe to re-run):
+Run these once, in order (each is idempotent — safe to re-run). The full,
+up-to-date list is in `docs/PRE-LAUNCH.md`; the earliest are:
 `0001_init` → `0002_rls` → `0003_seed` → `0004_storage` → `0005_directory` →
-`0006_listing_website` → `0007_service_areas`.
+`0006_listing_website` → `0007_service_areas` → … → `0018_account_type`.
 (The one-shot `supabase/launch_directory.sql` bundles the partner seed + admin.)
 
 ## Running it (no developer needed)
