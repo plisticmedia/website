@@ -133,14 +133,21 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
+  // Google sign-in only appears once the provider is configured in Supabase
+  // (set NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true). Otherwise the button 404s.
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+
   return (
     <div className={styles.card}>
-      <button type="button" className={styles.google} onClick={handleGoogle} disabled={status === "submitting"}>
-        <GoogleIcon />
-        Continue with Google
-      </button>
-
-      <div className={styles.divider}><span>or</span></div>
+      {googleEnabled && (
+        <>
+          <button type="button" className={styles.google} onClick={handleGoogle} disabled={status === "submitting"}>
+            <GoogleIcon />
+            Continue with Google
+          </button>
+          <div className={styles.divider}><span>or</span></div>
+        </>
+      )}
 
       {mode === "password" ? (
         <form onSubmit={handlePassword} aria-label="Sign in with a password">

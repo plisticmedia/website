@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  CheckCircle2,
+  Clapperboard,
+  Clock,
+  MessagesSquare,
+  Pencil,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { toDisplayImage, initialOf } from "@/lib/images";
+import { LAUNCH_DATE } from "@/lib/claimInvite";
 import { claimListing, optOut } from "./actions";
 import styles from "./Claim.module.css";
 
@@ -25,6 +36,21 @@ type Row = {
   status: string;
   source: string | null;
 };
+
+/** Whole days from today until the public launch — drives the "still time" banner. */
+function daysUntilLaunch(): number | null {
+  const launch = new Date(`${LAUNCH_DATE} 23:59:59`);
+  if (Number.isNaN(launch.getTime())) return null;
+  const ms = launch.getTime() - Date.now();
+  return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
+}
+
+const BENEFITS = [
+  { icon: Pencil, title: "Edit everything", body: "Your description, services, contact details and links — all in your control." },
+  { icon: Camera, title: "Show your work", body: "Upload photos of past projects and build a gallery buyers can browse." },
+  { icon: Clapperboard, title: "Add your showreel", body: "Embed a reel or video so people see what you do, not just read it." },
+  { icon: MessagesSquare, title: "Get enquiries direct", body: "People looking for exactly what you do reach you here — no middleman." },
+];
 
 export default async function ClaimPage({
   params,
@@ -47,9 +73,18 @@ export default async function ClaimPage({
 
   const profile = await getSessionProfile();
   const logo = toDisplayImage(svc.logo_url) ?? toDisplayImage(svc.cover_image_url);
+  const cover = toDisplayImage(svc.cover_image_url);
   const removed = svc.status === "removed" || status === "removed";
   const claimed = !!svc.seller_id || status === "claimed";
   const pending = status === "pending";
+
+  const days = daysUntilLaunch();
+  const featuredOffer =
+    days === null
+      ? null
+      : days <= 0
+        ? "We&rsquo;ve launched — claim now to appear across the directory."
+        : `Claim before we launch on ${LAUNCH_DATE} and ${svc.title} is featured from day one.`;
 
   return (
     <>
@@ -57,7 +92,11 @@ export default async function ClaimPage({
       <main className={styles.page}>
         <section className={`p-container ${styles.wrap}`}>
           <div className={styles.card}>
-            <div className={styles.head}>
+            {cover && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <div className={styles.cover} style={{ backgroundImage: `url(${cover})` }} aria-hidden="true" />
+            )}
+            <div className={`${styles.head} ${cover ? styles.headWithCover : ""}`}>
               <span className={styles.logo} aria-hidden="true">
                 {logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -67,7 +106,7 @@ export default async function ClaimPage({
                 )}
               </span>
               <div>
-                <p className={styles.kicker}>Directory listing</p>
+                <p className={styles.kicker}>Your Plistic page</p>
                 <h1>{svc.title}</h1>
                 {svc.summary && <p className={styles.summary}>{svc.summary}</p>}
               </div>
@@ -93,11 +132,30 @@ export default async function ClaimPage({
               </div>
             ) : (
               <>
-                <h2 className={styles.q}>Is this your business?</h2>
+                {featuredOffer && (
+                  <div className={styles.offer}>
+                    <Sparkles aria-hidden="true" size={18} />
+                    <p dangerouslySetInnerHTML={{ __html: featuredOffer }} />
+                  </div>
+                )}
+
+                <h2 className={styles.q}>This page is already built — it&apos;s yours to claim.</h2>
                 <p className={styles.lead}>
-                  Claim it to take control — edit your profile, add photos and a showreel, and receive enquiries
-                  directly. It&apos;s free.
+                  We put {svc.title} on Plistic, the new home for Scotland&apos;s creative and media scene. Claiming it
+                  takes about two minutes, it&apos;s completely free, and then you&apos;re in control.
                 </p>
+
+                <ul className={styles.benefits}>
+                  {BENEFITS.map((b) => (
+                    <li key={b.title}>
+                      <span className={styles.benefitIcon} aria-hidden="true"><b.icon size={18} /></span>
+                      <span>
+                        <strong>{b.title}</strong>
+                        {b.body}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
                 {profile ? (
                   <form action={claimListing.bind(null, token)} className={styles.form}>
@@ -105,19 +163,26 @@ export default async function ClaimPage({
                       <input type="checkbox" name="marketing" />
                       <span>Keep me updated about Plistic (optional).</span>
                     </label>
-                    <button type="submit" className="p-btn">Claim this listing</button>
+                    <button type="submit" className={`p-btn ${styles.cta}`}>
+                      Claim this page <ArrowRight aria-hidden="true" size={18} />
+                    </button>
                   </form>
                 ) : (
                   <>
-                    <Link href={`/login?next=${encodeURIComponent(`/claim/${token}`)}`} className="p-btn">
-                      Sign in to claim
+                    <Link href={`/login?next=${encodeURIComponent(`/claim/${token}`)}`} className={`p-btn ${styles.cta}`}>
+                      Sign in to claim your page <ArrowRight aria-hidden="true" size={18} />
                     </Link>
                     <p className={styles.hint}>
+                      <Clock aria-hidden="true" size={14} />
                       You&apos;ll sign in with your email — that&apos;s how we confirm it&apos;s you. Use your business
-                      email (matching your website) and it&apos;s approved instantly.
+                      email (the one on your website) and it&apos;s approved instantly.
                     </p>
                   </>
                 )}
+
+                <Link href={`/directory/${svc.slug}`} className={styles.preview}>
+                  See how your page looks first <ArrowRight aria-hidden="true" size={15} />
+                </Link>
 
                 <form action={optOut.bind(null, token)} className={styles.optOut}>
                   <button type="submit" className={styles.optOutBtn}>This isn&apos;t my business / remove it</button>
