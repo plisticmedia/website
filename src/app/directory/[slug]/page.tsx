@@ -154,6 +154,11 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
       <SiteHeader />
       <main className={styles.page}>
         <section className={`p-container ${styles.top}`}>
+          {service.status !== "published" && (
+            <p style={{ margin: "0 0 1rem", padding: "0.7rem 1rem", borderRadius: 10, background: "rgba(245,200,75,0.18)", border: "1px solid rgba(245,200,75,0.5)", fontSize: "0.9rem", fontWeight: 600 }}>
+              👁 Preview — this listing is “{service.status}” and isn’t public yet. Only you (admin) and its owner can see this page.
+            </p>
+          )}
           <p className={styles.breadcrumb}>
             <Link href="/directory">← Back to directory</Link>
           </p>
