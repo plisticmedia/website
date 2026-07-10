@@ -20,6 +20,8 @@ export default async function ProfilePage() {
     .eq("id", profile.id)
     .single();
 
+  const isBusiness = profile.accountType === "business" || profile.role === "admin";
+
   return (
     <>
       <SiteHeader />
@@ -28,8 +30,10 @@ export default async function ProfilePage() {
           <p className={styles.kicker}>
             <Link href="/dashboard">Dashboard</Link> / Profile
           </p>
-          <h1>Your public profile</h1>
-          <p className={styles.sub}>This is what buyers see on your listings.</p>
+          <h1>{isBusiness ? "Your public profile" : "Your profile"}</h1>
+          <p className={styles.sub}>
+            {isBusiness ? "This is what buyers see on your listings." : "Your name and details for enquiries and orders."}
+          </p>
 
           <form action={uploadAvatar} className={styles.uploadForm}>
             {data?.avatar_url ? (
