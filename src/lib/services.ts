@@ -240,11 +240,13 @@ export async function getShowcaseServices(): Promise<ServiceWithRelations[]> {
 /** Public listing detail by slug. Returns null if not published / not found. */
 export async function getServiceBySlug(slug: string): Promise<ServiceWithRelations | null> {
   const supabase = await createSupabaseServerClient();
+  // No status filter here — RLS governs visibility: the public can read only
+  // published listings, while an admin (or the owner) can also read a listing
+  // still "in review", so they can preview it before it goes live.
   const { data, error } = await supabase
     .from("services")
     .select(LISTING_SELECT)
     .eq("slug", slug)
-    .eq("status", "published")
     .maybeSingle();
 
   if (error) {
