@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, moderateService, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, setFeatured, setFounding, setVerified } from "./actions";
+import { approveClaim, clearRating, grantAdmin, moderateService, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
 import { ConsolidateButton } from "./ConsolidateButton";
@@ -66,6 +67,16 @@ export default async function AdminPage() {
     orders: { id: string; amount_gbp: number; commission_gbp: number; services: { title: string; slug: string } | null } | null;
   }>;
 
+  // Who has admin access (with emails from the auth user).
+  const svcRole = createSupabaseServiceRoleClient();
+  const { data: adminRows } = await svcRole.from("profiles").select("id, display_name").eq("role", "admin");
+  const admins = await Promise.all(
+    ((adminRows ?? []) as Array<{ id: string; display_name: string | null }>).map(async (p) => {
+      const { data } = await svcRole.auth.admin.getUserById(p.id);
+      return { id: p.id, name: p.display_name, email: data?.user?.email ?? null };
+    }),
+  );
+
   return (
     <>
       <SiteHeader />
@@ -88,6 +99,37 @@ export default async function AdminPage() {
           <WebsiteLogosButton />
           <PublishImportedButton count={svc.filter((s) => s.status === "pending" && !s.seller_id && !!s.source).length} />
           <ClaimInvitesPanel />
+
+          {/* Team & admin access */}
+          <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+            <h3 style={{ margin: "0 0 0.3rem" }}>Team &amp; admin access</h3>
+            <p style={{ margin: "0 0 0.6rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+              Everyone here can open this admin area. Remove anyone who shouldn&apos;t have it.
+            </p>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+                <tbody>
+                  {admins.map((a) => (
+                    <tr key={a.id}>
+                      <td>{a.name ?? "—"}</td>
+                      <td>{a.email ?? "—"}</td>
+                      <td>
+                        <form action={revokeAdmin.bind(null, a.id)}>
+                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove admin</button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <form action={grantAdmin} style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.7rem" }}>
+              <input name="email" type="email" required placeholder="email of an existing account"
+                style={{ flex: 1, minWidth: 220, padding: "0.5rem 0.7rem", border: "1px solid var(--p-line)", borderRadius: 8 }} />
+              <button type="submit" className={styles.btnSmall}>Grant admin</button>
+            </form>
+          </div>
 
           <div className={styles.stats}>
             <Stat label="Listings" value={svc.length} />
