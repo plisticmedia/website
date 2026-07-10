@@ -17,10 +17,11 @@ const EXT: Record<string, string> = {
 };
 
 /**
- * Sources a logo for listings that don't have one by reading each business's
- * website (apple-touch-icon → og:image → icon → Google's favicon service) and
- * saving the best image to our storage. Best-effort, batched + time-budgeted so
- * it stays under the function limit; the button loops it until done. Admin-only.
+ * Enriches seed listings from each business's own website: pulls a description
+ * (summary + longer text), a cover image, and a logo, so imported pages are as
+ * complete as the ones businesses fill in themselves. Only fills EMPTY fields —
+ * never overwrites info a business has added. Batched + time-budgeted; the
+ * button loops it until done. Admin-only.
  */
 export async function POST() {
   const profile = await getSessionProfile();
@@ -29,20 +30,25 @@ export async function POST() {
   }
   const supabase = createSupabaseServiceRoleClient();
 
-  // Listings with a website but no logo saved in OUR storage yet.
   const { data } = await supabase
     .from("services")
-    .select("id, slug, website_url, logo_url")
+    .select("id, slug, website_url, logo_url, cover_image_url, summary, description")
     .not("website_url", "is", null)
+    .is("seller_id", null)
     .order("created_at", { ascending: false })
     .limit(400);
 
-  type Row = { id: string; slug: string; website_url: string | null; logo_url: string | null };
+  type Row = {
+    id: string; slug: string; website_url: string | null;
+    logo_url: string | null; cover_image_url: string | null;
+    summary: string | null; description: string | null;
+  };
+  // Only sites we haven't already fully enriched (missing text OR missing a stored logo).
   const targets = ((data ?? []) as Row[]).filter(
-    (r) => !!r.website_url && !(r.logo_url ?? "").includes("/storage/v1/object/"),
+    (r) => !!r.website_url && (!r.summary || !r.description || !(r.logo_url ?? "").includes("/storage/v1/object/")),
   );
 
-  let updated = 0;
+  let enriched = 0;
   const failed: string[] = [];
   const started = Date.now();
   let processed = 0;
@@ -51,30 +57,40 @@ export async function POST() {
     if (Date.now() - started > 50_000) break;
     processed += 1;
     const site = normalizeUrl(r.website_url as string);
-    const bytes = await logoForSite(site);
-    if (!bytes) {
+    const info = await readSite(site);
+    if (!info) {
       failed.push(r.slug);
       continue;
     }
-    const ext = EXT[bytes.contentType] ?? "png";
-    const path = `logos/${r.slug}-${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("service-media")
-      .upload(path, bytes.buffer, { contentType: bytes.contentType, upsert: true });
-    if (upErr) {
-      failed.push(r.slug);
-      continue;
+
+    const update: Record<string, unknown> = {};
+    // Text — only fill what's empty.
+    const desc = info.description?.trim();
+    if (!r.summary && desc) update.summary = desc.slice(0, 280);
+    if (!r.description && desc) update.description = desc.slice(0, 2000);
+
+    // Logo — only if we don't already have one in our storage.
+    if (!(r.logo_url ?? "").includes("/storage/v1/object/") && info.logoBytes) {
+      const url = await store(supabase, r.slug, "logo", info.logoBytes);
+      if (url) update.logo_url = url;
     }
-    const url = supabase.storage.from("service-media").getPublicUrl(path).data.publicUrl;
-    await supabase.from("services").update({ logo_url: url, cover_image_url: url }).eq("id", r.id);
-    updated += 1;
+    // Cover — a wide hero image, if the listing has none distinct from the logo.
+    const hasCover = !!r.cover_image_url && r.cover_image_url !== r.logo_url;
+    if (!hasCover && info.coverBytes) {
+      const url = await store(supabase, r.slug, "cover", info.coverBytes);
+      if (url) update.cover_image_url = url;
+    }
+
+    if (Object.keys(update).length) {
+      await supabase.from("services").update(update).eq("id", r.id);
+      enriched += 1;
+    }
   }
 
   return NextResponse.json({
     ok: true,
-    updated,
+    updated: enriched,
     failed: failed.length,
-    failedSlugs: failed.slice(0, 20),
     remaining: Math.max(0, targets.length - processed),
     totalTargets: targets.length,
   });
@@ -85,8 +101,29 @@ function normalizeUrl(v: string): string {
   return /^https?:\/\//i.test(t) ? t : `https://${t.replace(/^\/+/, "")}`;
 }
 
-/** Fetch a site and return the best available logo image bytes. */
-async function logoForSite(site: string): Promise<{ buffer: Buffer; contentType: string } | null> {
+async function store(
+  supabase: ReturnType<typeof createSupabaseServiceRoleClient>,
+  slug: string,
+  kind: string,
+  bytes: { buffer: Buffer; contentType: string },
+): Promise<string | null> {
+  const ext = EXT[bytes.contentType] ?? "png";
+  const path = `${kind}s/${slug}-${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from("service-media").upload(path, bytes.buffer, {
+    contentType: bytes.contentType,
+    upsert: true,
+  });
+  if (error) return null;
+  return supabase.storage.from("service-media").getPublicUrl(path).data.publicUrl;
+}
+
+type SiteInfo = {
+  description: string | null;
+  logoBytes: { buffer: Buffer; contentType: string } | null;
+  coverBytes: { buffer: Buffer; contentType: string } | null;
+};
+
+async function readSite(site: string): Promise<SiteInfo | null> {
   let origin = "";
   let host = "";
   try {
@@ -97,42 +134,47 @@ async function logoForSite(site: string): Promise<{ buffer: Buffer; contentType:
     return null;
   }
 
-  const candidates: string[] = [];
-  try {
-    const html = await fetchText(site);
-    if (html) {
-      const head = html.slice(0, 200_000);
-      // apple-touch-icon (usually a clean square logo)
-      for (const m of head.matchAll(/<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]*>/gi)) {
-        const href = attr(m[0], "href");
-        if (href) candidates.push(abs(href, origin, site));
-      }
-      // og:image (often a branded image)
-      for (const m of head.matchAll(/<meta[^>]+property=["']og:image["'][^>]*>/gi)) {
-        const c = attr(m[0], "content");
-        if (c) candidates.push(abs(c, origin, site));
-      }
-      // any declared icon
-      for (const m of head.matchAll(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*>/gi)) {
-        const href = attr(m[0], "href");
-        if (href) candidates.push(abs(href, origin, site));
-      }
-    }
-  } catch {
-    /* fall through to favicon services */
-  }
+  const html = (await fetchText(site)) ?? "";
+  const head = html.slice(0, 300_000);
 
-  // Reliable fallbacks that (almost) always return something.
-  candidates.push(`${origin}/apple-touch-icon.png`);
-  if (host) candidates.push(`https://www.google.com/s2/favicons?domain=${host}&sz=128`);
+  const description =
+    meta(head, "property", "og:description") || meta(head, "name", "description") || meta(head, "name", "twitter:description") || null;
 
-  for (const url of candidates) {
-    const bytes = await fetchImage(url);
-    if (bytes) return bytes;
+  // Logo candidates, best first: an <img> that looks like a logo, then icons.
+  const logoCandidates: string[] = [];
+  const logoImg = head.match(/<img[^>]+(?:class|id|alt|src)=["'][^"']*logo[^"']*["'][^>]*>/i);
+  if (logoImg) {
+    const src = attr(logoImg[0], "src");
+    if (src) logoCandidates.push(abs(src, origin, site));
   }
-  return null;
+  for (const m of head.matchAll(/<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]*>/gi)) {
+    const href = attr(m[0], "href");
+    if (href) logoCandidates.push(abs(href, origin, site));
+  }
+  for (const m of head.matchAll(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*>/gi)) {
+    const href = attr(m[0], "href");
+    if (href) logoCandidates.push(abs(href, origin, site));
+  }
+  logoCandidates.push(`${origin}/apple-touch-icon.png`);
+  if (host) logoCandidates.push(`https://www.google.com/s2/favicons?domain=${host}&sz=128`);
+
+  // Cover: the big social-share image.
+  const ogImage = meta(head, "property", "og:image") || meta(head, "name", "twitter:image");
+  const coverUrl = ogImage ? abs(ogImage, origin, site) : null;
+
+  const logoBytes = await firstImage(logoCandidates);
+  const coverBytes = coverUrl ? await fetchImage(coverUrl) : null;
+
+  return { description, logoBytes, coverBytes };
 }
 
+function meta(html: string, kind: "name" | "property", key: string): string | null {
+  const re = new RegExp(`<meta[^>]+${kind}=["']${key}["'][^>]*>`, "i");
+  const tag = html.match(re);
+  if (!tag) return null;
+  const c = attr(tag[0], "content");
+  return c ? decodeEntities(c).trim() : null;
+}
 function attr(tag: string, name: string): string | null {
   const m = tag.match(new RegExp(`${name}=["']([^"']+)["']`, "i"));
   return m ? m[1] : null;
@@ -144,41 +186,40 @@ function abs(href: string, origin: string, base: string): string {
     return href.startsWith("//") ? `https:${href}` : `${origin}${href.startsWith("/") ? "" : "/"}${href}`;
   }
 }
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x27;/g, "'").replace(/&nbsp;/g, " ");
+}
 
 async function fetchText(url: string): Promise<string | null> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 7000);
-    const res = await fetch(url, {
-      redirect: "follow",
-      signal: ctrl.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; PlisticBot/1.0)" },
-    });
+    const res = await fetch(url, { redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; PlisticBot/1.0)" } });
     clearTimeout(t);
-    if (!res.ok) return null;
-    return await res.text();
+    return res.ok ? await res.text() : null;
   } catch {
     return null;
   }
 }
-
+async function firstImage(urls: string[]): Promise<{ buffer: Buffer; contentType: string } | null> {
+  for (const url of urls) {
+    const img = await fetchImage(url);
+    if (img) return img;
+  }
+  return null;
+}
 async function fetchImage(url: string): Promise<{ buffer: Buffer; contentType: string } | null> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 7000);
-    const res = await fetch(url, {
-      redirect: "follow",
-      signal: ctrl.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; PlisticBot/1.0)" },
-    });
+    const res = await fetch(url, { redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; PlisticBot/1.0)" } });
     clearTimeout(t);
     const ct = (res.headers.get("content-type") ?? "").toLowerCase().split(";")[0].trim();
     if (res.ok && ct.startsWith("image/")) {
       const buffer = Buffer.from(await res.arrayBuffer());
-      // Ignore 1x1 tracking pixels / empties; cap size.
-      if (buffer.byteLength > 200 && buffer.byteLength < 10 * 1024 * 1024) {
-        return { buffer, contentType: ct };
-      }
+      if (buffer.byteLength > 200 && buffer.byteLength < 10 * 1024 * 1024) return { buffer, contentType: ct };
     }
   } catch {
     /* ignore */
