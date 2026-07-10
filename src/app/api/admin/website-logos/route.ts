@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionProfile } from "@/lib/auth";
+import { getAdminApiContext } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -24,9 +24,9 @@ const EXT: Record<string, string> = {
  * button loops it until done. Admin-only.
  */
 export async function POST() {
-  const profile = await getSessionProfile();
-  if (!profile || profile.role !== "admin") {
-    return NextResponse.json({ error: "Admins only." }, { status: 403 });
+  const ctx = await getAdminApiContext();
+  if ("error" in ctx) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
   const supabase = createSupabaseServiceRoleClient();
 

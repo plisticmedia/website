@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { getSessionProfile } from "@/lib/auth";
+import { getAdminApiContext } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { importListingsFromCsv } from "@/lib/csvImport";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const profile = await getSessionProfile();
-  if (!profile || profile.role !== "admin") {
-    return NextResponse.json({ error: "Admins only." }, { status: 403 });
+  const ctx = await getAdminApiContext();
+  if ("error" in ctx) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "Import is not configured (missing service role key)." }, { status: 503 });
