@@ -65,9 +65,8 @@ export async function POST() {
 
     const update: Record<string, unknown> = {};
     // Text — only fill what's empty.
-    const desc = info.description?.trim();
-    if (!r.summary && desc) update.summary = desc.slice(0, 280);
-    if (!r.description && desc) update.description = desc.slice(0, 2000);
+    if (!r.summary && info.summary) update.summary = info.summary;
+    if (!r.description && info.description) update.description = info.description;
 
     // Logo — only if we don't already have one in our storage.
     if (!(r.logo_url ?? "").includes("/storage/v1/object/") && info.logoBytes) {
@@ -118,6 +117,7 @@ async function store(
 }
 
 type SiteInfo = {
+  summary: string | null;
   description: string | null;
   logoBytes: { buffer: Buffer; contentType: string } | null;
   coverBytes: { buffer: Buffer; contentType: string } | null;
@@ -135,13 +135,30 @@ async function readSite(site: string): Promise<SiteInfo | null> {
   }
 
   const html = (await fetchText(site)) ?? "";
-  const head = html.slice(0, 300_000);
+  const head = html.slice(0, 400_000);
 
-  const description =
-    meta(head, "property", "og:description") || meta(head, "name", "description") || meta(head, "name", "twitter:description") || null;
+  // Description: a short meta summary + the first substantial paragraphs of real
+  // page copy (what the business actually says it does), boilerplate filtered.
+  const metaDesc =
+    meta(head, "property", "og:description") || meta(head, "name", "description") || meta(head, "name", "twitter:description");
+  const paras = paragraphs(head);
+  const parts = [metaDesc, ...paras].filter((s): s is string => !!s);
+  const seen = new Set<string>();
+  const deduped = parts.filter((p) => {
+    const k = p.slice(0, 40).toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const description = deduped.length ? deduped.slice(0, 4).join("\n\n").slice(0, 2000) : null;
+  const summary = (metaDesc || paras[0] || "").slice(0, 280) || null;
 
-  // Logo candidates, best first: an <img> that looks like a logo, then icons.
+  // Logo candidates, best first: an image in the header/nav, then one that looks
+  // like a logo, then declared icons, then the favicon service.
   const logoCandidates: string[] = [];
+  const headerBlock = head.match(/<header[\s\S]{0,4000}?<\/header>/i)?.[0] || head.match(/<nav[\s\S]{0,4000}?<\/nav>/i)?.[0] || "";
+  const headerImg = headerBlock.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
+  if (headerImg) logoCandidates.push(abs(headerImg[1], origin, site));
   const logoImg = head.match(/<img[^>]+(?:class|id|alt|src)=["'][^"']*logo[^"']*["'][^>]*>/i);
   if (logoImg) {
     const src = attr(logoImg[0], "src");
@@ -165,7 +182,20 @@ async function readSite(site: string): Promise<SiteInfo | null> {
   const logoBytes = await firstImage(logoCandidates);
   const coverBytes = coverUrl ? await fetchImage(coverUrl) : null;
 
-  return { description, logoBytes, coverBytes };
+  return { summary, description, logoBytes, coverBytes };
+}
+
+/** Substantial, non-boilerplate paragraph text from the page body. */
+function paragraphs(html: string): string[] {
+  const out: string[] = [];
+  for (const m of html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const text = decodeEntities(m[1].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+    if (text.length < 60) continue;
+    if (/cookie|privacy policy|copyright|all rights reserved|©|subscribe|newsletter|terms (of|&)|sign up|log in/i.test(text)) continue;
+    out.push(text);
+    if (out.length >= 6) break;
+  }
+  return out;
 }
 
 function meta(html: string, kind: "name" | "property", key: string): string | null {
