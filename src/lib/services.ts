@@ -105,6 +105,72 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
   };
 }
 
+export type CompareRow = {
+  slug: string;
+  title: string;
+  logo_url: string | null;
+  category: string | null;
+  categorySlug: string | null;
+  rating: number | null;
+  ratingCount: number | null;
+  fromPrice: number;
+  deliveryDays: number | null;
+  isFeatured: boolean;
+};
+
+/**
+ * Published listings that have at least one bookable package from a seller who
+ * can receive payouts — i.e. things a buyer can actually book and compare.
+ * Returns the rows plus the distinct categories present (for a filter).
+ */
+export async function getComparableServices(
+  categorySlug?: string,
+): Promise<{ rows: CompareRow[]; categories: Array<{ slug: string; name: string }> }> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("services")
+    .select(
+      "slug, title, logo_url, is_featured, google_rating, google_rating_count, categories!category_id(name, slug), profiles(payouts_enabled), service_packages(price_gbp, delivery_days, is_bookable)",
+    )
+    .eq("status", "published")
+    .limit(400);
+
+  type Row = {
+    slug: string; title: string; logo_url: string | null; is_featured: boolean;
+    google_rating: number | null; google_rating_count: number | null;
+    categories: { name: string; slug: string } | null;
+    profiles: { payouts_enabled: boolean } | null;
+    service_packages: Array<{ price_gbp: number | null; delivery_days: number | null; is_bookable: boolean }>;
+  };
+
+  const rows: CompareRow[] = [];
+  const cats = new Map<string, string>();
+  for (const r of (data ?? []) as unknown as Row[]) {
+    if (!r.profiles?.payouts_enabled) continue;
+    const bookable = r.service_packages.filter((p) => p.is_bookable && typeof p.price_gbp === "number" && p.price_gbp > 0);
+    if (bookable.length === 0) continue;
+    const cheapest = bookable.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b));
+    if (r.categories?.slug) cats.set(r.categories.slug, r.categories.name);
+    rows.push({
+      slug: r.slug,
+      title: r.title,
+      logo_url: r.logo_url,
+      category: r.categories?.name ?? null,
+      categorySlug: r.categories?.slug ?? null,
+      rating: r.google_rating,
+      ratingCount: r.google_rating_count,
+      fromPrice: cheapest.price_gbp as number,
+      deliveryDays: cheapest.delivery_days,
+      isFeatured: r.is_featured,
+    });
+  }
+
+  const filtered = categorySlug ? rows.filter((r) => r.categorySlug === categorySlug) : rows;
+  filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.fromPrice - b.fromPrice);
+  const categories = [...cats.entries()].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name));
+  return { rows: filtered, categories };
+}
+
 export type MapPoint = {
   id: string;
   slug: string;

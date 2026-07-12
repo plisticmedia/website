@@ -40,6 +40,12 @@
   font-size: 1.04rem;
   line-height: 1.6;
 }
+.compareLink {
+  color: var(--p-azure-deep, #0c6f9e);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.compareLink:hover { text-decoration: underline; }
 
 .searchBar {
   display: flex;
