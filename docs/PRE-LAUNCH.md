@@ -19,12 +19,20 @@ Run any you haven't already, **in order**. Each is safe to re-run. There is no
 0006_listing_website   0007_service_areas   0009_platform   0010_submitter
 0011_connect   0012_orders   0013_payouts   0014_reviews   0015_disputes
 0016_claim_invites   0017_claim_followup   0018_account_type
+0019_pricing_leads   0020_booking_url   0021_showcase
 ```
 
-- **`0018_account_type` is new and required.** Until it's run, everyone who signs
-  up is treated as a business (the old behaviour). After it's run, the public can
-  sign up just to hire/book, and businesses get the seller tools. No harm if you
-  run it late — but the buyer experience only switches on once it's applied.
+- **`0018_account_type`** — unlocks public buyer accounts (vs business). Until run,
+  everyone who signs up is treated as a business.
+- **`0019_pricing_leads`** — stores calculator estimates so the daily follow-up
+  email can nudge people who don't get in touch.
+- **`0020_booking_url`** — lets sellers add a Cal.com/Calendly booking link to
+  their listing ("Book a call" button).
+- **`0021_showcase`** — the "Best of Scotland" showcase feed + submissions; seeds
+  it with Plistic's own work so it isn't empty.
+
+None of these break anything if run late — the related feature just switches on
+once its migration is applied.
 
 ## 2. Email delivery (so sign-in links and claim emails arrive)
 
