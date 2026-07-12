@@ -57,6 +57,7 @@ export type Service = {
   cover_image_url: string | null;
   logo_url: string | null;
   website_url: string | null;
+  booking_url: string | null;
   address: string | null;
   postcode: string | null;
   latitude: number | null;

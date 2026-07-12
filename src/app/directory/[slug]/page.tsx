@@ -356,6 +356,16 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             <div className={styles.enquiryCard}>
               <h2>Enquire</h2>
               <p>Send a message to {seller?.display_name ?? "this partner"}. They&apos;ll reply to you directly.</p>
+              {service.booking_url && (
+                <a
+                  className={`p-btn ${styles.bookCallBtn}`}
+                  href={service.booking_url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                >
+                  <CalendarClock aria-hidden="true" size={18} /> Book a call
+                </a>
+              )}
               <EnquiryForm serviceId={service.id} serviceTitle={service.title} />
             </div>
             {(seller?.bio || seller?.website_url) && (

@@ -36,6 +36,9 @@ function listingFields(formData: FormData, categoryIds: string[], areaIds: strin
   let website = str(formData, "website_url", 300);
   if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
 
+  let booking = str(formData, "booking_url", 300);
+  if (booking && !/^https?:\/\//i.test(booking)) booking = `https://${booking}`;
+
   const social: Record<string, string> = {};
   const instagram = str(formData, "instagram", 200);
   const linkedin = str(formData, "linkedin", 200);
@@ -49,6 +52,7 @@ function listingFields(formData: FormData, categoryIds: string[], areaIds: strin
     category_id: categoryIds[0] ?? (str(formData, "category_id", 80) || null),
     location_id: areaIds[0] ?? (str(formData, "location_id", 80) || null),
     website_url: website || null,
+    booking_url: booking || null,
     address: str(formData, "address", 240) || null,
     postcode: str(formData, "postcode", 20) || null,
     credits: str(formData, "credits", 2000) || null,
