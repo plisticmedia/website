@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { becomeBusiness } from "./listings/actions";
 import { FeatureCard } from "./FeatureCard";
+import { DashboardTour } from "./DashboardTour";
 import styles from "./DashboardPage.module.css";
 
 export const metadata: Metadata = {
@@ -20,10 +21,10 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ featured?: string }>;
+  searchParams: Promise<{ featured?: string; tour?: string }>;
 }) {
   const profile = await requireUser("/dashboard");
-  const { featured } = await searchParams;
+  const { featured, tour } = await searchParams;
 
   const isBusiness = profile.accountType === "business" || profile.role === "admin";
 
@@ -53,12 +54,17 @@ export default async function DashboardPage({
                   : `Signed in as ${profile.email}. Browse and book services from Scotland's creative scene.`}
               </p>
             </div>
-            <form action="/auth/signout" method="post">
-              <button type="submit" className="p-btn p-btn--ghost">
-                Sign out
-              </button>
-            </form>
+            <div className={styles.headActions}>
+              <Link href="/dashboard?tour=1" className={styles.tourLink}>Show me around</Link>
+              <form action="/auth/signout" method="post">
+                <button type="submit" className="p-btn p-btn--ghost">
+                  Sign out
+                </button>
+              </form>
+            </div>
           </header>
+
+          <DashboardTour isBusiness={isBusiness} replay={tour === "1"} />
 
           {featured === "success" && (
             <p className={styles.adminNote} role="status">
