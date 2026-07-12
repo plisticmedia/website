@@ -56,7 +56,7 @@ export default function VideoProductionPage() {
                 regardless of the brief. If it is worth making, it is worth making well.
               </p>
               <div className={styles.actions}>
-                <Link className="p-btn" href="/pricing">
+                <Link className="p-btn" href="/pricing?service=other#pricing">
                   Get an instant estimate
                   <ArrowRight aria-hidden="true" size={18} />
                 </Link>
@@ -147,7 +147,7 @@ export default function VideoProductionPage() {
               </p>
             </div>
             <div className={styles.ctaActions}>
-              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing">
+              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing?service=other#pricing">
                 Get an instant estimate
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>

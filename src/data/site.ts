@@ -18,11 +18,11 @@ const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
 export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;
 export const bookingPagePath = "/book";
 
-export const launchOfferExpiresAt = "2026-08-14T23:59:59+01:00";
+export const launchOfferExpiresAt = "2026-08-31T23:59:59+01:00";
 
 export const launchOffer = {
   eyebrow: "Launch early access",
-  body: "Up to 50% off event filming, podcasting and documentaries until 14 August.",
+  body: "Up to 50% off event filming, podcasting and documentaries until 31 August.",
   cta: "Get an instant estimate",
 };
 

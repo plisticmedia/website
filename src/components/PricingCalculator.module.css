@@ -354,12 +354,13 @@
 .serviceOption[aria-pressed="true"] { background: var(--p-ink); color: var(--p-white); }
 .serviceOption > span:not(.serviceNumber) {
   min-width: 0;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
   text-wrap: balance;
   white-space: normal;
   font-family: var(--p-display);
-  font-size: clamp(0.86rem, 1.12vw, 1.1rem);
-  line-height: 0.96;
+  font-size: clamp(0.82rem, 1.05vw, 1.05rem);
+  line-height: 1;
   text-transform: uppercase;
 }
 .serviceOption small {

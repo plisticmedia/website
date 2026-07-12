@@ -58,7 +58,7 @@ export default function EventFilmingPage() {
                 beyond the day itself.
               </p>
               <div className={styles.actions}>
-                <Link className="p-btn" href="/pricing">
+                <Link className="p-btn" href="/pricing?service=event#pricing">
                   Get an instant estimate
                   <ArrowRight aria-hidden="true" size={18} />
                 </Link>
@@ -147,7 +147,7 @@ export default function EventFilmingPage() {
               </p>
             </div>
             <div className={styles.ctaActions}>
-              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing">
+              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing?service=event#pricing">
                 Get an instant estimate
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>

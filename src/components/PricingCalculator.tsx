@@ -519,8 +519,8 @@ function getRangeText(result?: EstimateResult) {
   return qualifier ? `${base} ${qualifier}` : base;
 }
 
-export function PricingCalculator() {
-  const [service, setService] = useState<ServiceChoice>("podcast");
+export function PricingCalculator({ initialService }: { initialService?: ServiceChoice } = {}) {
+  const [service, setService] = useState<ServiceChoice>(initialService ?? "podcast");
   const [podcast, setPodcast] = useState<PodcastEstimateInput>(podcastDefaults);
   const [event, setEvent] = useState<EventEstimateInput>(eventDefaults);
   const [musicVideo, setMusicVideo] = useState<OtherEstimateInput>(musicVideoDefaults);

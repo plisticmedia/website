@@ -95,7 +95,7 @@ export default function PodcastingPage() {
                 single sentence of an idea to series that chart in their category - and we handle everything in between.
               </p>
               <div className={styles.actions}>
-                <Link className="p-btn" href="/pricing">
+                <Link className="p-btn" href="/pricing?service=podcast#pricing">
                   Get an instant estimate
                   <ArrowRight aria-hidden="true" size={18} />
                 </Link>
@@ -210,7 +210,7 @@ export default function PodcastingPage() {
               <p>Get an instant price range through our quote tool, or book a free call and we will talk it through together.</p>
             </div>
             <div className={styles.ctaActions}>
-              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing">
+              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing?service=podcast#pricing">
                 Get an instant estimate
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>

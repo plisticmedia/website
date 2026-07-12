@@ -1,7 +1,8 @@
 import { PricingCalculator } from "@/components/PricingCalculator";
+import type { ServiceChoice } from "@/lib/pricing";
 import styles from "./PricingPath.module.css";
 
-export function PricingPath() {
+export function PricingPath({ initialService }: { initialService?: ServiceChoice }) {
   return (
     <section className={`p-section p-dark ${styles.pricing}`} id="pricing" aria-labelledby="pricing-title">
       <div className="p-container">
@@ -19,7 +20,7 @@ export function PricingPath() {
           </p>
         </div>
 
-        <PricingCalculator />
+        <PricingCalculator initialService={initialService} />
       </div>
     </section>
   );
