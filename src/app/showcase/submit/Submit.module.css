@@ -1,0 +1,49 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 560px;
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; }
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-ink);
+}
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  background: var(--p-white, #fff);
+  color: var(--p-ink);
+}
+.field textarea { resize: vertical; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.success {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  max-width: 560px;
+  padding: 1.1rem 1.2rem;
+  background: rgba(26, 127, 55, 0.08);
+  border: 1px solid rgba(26, 127, 55, 0.3);
+  border-radius: 12px;
+  color: var(--p-ink);
+  line-height: 1.5;
+}
+.success svg { color: #1a7f37; flex: none; margin-top: 1px; }
+.error { color: var(--p-coral, #f06d45); }

@@ -351,3 +351,36 @@ export async function deleteTaxon(kind: Taxon, id: string) {
   revalidatePath("/admin/taxonomy");
   revalidatePath("/directory");
 }
+
+/** Approve a submitted showcase item (make it public). */
+export async function publishShowcaseItem(id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("showcase_items")
+    .update({ status: "published", published_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/showcase");
+}
+
+/** Reject / remove a showcase item. */
+export async function removeShowcaseItem(id: string) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("showcase_items").update({ status: "removed" }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/showcase");
+}
+
+/** Toggle whether a showcase item is featured (shown large / first). */
+export async function toggleShowcaseFeatured(id: string, featured: boolean) {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("showcase_items").update({ is_featured: featured }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+  revalidatePath("/showcase");
+}
