@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, grantAdmin, moderateService, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { approveClaim, clearRating, grantAdmin, moderateService, publishShowcaseItem, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, removeShowcaseItem, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { getPendingShowcaseItems } from "@/lib/showcase";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
@@ -42,6 +43,8 @@ export default async function AdminPage() {
       supabase.from("disputes").select("id, reason, status, created_at, orders(id, amount_gbp, commission_gbp, services(title, slug))").eq("status", "open").order("created_at", { ascending: false }),
       supabase.from("services").select("id", { count: "exact", head: true }).is("latitude", null).not("location_id", "is", null),
     ]);
+
+  const showcasePending = await getPendingShowcaseItems();
 
   const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
@@ -207,6 +210,42 @@ export default async function AdminPage() {
                             <button className={styles.btnSmall} type="submit">Approve</button>
                           </form>
                           <form action={rejectClaim.bind(null, c.id)}>
+                            <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Reject</button>
+                          </form>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Showcase submissions */}
+          {showcasePending.length > 0 && (
+            <>
+              <h2 className={styles.sectionTitle}>Showcase submissions ({showcasePending.length})</h2>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr><th>Title</th><th>Kind</th><th>Source</th><th>Link</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody>
+                    {showcasePending.map((s) => (
+                      <tr key={s.id}>
+                        <td>{s.title}{s.summary ? <div className={styles.note}>{s.summary}</div> : null}</td>
+                        <td>{s.kind}</td>
+                        <td>{s.source ?? "—"}</td>
+                        <td>
+                          {s.link_url ? <a href={s.link_url} target="_blank" rel="noreferrer">link</a> : null}
+                          {s.embed_url ? <> <a href={s.embed_url} target="_blank" rel="noreferrer">video</a></> : null}
+                          {!s.link_url && !s.embed_url ? "—" : null}
+                        </td>
+                        <td className={styles.actions}>
+                          <form action={publishShowcaseItem.bind(null, s.id)}>
+                            <button className={styles.btnSmall} type="submit">Publish</button>
+                          </form>
+                          <form action={removeShowcaseItem.bind(null, s.id)}>
                             <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Reject</button>
                           </form>
                         </td>
