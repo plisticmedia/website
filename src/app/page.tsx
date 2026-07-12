@@ -5,6 +5,7 @@ import { ClosingCTA } from "@/sections/ClosingCTA";
 import { Hero } from "@/sections/Hero";
 import { ProofTrust } from "@/sections/ProofTrust";
 import { ServicesOverview } from "@/sections/ServicesOverview";
+import { Showreel } from "@/sections/Showreel";
 import { Testimonials } from "@/sections/Testimonials";
 import { WorkPreview } from "@/sections/WorkPreview";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <main>
         <Hero />
         <ProofTrust />
+        <Showreel />
         <ServicesOverview />
         <WorkPreview />
         <Testimonials />
