@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { refreshRatings } from "@/lib/ratings";
 import { sweepAutoReleases } from "@/lib/orders";
+import { sendPricingFollowUps } from "@/lib/pricingLeads";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -35,5 +36,7 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error("[cron] auto-release sweep failed", err);
   }
-  return NextResponse.json({ ok: true, ...result, releases });
+  // Follow up on unconverted calculator estimates (best-effort).
+  const followUps = await sendPricingFollowUps(40);
+  return NextResponse.json({ ok: true, ...result, releases, followUps });
 }

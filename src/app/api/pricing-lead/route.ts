@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { brand, fromEmail } from "@/data/site";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
+import { storePricingLead } from "@/lib/pricingLeads";
 
 export const runtime = "nodejs";
 
@@ -147,6 +148,10 @@ export async function POST(request: Request) {
     confirmationSent = false;
     console.warn("[pricing-lead] Visitor confirmation email failed, but the internal estimate was received.", error);
   }
+
+  // Persist the lead so the daily cron can send one gentle follow-up if they
+  // don't get in touch. Best-effort; never affects the response.
+  await storePricingLead({ name, email, organisation, serviceTitle, rangeText, projectNote });
 
   return NextResponse.json({ ok: true, emailConfigured: true, confirmationSent });
 }
