@@ -254,6 +254,27 @@
   margin-bottom: 0.5rem;
 }
 
+.insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0 1.6rem;
+}
+@media (max-width: 640px) {
+  .insights { grid-template-columns: 1fr; }
+}
+.insightStat {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--p-line);
+  border-radius: 12px;
+  background: var(--p-paper, #f7f9f9);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.insightStat strong { font-size: 1.15rem; line-height: 1.15; }
+.insightStat span { font-size: 0.8rem; color: var(--p-muted); }
+
 .editActions {
   display: flex;
   align-items: center;

@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { getCategories, getLocations, getSellerServiceById } from "@/lib/services";
+import { getListingInsights } from "@/lib/insights";
 import {
   addEmbed,
   addPackage,
@@ -39,6 +40,16 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     getLocations(),
   ]);
   if (!service) notFound();
+
+  const insights = await getListingInsights(service.id);
+  const gbp0 = (n: number) => new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);
+  const pricingLabel = insights.pricing
+    ? insights.pricing.position === "below"
+      ? "Below most in your category"
+      : insights.pricing.position === "above"
+        ? "Above most in your category"
+        : "Around the middle for your category"
+    : null;
 
   const isPublished = service.status === "published";
   const selectedSlugs = new Set(
@@ -88,6 +99,29 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 </Link>
               )}
             </div>
+          </div>
+
+          {/* Insights */}
+          <div className={styles.insights}>
+            <div className={styles.insightStat}>
+              <strong>{insights.views}</strong>
+              <span>page views{insights.views30d > 0 ? ` · ${insights.views30d} in 30 days` : ""}</span>
+            </div>
+            <div className={styles.insightStat}>
+              <strong>{insights.enquiries}</strong>
+              <span>enquir{insights.enquiries === 1 ? "y" : "ies"}</span>
+            </div>
+            {insights.pricing ? (
+              <div className={styles.insightStat}>
+                <strong>{pricingLabel}</strong>
+                <span>your {gbp0(insights.pricing.yourPrice)} vs {gbp0(insights.pricing.median)} typical ({insights.pricing.sampleSize} similar)</span>
+              </div>
+            ) : (
+              <div className={styles.insightStat}>
+                <strong>Pricing insight soon</strong>
+                <span>add priced packages — we&apos;ll show how you compare once there&apos;s enough data</span>
+              </div>
+            )}
           </div>
 
           {/* Details */}
