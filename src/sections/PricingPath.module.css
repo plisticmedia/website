@@ -24,6 +24,23 @@
 
 .header { max-width: 760px; }
 
+.launchNote {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  max-width: 68ch;
+  margin: 1.1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(31, 170, 233, 0.14);
+  border: 1px solid rgba(31, 170, 233, 0.4);
+  color: #fff;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.launchNote svg { flex: none; margin-top: 2px; color: var(--p-azure); }
+.launchNote strong { color: var(--p-azure); }
+
 .disclaimer {
   max-width: 68ch;
   margin: 0.75rem 0 0;
