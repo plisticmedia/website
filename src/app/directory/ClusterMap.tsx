@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { AttributionControl, MapContainer, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster";
@@ -87,11 +87,15 @@ export default function ClusterMap({ points, height = 440 }: { points: MapPoint[
       center={SCOTLAND_CENTER}
       zoom={6}
       scrollWheelZoom={false}
+      attributionControl={false}
       style={{ height: `${height}px`, width: "100%", borderRadius: "16px" }}
     >
+      {/* prefix={false} drops Leaflet's default "Leaflet 🇺🇦" prefix (the flag in
+          the corner) while keeping the required CARTO/OSM credit. */}
+      <AttributionControl position="bottomright" prefix={false} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
         subdomains="abcd"
       />
       <Clusters points={points} />

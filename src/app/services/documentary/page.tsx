@@ -120,7 +120,7 @@ export default function DocumentaryPage() {
               </p>
             </div>
             <div className={styles.ctaActions}>
-              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing">
+              <Link className={`p-btn ${styles.whiteButton}`} href="/pricing?service=documentary#pricing">
                 Get an instant estimate
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>

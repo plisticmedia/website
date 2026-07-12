@@ -101,8 +101,8 @@ export default function EarnPage() {
                   </div>
                   <strong>Creative network</strong>
                   <p>
-                    A longer-term route for businesses and freelancers whose services complement ours. No referral
-                    cash: this is about trusted repeat collaboration.
+                    For businesses and freelancers whose services complement ours — get work referred your way, a
+                    featured place in our directory and showcase, and collaborations that flow both ways.
                   </p>
                   <Link className={styles.panelLink} href="#partners">
                     Become a partner
@@ -128,8 +128,9 @@ export default function EarnPage() {
               <Handshake aria-hidden="true" size={26} />
               <h2>Partnerships with intent.</h2>
               <p>
-                Partnerships are for businesses and freelancers we may work with repeatedly. They are about shared
-                standards and complementary services, not a one-off referral fee.
+                Partnerships are for businesses and freelancers we work with repeatedly. You get projects referred to
+                you when a brief fits your skills, visibility in our directory and showcase, and a genuine collaborator
+                in the Scottish creative scene.
               </p>
             </article>
           </div>
@@ -178,8 +179,9 @@ export default function EarnPage() {
                 whose services complement ours and whose work we would feel confident putting beside Plistic projects.
               </p>
               <p>
-                This is a longer-term relationship rather than a cash referral route. For now, tell us who you are,
-                what you do, and where your work could fit alongside Plistic projects.
+                As a partner you get work referred to you when a brief fits your skills, a featured place in our
+                directory and showcase — in front of the clients and investors we attract — and first call on
+                collaborations. Tell us who you are, what you do, and where your work could fit alongside Plistic projects.
               </p>
               <div className={styles.partnerTags} aria-label="Partner categories we are interested in">
                 {partnerTypes.map((type) => (

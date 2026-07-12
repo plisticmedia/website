@@ -1745,16 +1745,13 @@ textarea {
 
 .footer-logo-link {
   display: inline-flex;
-  aspect-ratio: 497 / 223;
-  overflow: hidden;
   width: clamp(150px, 13vw, 200px);
 }
 
 .footer-logo {
   height: auto;
-  max-width: none;
-  transform: translate(-22.33%, -23.91%);
-  width: 181.1%;
+  width: 100%;
+  max-width: 100%;
 }
 
 .footer-main {

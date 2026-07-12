@@ -18,11 +18,11 @@ const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
 export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;
 export const bookingPagePath = "/book";
 
-export const launchOfferExpiresAt = "2026-08-14T23:59:59+01:00";
+export const launchOfferExpiresAt = "2026-08-31T23:59:59+01:00";
 
 export const launchOffer = {
   eyebrow: "Launch early access",
-  body: "Up to 50% off event filming, podcasting and documentaries until 14 August.",
+  body: "Up to 50% off event filming, podcasting and documentaries until 31 August.",
   cta: "Get an instant estimate",
 };
 
@@ -37,6 +37,27 @@ export const navItems = [
 ];
 
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
+
+export const testimonials = [
+  {
+    quote:
+      "Working with Kayla and Ross is a complete joy! As an inexperienced host, they immediately put me at ease and set up the conditions so that I felt confident and natural in my role. Nothing was too much trouble and I would recommend them to anyone who is looking for audio visual production capability.",
+    name: "Ross Tuffee",
+    org: "Connect-Ed Network",
+  },
+  {
+    quote:
+      "In the early days of developing this new collaborative network, we needed a media partner that could work dynamically with us, to help define how we package our message and reach wider audiences. Kayla and Ross were professional and creative in their approach, bringing the right skill and experience to help transform our ideas into accessible, evergreen resources. I'd have no hesitation in working with them again on another project.",
+    name: "Orla Kelly",
+    org: "Connect-Ed Network",
+  },
+  {
+    quote:
+      "What stood out working with Plistic is their commitment to pushing boundaries, thoughtful content that resonated with our target audience, and the most brilliant project handover guide I've ever read.",
+    name: "Kara Olayinka",
+    org: "Tiny Changes",
+  },
+];
 
 export const proofStats = [
   {

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { Category, Location } from "@/lib/types";
+import { titleCaseName } from "@/lib/format";
 import styles from "./Directory.module.css";
 
 type Current = { q?: string; category?: string; location?: string; rating?: string };
@@ -38,7 +39,7 @@ export function DirectoryFilters({
           <option value="">All services</option>
           {categories.map((c) => (
             <option key={c.id} value={c.slug}>
-              {c.name}
+              {titleCaseName(c.name)}
             </option>
           ))}
         </select>
@@ -50,7 +51,7 @@ export function DirectoryFilters({
           <option value="">All of Scotland</option>
           {locations.map((l) => (
             <option key={l.id} value={l.slug}>
-              {l.name}
+              {titleCaseName(l.name)}
             </option>
           ))}
         </select>
