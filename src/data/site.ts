@@ -125,6 +125,13 @@ export const services = [
     href: "/services/documentary",
     bullets: ["Research-led story", "Contributor care", "Full production"],
   },
+  {
+    title: "Coaching",
+    summary: "Presentation and media coaching - feel calm and natural on a mic or camera, whether you're a host, a founder, or a whole team.",
+    image: "/assets/photos/podcast-monitor.webp",
+    href: "/services/coaching",
+    bullets: ["Podcast & host coaching", "On-camera confidence", "Founder media training"],
+  },
 ];
 
 export const caseStudies = [

@@ -20,7 +20,7 @@ export function ServicesOverview() {
         </div>
 
         <div className={styles.grid}>
-          {services.map((service, idx) => {
+          {services.slice(0, 4).map((service, idx) => {
             const imageStyle =
               service.title === "Documentary" || service.title === "Event filming"
                 ? ({ objectPosition: "center top" } as const)
@@ -40,7 +40,7 @@ export function ServicesOverview() {
                 </div>
                 <span className={styles.scrim} aria-hidden="true" />
                 <div className={styles.copy}>
-                  <p className={styles.num}>{String(idx + 1).padStart(2, "0")} / 0{services.length}</p>
+                  <p className={styles.num}>{String(idx + 1).padStart(2, "0")} / 04</p>
                   <h3 className={styles.title}>{service.title}</h3>
                   <p className={styles.summary}>{service.summary}</p>
                   <span className={styles.link}>
