@@ -137,7 +137,7 @@ export default function ConnectEdNetworkCaseStudyPage() {
               </div>
             </div>
 
-            <div className={`${styles.heroMedia} ${styles.connectHeroMedia} p-vf`}>
+            <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
                 src="/assets/photos/site/connect-ed-2.jpg"
