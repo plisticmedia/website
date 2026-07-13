@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { AlertCircle, ArrowRight, CheckCircle2, Lock, Mail } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { PASSWORD_HINT, passwordError } from "@/lib/password";
 import styles from "./LoginPage.module.css";
 
 type Status = "idle" | "submitting" | "sent" | "error";
@@ -43,6 +44,12 @@ export function LoginForm({ next }: { next: string }) {
     try {
       const supabase = createSupabaseBrowserClient();
       if (signUp) {
+        const pwErr = passwordError(password);
+        if (pwErr) {
+          setStatus("error");
+          setMessage(pwErr);
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -212,12 +219,17 @@ export function LoginForm({ next }: { next: string }) {
                 name="password"
                 type="password"
                 autoComplete={signUp ? "new-password" : "current-password"}
-                placeholder={signUp ? "Choose a password (min 8 characters)" : "Your password"}
+                placeholder={signUp ? "Choose a password" : "Your password"}
                 minLength={8}
                 required
               />
             </div>
           </label>
+          {signUp && (
+            <p style={{ margin: "-0.4rem 0 0.2rem", fontSize: "0.8rem", color: "var(--p-muted)", lineHeight: 1.4 }}>
+              {PASSWORD_HINT}
+            </p>
+          )}
           <button className={`p-btn ${styles.submit}`} type="submit" disabled={status === "submitting"}>
             {status === "submitting" ? "Please wait…" : signUp ? "Create account" : "Sign in"}
             <ArrowRight aria-hidden="true" size={18} />
