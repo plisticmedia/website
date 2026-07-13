@@ -29,7 +29,7 @@ export const launchOffer = {
 export const navItems = [
   { label: "Home", href: "/#top" },
   { label: "Services", href: "/#services" },
-  { label: "Directory", href: "/directory" },
+  { label: "Media Directory", href: "/directory" },
   { label: "Showcase", href: "/showcase" },
   { label: "Our Work", href: "/#work" },
   { label: "Pricing", href: "/pricing" },
@@ -40,6 +40,12 @@ export const navItems = [
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
 
 export const testimonials = [
+  {
+    quote:
+      "Inspire's long relationship with Podplistic has been built on the fact that they are flexible, reliable and collaborative. They've handled everything we've thrown at them, from recording live events and panel sessions, to full day sessions capturing multiple episodes of our Inspiring Entrepreneurs podcast. Their professionalism, adaptability and commitment to quality make them a trusted partner that we would confidently recommend to any organisation looking to create engaging, high-quality podcast content.",
+    name: "Katy McNair",
+    org: "Strathclyde Inspire",
+  },
   {
     quote:
       "Working with Kayla and Ross is a complete joy! As an inexperienced host, they immediately put me at ease and set up the conditions so that I felt confident and natural in my role. Nothing was too much trouble and I would recommend them to anyone who is looking for audio visual production capability.",
