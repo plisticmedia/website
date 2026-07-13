@@ -196,18 +196,32 @@ export async function revokeAdmin(userId: string) {
 }
 
 /** Grant admin access to an existing account by email. */
-export async function grantAdmin(formData: FormData) {
+export type AdminActionResult = { ok: boolean; message: string };
+
+export async function grantAdmin(
+  _prev: AdminActionResult | null,
+  formData: FormData,
+): Promise<AdminActionResult> {
   await requireAdmin();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!email) throw new Error("Enter an email address.");
+  if (!email) return { ok: false, message: "Enter an email address." };
   const supabase = createSupabaseServiceRoleClient();
   // Find the signed-up account with this email.
   const { data: list } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   const user = list?.users?.find((u: { email?: string | null }) => (u.email ?? "").toLowerCase() === email);
-  if (!user) throw new Error("No account with that email — ask them to sign up first, then grant access.");
+  if (!user) {
+    return {
+      ok: false,
+      message: `No account found for ${email} yet. Ask them to create an account first at plisticmedia.com/login, then grant access.`,
+    };
+  }
   const { error } = await supabase.from("profiles").update({ role: "admin" }).eq("id", user.id);
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, message: error.message };
   revalidatePath("/admin");
+  return {
+    ok: true,
+    message: `${email} is now an admin. Next time they open /admin they'll be asked to set up their own 2FA.`,
+  };
 }
 
 /**

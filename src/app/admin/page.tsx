@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, grantAdmin, moderateService, publishShowcaseItem, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, removeShowcaseItem, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { approveClaim, clearRating, moderateService, publishShowcaseItem, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, removeShowcaseItem, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
@@ -127,11 +128,10 @@ export default async function AdminPage() {
                 </tbody>
               </table>
             </div>
-            <form action={grantAdmin} style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.7rem" }}>
-              <input name="email" type="email" required placeholder="email of an existing account"
-                style={{ flex: 1, minWidth: 220, padding: "0.5rem 0.7rem", border: "1px solid var(--p-line)", borderRadius: 8 }} />
-              <button type="submit" className={styles.btnSmall}>Grant admin</button>
-            </form>
+            <GrantAdminForm buttonClassName={styles.btnSmall} />
+            <p style={{ margin: "0.5rem 0 0", fontSize: "0.8rem", color: "var(--p-muted)" }}>
+              The person must have created an account first (at /login). Then enter their email here.
+            </p>
           </div>
 
           <div className={styles.stats}>
