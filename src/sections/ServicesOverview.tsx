@@ -22,9 +22,11 @@ export function ServicesOverview() {
         <div className={styles.grid}>
           {services.slice(0, 4).map((service, idx) => {
             const imageStyle =
-              service.title === "Documentary" || service.title === "Event filming"
-                ? ({ objectPosition: "center top" } as const)
-                : undefined;
+              service.title === "Documentary"
+                ? ({ objectPosition: "40% top" } as const)
+                : service.title === "Event filming"
+                  ? ({ objectPosition: "center top" } as const)
+                  : undefined;
 
             return (
               <Link className={`${styles.tile} p-vf`} href={service.href ?? "#contact"} key={service.title}>
