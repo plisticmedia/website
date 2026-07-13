@@ -124,6 +124,7 @@ export default function StrathclydeInspireCaseStudyPage() {
                 fill
                 priority
                 sizes="(max-width: 900px) 100vw, 52vw"
+                style={{ objectPosition: "38% center" }}
               />
               <div className={styles.mediaCaption}>
                 <div>
