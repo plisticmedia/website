@@ -79,11 +79,18 @@ export function ResetPasswordForm() {
 
   if (status === "nolink") {
     return (
-      <p className={`${styles.status} ${styles.error}`}>
-        <AlertCircle aria-hidden="true" size={18} />
-        This reset link is missing or has expired. Please request a new one from the{" "}
-        <a href="/login">sign-in page</a> using “Forgot password?”.
-      </p>
+      <div className={styles.card}>
+        <p className={`${styles.status} ${styles.error}`} style={{ alignItems: "flex-start" }}>
+          <AlertCircle aria-hidden="true" size={18} style={{ flex: "none", marginTop: "2px" }} />
+          <span>
+            This reset link has expired or has already been used. For security, each link works only once and times
+            out — just request a fresh one.
+          </span>
+        </p>
+        <a href="/login" className={`p-btn ${styles.submit}`} style={{ marginTop: "1rem", justifyContent: "center" }}>
+          Request a new reset link
+        </a>
+      </div>
     );
   }
 
