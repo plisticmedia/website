@@ -72,8 +72,8 @@ export function AboutScotland() {
           <div className={`${styles.media} p-vf`}>
             <span className="p-vfc" aria-hidden="true" />
             <Image
-              src="/assets/photos/glasgow-view.webp"
-              alt="A Glasgow view from a Plistic production workspace"
+              src="/assets/photos/site/accelerateher.jpg"
+              alt="Plistic filming a live event in Scotland"
               fill
               sizes="(max-width: 860px) 100vw, 50vw"
             />

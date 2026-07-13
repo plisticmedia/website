@@ -72,7 +72,7 @@ export default function EventFilmingPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/event-filming-speaker.webp"
+                src="/assets/photos/site/news-room.jpg"
                 alt="Speaker at a filmed live event"
                 fill
                 priority

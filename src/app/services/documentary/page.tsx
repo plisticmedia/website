@@ -68,7 +68,7 @@ export default function DocumentaryPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/documentary-interview.webp"
+                src="/assets/photos/site/documentary-1.jpg"
                 alt="Documentary interview subjects seated for filming"
                 fill
                 priority

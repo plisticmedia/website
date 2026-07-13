@@ -70,7 +70,7 @@ export default function VideoProductionPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/music-video-camera.webp"
+                src="/assets/photos/site/scarlet-prism.jpg"
                 alt="Camera operator filming a music video performance"
                 fill
                 priority

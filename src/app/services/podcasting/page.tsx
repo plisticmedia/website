@@ -109,7 +109,7 @@ export default function PodcastingPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/podcast-table.webp"
+                src="/assets/photos/site/accelerateher-3.jpg"
                 alt="Podcast production setup with microphones around a table"
                 fill
                 priority

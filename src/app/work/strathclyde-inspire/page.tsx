@@ -119,7 +119,7 @@ export default function StrathclydeInspireCaseStudyPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/strathclyde-inspire.jpg"
+                src="/assets/photos/site/inspire-2.jpg"
                 alt="Strathclyde Inspire podcast production setup"
                 fill
                 priority

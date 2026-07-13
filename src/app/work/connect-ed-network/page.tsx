@@ -140,7 +140,7 @@ export default function ConnectEdNetworkCaseStudyPage() {
             <div className={`${styles.heroMedia} ${styles.connectHeroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/connect-ed.png"
+                src="/assets/photos/site/connect-ed-2.jpg"
                 alt="Connect-Ed podcast series production artwork"
                 fill
                 priority
