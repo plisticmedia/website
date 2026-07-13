@@ -129,7 +129,7 @@ export default function TinyChangesCaseStudyPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/podcast-monitor.webp"
+                src="/assets/photos/site/tiny-changes-1.jpg"
                 alt="Podcast production monitor during a recorded interview"
                 fill
                 priority
