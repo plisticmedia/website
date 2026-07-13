@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { AlertCircle, ArrowRight, CheckCircle2, Lock, Mail } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PASSWORD_HINT, passwordError } from "@/lib/password";
 import styles from "./LoginPage.module.css";
@@ -27,6 +27,7 @@ export function LoginForm({ next }: { next: string }) {
   const [mode, setMode] = useState<Mode>("password");
   const [signUp, setSignUp] = useState(false);
   const [accountType, setAccountType] = useState<"buyer" | "business">("buyer");
+  const [showPw, setShowPw] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
 
@@ -217,18 +218,25 @@ export function LoginForm({ next }: { next: string }) {
               <Lock aria-hidden="true" size={18} />
               <input
                 name="password"
-                type="password"
+                type={showPw ? "text" : "password"}
                 autoComplete={signUp ? "new-password" : "current-password"}
                 placeholder={signUp ? "Choose a password" : "Your password"}
                 minLength={8}
                 required
               />
+              <button
+                type="button"
+                className={styles.revealBtn}
+                onClick={() => setShowPw((v) => !v)}
+                aria-label={showPw ? "Hide password" : "Show password"}
+                aria-pressed={showPw}
+              >
+                {showPw ? <EyeOff aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
+              </button>
             </div>
           </label>
           {signUp && (
-            <p style={{ margin: "-0.4rem 0 0.2rem", fontSize: "0.8rem", color: "var(--p-muted)", lineHeight: 1.4 }}>
-              {PASSWORD_HINT}
-            </p>
+            <p className={styles.pwHint}>{PASSWORD_HINT}</p>
           )}
           <button className={`p-btn ${styles.submit}`} type="submit" disabled={status === "submitting"}>
             {status === "submitting" ? "Please wait…" : signUp ? "Create account" : "Sign in"}

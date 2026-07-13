@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser, getMfaStatus } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TwoFactorSetup } from "./TwoFactorSetup";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 import styles from "../DashboardPage.module.css";
 
 export const metadata: Metadata = { title: "Security | Plistic", robots: { index: false, follow: false } };
@@ -58,6 +59,12 @@ export default async function SecurityPage({
               somewhere safe, or enrol a second device.
             </p>
           )}
+
+          <article className={styles.card} style={{ maxWidth: 560, marginTop: "1.6rem" }}>
+            <h2>Change your password</h2>
+            <p style={{ color: "var(--p-muted)", marginTop: "0.3rem" }}>Set a new password for your account.</p>
+            <ChangePasswordForm />
+          </article>
         </section>
       </main>
       <Footer />

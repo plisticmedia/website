@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import type { EmailOtpType } from "@supabase/supabase-js";
-import { AlertCircle, CheckCircle2, Lock, ShieldCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PASSWORD_HINT, passwordError } from "@/lib/password";
 import styles from "../login/LoginPage.module.css";
@@ -14,6 +14,7 @@ export function ResetPasswordForm() {
   const [message, setMessage] = useState("");
   const [factorId, setFactorId] = useState("");
   const [code, setCode] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   // Complete the recovery link in the browser, then — if the account has 2FA —
   // step up to it before allowing the password change (Supabase requires it).
@@ -185,15 +186,24 @@ export function ResetPasswordForm() {
           <span>New password</span>
           <div className={styles.inputWrap}>
             <Lock aria-hidden="true" size={18} />
-            <input name="password" type="password" autoComplete="new-password" placeholder="Your new password" minLength={8} required />
+            <input name="password" type={showPw ? "text" : "password"} autoComplete="new-password" placeholder="Your new password" minLength={8} required />
+            <button
+              type="button"
+              className={styles.revealBtn}
+              onClick={() => setShowPw((v) => !v)}
+              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-pressed={showPw}
+            >
+              {showPw ? <EyeOff aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
+            </button>
           </div>
         </label>
-        <p style={{ margin: "-0.3rem 0 0.4rem", fontSize: "0.82rem", color: "var(--p-muted)", lineHeight: 1.4 }}>{PASSWORD_HINT}</p>
+        <p className={styles.pwHint}>{PASSWORD_HINT}</p>
         <label className={styles.field}>
           <span>Confirm new password</span>
           <div className={styles.inputWrap}>
             <Lock aria-hidden="true" size={18} />
-            <input name="confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" minLength={8} required />
+            <input name="confirm" type={showPw ? "text" : "password"} autoComplete="new-password" placeholder="Re-enter your password" minLength={8} required />
           </div>
         </label>
         <button className={`p-btn ${styles.submit}`} type="submit" disabled={status === "saving"}>
