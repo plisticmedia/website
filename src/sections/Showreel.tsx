@@ -2,7 +2,8 @@ import styles from "./Showreel.module.css";
 
 // The final showreel lives on Google Drive; /preview renders an embeddable player.
 // ⚠️ The Drive file must be shared "Anyone with the link — Viewer" to play here.
-const SHOWREEL_EMBED = "https://drive.google.com/file/d/1U1-rNhMABHXhtpFjm6qkHxF5GJgEZDgz/preview";
+// File: "Plistic Media Showreel Final.mp4"
+const SHOWREEL_EMBED = "https://drive.google.com/file/d/1DiW92NcLN6JvxUylh28i4lx5Jvj0eIow/preview";
 
 export function Showreel() {
   return (
