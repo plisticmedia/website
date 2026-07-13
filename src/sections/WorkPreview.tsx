@@ -25,8 +25,10 @@ export function WorkPreview() {
               study.client === "Connect-Ed"
                 ? ({ objectFit: "cover", objectPosition: "58% center" } as const)
                 : study.client === "Unfiltered"
-                  ? ({ objectPosition: "58% center" } as const)
-                  : undefined;
+                  ? ({ objectPosition: "58% 35%" } as const)
+                  : study.client === "Tiny Changes"
+                    ? ({ objectPosition: "center 35%" } as const)
+                    : undefined;
             const tile = (
               <>
                 <span className="p-vfc" aria-hidden="true" />
