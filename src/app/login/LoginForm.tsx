@@ -127,10 +127,24 @@ export function LoginForm({ next }: { next: string }) {
 
   if (status === "sent") {
     return (
-      <p className={`${styles.status} ${styles.success}`} aria-live="polite">
-        <CheckCircle2 aria-hidden="true" size={18} />
-        {message}
-      </p>
+      <div className={styles.card}>
+        <p className={`${styles.status} ${styles.success}`} aria-live="polite">
+          <CheckCircle2 aria-hidden="true" size={18} />
+          {message}
+        </p>
+        <button
+          type="button"
+          className={styles.switchMode}
+          onClick={() => {
+            setStatus("idle");
+            setMessage("");
+            setSignUp(false);
+            setMode("password");
+          }}
+        >
+          ← Back to sign in
+        </button>
+      </div>
     );
   }
 

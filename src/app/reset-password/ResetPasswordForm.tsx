@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { AlertCircle, CheckCircle2, Lock } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "../login/LoginPage.module.css";
@@ -11,13 +12,34 @@ export function ResetPasswordForm() {
   const [status, setStatus] = useState<Status>("checking");
   const [message, setMessage] = useState("");
 
-  // The recovery link lands via /auth/callback, which establishes a session.
-  // If there's no session, the link was missing/expired.
+  // The recovery link lands here with a `code` (PKCE) or `token_hash` (OTP).
+  // We complete it in the browser — that's where the reset session belongs —
+  // then let the user set a new password.
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+    const tokenHash = url.searchParams.get("token_hash");
+    const type = url.searchParams.get("type") as EmailOtpType | null;
+
+    (async () => {
+      try {
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } else if (tokenHash && type) {
+          const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+          if (error) throw error;
+        }
+      } catch {
+        // May already be consumed by the client's auto-detection — fall through
+        // and check for a live session below.
+      }
+      const { data } = await supabase.auth.getUser();
       setStatus(data.user ? "ready" : "nolink");
-    });
+      // Tidy the tokens out of the address bar.
+      if (code || tokenHash) window.history.replaceState({}, "", "/reset-password");
+    })();
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
