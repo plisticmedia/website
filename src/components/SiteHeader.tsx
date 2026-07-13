@@ -49,7 +49,8 @@ export function SiteHeader() {
   const AccountIcon = signedIn ? LayoutDashboard : LogIn;
 
   return (
-    <header className="site-header">
+    <>
+      <header className="site-header">
       <Link className="brand-mark" href="/#top" aria-label="Plistic home">
         <Image
           src="/assets/brand/plistic-media.png"
@@ -199,6 +200,7 @@ export function SiteHeader() {
           <Menu aria-hidden="true" size={22} />
         </button>
       </div>
+      </header>
 
       {mobileOpen && (
         <div className="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu">
@@ -233,6 +235,6 @@ export function SiteHeader() {
           </nav>
         </div>
       )}
-    </header>
+    </>
   );
 }

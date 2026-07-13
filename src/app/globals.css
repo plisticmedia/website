@@ -2186,3 +2186,23 @@ textarea {
     color: #000 !important;
   }
 }
+
+/* --- Mobile refinements (launch banner) --- */
+@media (max-width: 600px) {
+  .launch-banner-shell {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .launch-banner-copy,
+  .launch-banner-text,
+  .launch-banner-actions {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .launch-banner-text {
+    font-size: 0.82rem;
+  }
+  .launch-banner-icon {
+    display: none;
+  }
+}
