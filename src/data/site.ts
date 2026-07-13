@@ -89,6 +89,7 @@ type TrustedLogo = {
 
 export const trustedLogos: TrustedLogo[] = [
   { name: "King's Trust", src: "/assets/logos/king-s-trust-logo-svg.png" },
+  { name: "Barclays Eagle Labs", src: "/assets/logos/eagle-labs-logo.png", treatment: "native" },
   { name: "AccelerateHER", src: "/assets/logos/accelerateher-logo.png", treatment: "native" },
   { name: "Techscaler", src: "/assets/logos/techscaler-logo.png" },
   { name: "Firstport", src: "/assets/logos/firstport-hero-logo-rgb.png" },
@@ -106,28 +107,28 @@ export const services = [
   {
     title: "Podcasting",
     summary: "Full-service podcast production, strategy, research, and on-air coaching - from first concept to a launch that actually lands.",
-    image: "/assets/photos/podcast-table.webp",
+    image: "/assets/photos/site/ross-anderson.jpg",
     href: "/services/podcasting",
     bullets: ["Podcast launches", "Editing-only packages", "Research and show strategy"],
   },
   {
     title: "Video production",
     summary: "Corporate video, brand films, ads, and music videos - concept, strategy, and on-camera coaching included.",
-    image: "/assets/photos/documentary-set.webp",
+    image: "/assets/photos/site/kokura-luck.jpg",
     href: "/services/video-production",
     bullets: ["Multi-camera filming", "Documentary production", "Event capture"],
   },
   {
     title: "Event filming",
     summary: "Multi-camera coverage of live events, turned into content that outlasts the day itself.",
-    image: "/assets/photos/event-filming-speaker.webp",
+    image: "/assets/photos/site/accelerateher.jpg",
     href: "/services/event-filming",
     bullets: ["Up to three cameras", "Edited event video included", "Overview videos and clips"],
   },
   {
     title: "Documentary",
     summary: "Long-form storytelling for the projects that deserve real depth. Our most ambitious work.",
-    image: "/assets/photos/documentary-services.webp",
+    image: "/assets/photos/site/documentary-1.jpg",
     href: "/services/documentary",
     bullets: ["Research-led story", "Contributor care", "Full production"],
   },
@@ -145,7 +146,7 @@ export const caseStudies = [
     client: "Strathclyde Inspire",
     service: "Podcast production",
     description: "Production support for a show that reached #1 in its niche on Apple Podcasts.",
-    image: "/assets/photos/strathclyde-inspire.jpg",
+    image: "/assets/photos/site/inspire-1.jpg",
     href: "/work/strathclyde-inspire",
   },
   {
@@ -153,7 +154,7 @@ export const caseStudies = [
     service: "End-to-end production",
     description:
       "End-to-end support for a youth mental health podcast about building a career in music without losing yourself inside it.",
-    image: "/assets/photos/podcast-monitor.webp",
+    image: "/assets/photos/site/tiny-changes-2.jpg",
     href: "/work/tiny-changes",
   },
   {
@@ -161,7 +162,7 @@ export const caseStudies = [
     service: "Event capture and editing",
     description:
       "Eight live events turned into an evergreen podcast series, social clips, and a reusable resource for Scotland's university entrepreneurship network.",
-    image: "/assets/photos/connect-ed.png",
+    image: "/assets/photos/site/connect-ed-1.jpg",
     href: "/work/connect-ed-network",
   },
   {
@@ -169,7 +170,7 @@ export const caseStudies = [
     service: "Feature documentary",
     description:
       "A UKRI ESRC-funded research documentary on neurodiverse entrepreneurship, produced with full accessibility coordination throughout.",
-    image: "/assets/photos/documentary-interview.webp",
+    image: "/assets/photos/site/documentary-2.jpg",
     href: "/work/unfiltered-neurodiverse-entrepreneur",
   },
 ];

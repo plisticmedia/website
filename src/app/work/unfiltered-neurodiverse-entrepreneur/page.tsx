@@ -138,7 +138,7 @@ export default function UnfilteredCaseStudyPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/documentary-interview.webp"
+                src="/assets/photos/site/documentary-3.jpg"
                 alt="Documentary interview setup for Unfiltered"
                 fill
                 priority
