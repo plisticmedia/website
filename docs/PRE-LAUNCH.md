@@ -9,6 +9,41 @@ Launch date referenced in the claim emails: **13 July 2026** (change it in
 
 ---
 
+## 0. Beta test first — the order to do things in
+
+Run a **private beta** with a trusted group before inviting the real businesses
+or going public. The site has two separate locks:
+
+- **The "coming soon" password** = the whole-site lock. Nobody sees anything
+  without it. Give this password to beta testers; that's how they get in.
+- **Publishing a listing** = only makes it visible *inside* the directory, to
+  people already past the coming-soon lock.
+
+**Do NOT publish the ~82 imported businesses for the beta.** They should first
+hear about Plistic through their personal invite. If a beta tester spots a
+business they know before it's been invited, it spoils the reveal and risks a
+consent/goodwill problem.
+
+**Beta sequence:**
+1. Keep the coming-soon lock **ON**.
+2. Add a few **demo listings** so testers have something to browse without
+   seeing real businesses — run `supabase/DEMO_LISTINGS.sql` (three fictional
+   "(sample)" businesses). Then in `/admin` click **"Add listings to the map"**
+   so they show as pins.
+3. Give beta testers the **coming-soon password**. They can sign up, browse,
+   test claiming a demo listing, and (in Stripe **test mode** only) test a
+   booking with a fake card. No real money.
+4. Collect feedback, fix, and complete the **developer/security review** (§7).
+5. **Launch day:** publish the real imported businesses (`/admin` → "Publish all
+   imported listings" + "Add listings to the map"), **send the claim invites**,
+   switch Stripe to live keys, and turn the coming-soon lock off.
+6. After beta, remove the demo listings: run the `delete` line at the bottom of
+   `supabase/DEMO_LISTINGS.sql`.
+
+Publishing ≠ emailing ≠ going public — they're three separate, deliberate steps.
+
+---
+
 ## 1. Database migrations to run (Supabase → SQL Editor)
 
 Run any you haven't already, **in order**. Each is safe to re-run. There is no
