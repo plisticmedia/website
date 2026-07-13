@@ -168,6 +168,29 @@
   border-color: var(--p-azure);
 }
 
+.revealBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--p-muted, #5a6b73);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem;
+  margin-right: -0.35rem;
+}
+.revealBtn:hover,
+.revealBtn:focus-visible {
+  color: var(--p-ink, #141417);
+  outline: none;
+}
+
+.pwHint {
+  margin: 0.15rem 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--p-muted, #5a6b73);
+  line-height: 1.4;
+}
+
 .inputWrap input {
   flex: 1;
   padding: 0.8rem 0;
