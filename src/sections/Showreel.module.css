@@ -1,9 +1,13 @@
 .section {
   padding-block: clamp(2.4rem, 6vw, 4rem);
+  background: var(--p-paper, #f7f9f9);
 }
 .head {
   text-align: center;
   margin-bottom: clamp(1.4rem, 3vw, 2.2rem);
+}
+.title {
+  color: #333333;
 }
 .frame {
   position: relative;

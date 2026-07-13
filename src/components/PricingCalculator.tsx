@@ -774,11 +774,11 @@ function PodcastIntake({
               }))
             }
           >
+            <option value="ongoing">Ongoing / per episode</option>
             <option value="threeFive">3-5</option>
             <option value="sixEight">6-8</option>
             <option value="nineEleven">9-11</option>
             <option value="twelvePlus">12+</option>
-            <option value="ongoing">Ongoing / per episode</option>
             <option value="unsure">Not sure yet</option>
           </select>
         </Field>

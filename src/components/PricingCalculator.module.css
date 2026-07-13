@@ -359,8 +359,9 @@
   text-wrap: balance;
   white-space: normal;
   font-family: var(--p-display);
-  font-size: clamp(0.82rem, 1.05vw, 1.05rem);
-  line-height: 1;
+  font-size: clamp(0.7rem, 0.9vw, 0.92rem);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
   text-transform: uppercase;
 }
 .serviceOption small {
