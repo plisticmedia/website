@@ -20,6 +20,17 @@ export async function GET(request: Request) {
 
   const supabase = await createSupabaseServerClient();
 
+  // Password recovery must be completed in the browser — the PKCE verifier and
+  // session live there, not on the server. Forward the tokens to the reset page
+  // and let it finish, instead of failing the server-side exchange.
+  if (type === "recovery" || next === "/reset-password") {
+    const rp = new URL("/reset-password", url.origin);
+    if (code) rp.searchParams.set("code", code);
+    if (tokenHash) rp.searchParams.set("token_hash", tokenHash);
+    if (type) rp.searchParams.set("type", type);
+    return NextResponse.redirect(rp);
+  }
+
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(new URL(next, url.origin));
