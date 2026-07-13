@@ -423,6 +423,17 @@
   .ctaActions {
     justify-content: start;
   }
+  /* The overlaid stat boxes crowd the image on small screens — hide them so the
+     photo reads cleanly. The same info appears in "What we do" just below. */
+  .heroStats {
+    display: none;
+  }
+  .heroMedia {
+    min-height: clamp(220px, 56vw, 340px);
+  }
+  .heroMedia::before {
+    background: linear-gradient(180deg, rgba(12, 13, 17, 0.05), rgba(12, 13, 17, 0.28));
+  }
 }
 
 @media (max-width: 620px) {
