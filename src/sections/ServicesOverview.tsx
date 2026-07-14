@@ -23,7 +23,7 @@ export function ServicesOverview() {
           {services.slice(0, 4).map((service, idx) => {
             const imageStyle =
               service.title === "Documentary"
-                ? ({ objectPosition: "40% top" } as const)
+                ? ({ objectPosition: "28% top" } as const)
                 : service.title === "Event filming"
                   ? ({ objectPosition: "center top" } as const)
                   : undefined;
