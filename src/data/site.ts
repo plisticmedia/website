@@ -84,12 +84,12 @@ export const proofStats = [
 type TrustedLogo = {
   name: string;
   src: string;
-  treatment?: "native" | "nativeTall" | "tinyChanges";
+  treatment?: "native" | "nativeTall" | "tinyChanges" | "eagleLabs";
 };
 
 export const trustedLogos: TrustedLogo[] = [
   { name: "King's Trust", src: "/assets/logos/king-s-trust-logo-svg.png" },
-  { name: "Barclays Eagle Labs", src: "/assets/logos/eagle-labs-logo.png", treatment: "native" },
+  { name: "Barclays Eagle Labs", src: "/assets/logos/eagle-labs-logo.png", treatment: "eagleLabs" },
   { name: "AccelerateHER", src: "/assets/logos/accelerateher-logo.png", treatment: "native" },
   { name: "Techscaler", src: "/assets/logos/techscaler-logo.png" },
   { name: "Firstport", src: "/assets/logos/firstport-hero-logo-rgb.png" },

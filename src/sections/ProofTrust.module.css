@@ -119,21 +119,12 @@
   opacity: 0.88;
   filter: grayscale(1) brightness(0) invert(1) drop-shadow(0 0 14px rgba(79, 182, 255, 0.12));
 }
-.nativeTile {
-  background: rgba(255, 255, 255, 0.94);
-}
-.nativeLogo {
-  max-inline-size: 88%;
-  max-block-size: 42px;
-  filter: none;
-  opacity: 0.95;
-}
 .tallLogo {
   max-block-size: 56px;
 }
-.logoTile:hover .nativeLogo {
-  filter: none;
-  opacity: 1;
+.eagleLogo {
+  max-inline-size: 94%;
+  max-block-size: 58px;
 }
 .tinyChangesLogo {
   max-inline-size: 92%;
