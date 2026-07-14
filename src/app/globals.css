@@ -503,6 +503,37 @@ textarea {
   transform: scaleX(1);
 }
 
+/* Flagship destination: the Media Directory reads as a distinct pill, not a
+   plain nav link, so it's the obvious thing to click. */
+.primary-nav-list > li > a.nav-directory {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.36rem 0.7rem;
+  color: var(--azure-deep, #0c6f9e);
+  background: color-mix(in srgb, var(--azure) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--azure) 45%, transparent);
+}
+.primary-nav-list > li > a.nav-directory:hover,
+.primary-nav-list > li > a.nav-directory:focus-visible {
+  color: #fff;
+  background: var(--azure);
+  box-shadow: inset 0 0 0 1px var(--azure);
+}
+/* It has its own background, so suppress the shared underline sweep. */
+.primary-nav-list > li > a.nav-directory::after {
+  display: none;
+}
+
+/* Mobile: same emphasis as a full-width highlighted row. */
+.mobile-menu-list a.mobile-nav-directory {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--azure-deep, #0c6f9e);
+  font-weight: 800;
+}
+
 .nav-mega {
   position: relative;
 }

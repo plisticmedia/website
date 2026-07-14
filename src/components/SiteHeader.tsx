@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown, LayoutDashboard, LogIn, Menu, Store, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Compass, LayoutDashboard, LogIn, Menu, Store, X } from "lucide-react";
 import { bookingPagePath, brand, caseStudies, navItems, services } from "@/data/site";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
@@ -173,7 +173,10 @@ export function SiteHeader() {
             ) : (
               <NavigationMenuItem key={item.href}>
                 <NavigationMenuLink asChild>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link href={item.href} className={item.highlight ? "nav-directory" : undefined}>
+                    {item.highlight && <Compass aria-hidden="true" size={15} />}
+                    {item.label}
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ),
@@ -215,7 +218,12 @@ export function SiteHeader() {
             <ul className="mobile-menu-list">
               {navItems.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={item.highlight ? "mobile-nav-directory" : undefined}
+                  >
+                    {item.highlight && <Compass aria-hidden="true" size={18} />}
                     {item.label}
                   </Link>
                 </li>

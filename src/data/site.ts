@@ -26,10 +26,10 @@ export const launchOffer = {
   cta: "Get an instant estimate",
 };
 
-export const navItems = [
+export const navItems: { label: string; href: string; highlight?: boolean }[] = [
   { label: "Home", href: "/#top" },
   { label: "Services", href: "/#services" },
-  { label: "Media Directory", href: "/directory" },
+  { label: "Media Directory", href: "/directory", highlight: true },
   { label: "Showcase", href: "/showcase" },
   { label: "Our Work", href: "/#work" },
   { label: "Pricing", href: "/pricing" },
