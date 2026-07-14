@@ -86,24 +86,40 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
     builder = builder.gte("google_rating", query.rating);
   }
 
-  const { data, count, error } = await builder
+  const { data, error } = await builder
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false })
-    .range(from, to);
+    .limit(500);
 
   if (error) {
     throw new Error(`Failed to load directory: ${error.message}`);
   }
 
-  const total = count ?? 0;
+  // Rank so the fullest-looking listings lead every page: featured first, then
+  // any with a logo (never open on empty-looking cards), then by rating, then
+  // newest. Done here rather than in SQL so "has a logo" can be a real sort key.
+  const ranked = ((data ?? []) as unknown as ServiceWithRelations[]).slice().sort((a, b) => {
+    const fa = a as unknown as ListingRank;
+    const fb = b as unknown as ListingRank;
+    return (
+      Number(!!fb.is_featured) - Number(!!fa.is_featured) ||
+      Number(!!fb.logo_url) - Number(!!fa.logo_url) ||
+      (fb.google_rating ?? 0) - (fa.google_rating ?? 0) ||
+      new Date(fb.created_at).getTime() - new Date(fa.created_at).getTime()
+    );
+  });
+
+  const total = ranked.length;
   return {
-    services: (data ?? []) as unknown as ServiceWithRelations[],
+    services: ranked.slice(from, to + 1),
     total,
     page,
     pageSize: PAGE_SIZE,
     pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
   };
 }
+
+type ListingRank = { is_featured: boolean; logo_url: string | null; google_rating: number | null; created_at: string };
 
 export type CompareRow = {
   slug: string;
