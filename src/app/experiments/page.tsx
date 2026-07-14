@@ -4,6 +4,7 @@ import { experimentSections } from "@/data/site";
 
 export const metadata = {
   title: "Plistic Section Experiments",
+  robots: { index: false, follow: false },
 };
 
 export default function ExperimentsPage() {

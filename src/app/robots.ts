@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Keep private / functional areas out of search results.
-        disallow: ["/admin", "/dashboard", "/api/", "/claim/", "/reset-password", "/login"],
+        disallow: ["/admin", "/dashboard", "/api/", "/claim/", "/reset-password", "/login", "/experiments"],
       },
     ],
     sitemap: `${BASE}/sitemap.xml`,
