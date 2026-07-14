@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import styles from "./Showreel.module.css";
 
-// The final showreel lives on Google Drive. Drive's player can't autoplay in an
-// embed, so we show a poster with a play button and only load the player
-// (autoplaying) once the visitor clicks.
-// ⚠️ The Drive file must be shared "Anyone with the link — Viewer".
-// File: "Plistic Media Showreel Final.mp4"
-const SHOWREEL_EMBED = "https://drive.google.com/file/d/1DiW92NcLN6JvxUylh28i4lx5Jvj0eIow/preview";
+// Self-hosted showreel so it can autoplay (Google Drive embeds can't).
+// Drop the compressed final cut here and it plays automatically on scroll:
+//   public/assets/video/showreel.mp4   (1080p H.264, ideally < ~25 MB)
+const SHOWREEL_SRC = "/assets/video/showreel.mp4";
 
-// Poster is one of our own production photos, picked at random on each visit.
+// Still-frame poster (shown before playback / if the video is missing),
+// picked at random from our own production photos on each visit.
 const POSTERS = [
   "/assets/photos/site/kokura-luck.jpg",
   "/assets/photos/site/scarlet-prism.jpg",
@@ -26,14 +25,37 @@ const POSTERS = [
 ];
 
 export function Showreel() {
-  const [playing, setPlaying] = useState(false);
-  // Start deterministic for SSR, then randomise on the client to avoid a
-  // hydration mismatch — this makes it a different photo on each visit.
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+  // Deterministic for SSR, randomised on the client (avoids hydration mismatch).
   const [poster, setPoster] = useState(POSTERS[0]);
 
   useEffect(() => {
     setPoster(POSTERS[Math.floor(Math.random() * POSTERS.length)]);
   }, []);
+
+  // Autoplay (muted) when the reel scrolls into view; pause when it leaves.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(video);
+    return () => io.disconnect();
+  }, []);
+
+  function toggleSound() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setMuted(video.muted);
+    if (!video.muted) video.play().catch(() => {});
+  }
 
   return (
     <section className={`p-section ${styles.section}`} id="showreel" aria-labelledby="showreel-title">
@@ -45,28 +67,22 @@ export function Showreel() {
           </h2>
         </div>
         <div className={styles.frame}>
-          {playing ? (
-            <iframe
-              src={`${SHOWREEL_EMBED}?autoplay=1`}
-              title="Plistic showreel"
-              allow="autoplay; encrypted-media; fullscreen"
-              allowFullScreen
-            />
-          ) : (
-            <button
-              type="button"
-              className={styles.poster}
-              onClick={() => setPlaying(true)}
-              aria-label="Play the Plistic showreel"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={poster} alt="" className={styles.posterImg} loading="lazy" />
-              <span className={styles.posterScrim} aria-hidden="true" />
-              <span className={styles.playBtn} aria-hidden="true">
-                <Play size={30} fill="currentColor" />
-              </span>
-            </button>
-          )}
+          <video
+            ref={videoRef}
+            className={styles.video}
+            poster={poster}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="Plistic showreel"
+          >
+            <source src={SHOWREEL_SRC} type="video/mp4" />
+          </video>
+          <button type="button" className={styles.sound} onClick={toggleSound} aria-pressed={!muted}>
+            {muted ? <VolumeX aria-hidden="true" size={15} /> : <Volume2 aria-hidden="true" size={15} />}
+            {muted ? "Sound off" : "Sound on"}
+          </button>
         </div>
       </div>
     </section>
