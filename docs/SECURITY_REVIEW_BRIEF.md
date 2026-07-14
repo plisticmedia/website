@@ -141,3 +141,35 @@ account is switched from test to live keys and payments go live. Until then,
 of Service already carry marketplace / escrow / refund / dispute clauses
 (`src/data/legal.ts`); these should be confirmed by a solicitor alongside this
 technical review.*
+
+---
+
+## Appendix — author self-audit (2026-07-14)
+
+A first-pass self-review was done before handover to save the reviewer time.
+The money paths verified as sound (please re-confirm independently):
+
+- **Webhook** verifies the Stripe signature against the raw body; `markOrderPaid`
+  is idempotent via a `status = 'pending'` guard.
+- **Checkout** computes amount + commission **server-side** from the DB package
+  price (client sends only a `packageId`); buyer must be signed in; rate-limited;
+  seller must have `payouts_enabled`; can't buy own listing.
+- **Release/payout** acts only on `delivered` orders, uses a Stripe
+  `idempotencyKey` (`order_release_<id>`) **and** a `unique(order_id)` constraint
+  on `payouts` — so a buyer-confirm/auto-release race can't double-pay.
+- **Refund** is admin+AAL2 only, `disputed`-only, with `idempotencyKey`
+  (`order_refund_<id>`).
+- **RLS** isolates orders/payouts/reviews/disputes per party; money tables take
+  no client writes (service-role only), except order-gated review inserts.
+- **Admin** actions all enforce `requireAdmin` (role + 2FA/AAL2).
+
+Minor notes left for the reviewer to weigh (money is safe in each):
+
+1. A buyer-confirm vs auto-release race can insert a duplicate `order_events`
+   "released" row and a second `payouts` insert that fails on the unique
+   constraint (swallowed). No double transfer (idempotency key). Cosmetic/audit.
+2. `markOrderPaid` could log a duplicate "paid" event under simultaneous webhook
+   delivery. No double state change. Cosmetic.
+3. The webhook does not handle Stripe-side `charge.dispute.created` (bank
+   chargebacks) or `charge.refunded` — the app has its own dispute flow, but
+   bank-initiated chargebacks won't reflect in-app. Worth a decision.
