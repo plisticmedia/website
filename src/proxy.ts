@@ -30,11 +30,17 @@ function hasSiteAccess(request: NextRequest) {
   return request.cookies.get(SITE_ACCESS_COOKIE)?.value === SITE_ACCESS_COOKIE_VALUE;
 }
 
+// Launch switch. While unset (or anything other than "true") the whole site
+// stays behind the coming-soon password. Set SITE_LIVE=true in the hosting
+// environment to go public — no code change or redeploy of logic needed.
+const SITE_LIVE = process.env.SITE_LIVE === "true";
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // 1) Coming-soon gate: until launch, hold the whole site behind the password.
-  if (!isPublicPath(pathname) && !hasSiteAccess(request)) {
+  //    Setting SITE_LIVE=true lifts it for everyone (public launch).
+  if (!SITE_LIVE && !isPublicPath(pathname) && !hasSiteAccess(request)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/coming-soon";
     redirectUrl.search = "";
