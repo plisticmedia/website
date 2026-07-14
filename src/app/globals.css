@@ -503,34 +503,38 @@ textarea {
   transform: scaleX(1);
 }
 
-/* Flagship destination: the Media Directory reads as a distinct pill, not a
-   plain nav link, so it's the obvious thing to click. */
+/* Flagship destination: the Media Directory reads as a solid pill, not a plain
+   nav link, so it's unmistakably the thing to click. */
 .primary-nav-list > li > a.nav-directory {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.36rem 0.7rem;
-  color: var(--azure-deep, #0c6f9e);
-  background: color-mix(in srgb, var(--azure) 14%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--azure) 45%, transparent);
+  gap: 0.4rem;
+  padding: 0.44rem 0.9rem;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--azure);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--azure) 40%, transparent);
 }
 .primary-nav-list > li > a.nav-directory:hover,
 .primary-nav-list > li > a.nav-directory:focus-visible {
   color: #fff;
-  background: var(--azure);
-  box-shadow: inset 0 0 0 1px var(--azure);
+  background: var(--azure-deep, #0c6f9e);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--azure) 55%, transparent);
 }
 /* It has its own background, so suppress the shared underline sweep. */
 .primary-nav-list > li > a.nav-directory::after {
   display: none;
 }
 
-/* Mobile: same emphasis as a full-width highlighted row. */
+/* Mobile: a full-width highlighted pill row. */
 .mobile-menu-list a.mobile-nav-directory {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--azure-deep, #0c6f9e);
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--azure);
   font-weight: 800;
 }
 
