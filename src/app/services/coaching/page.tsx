@@ -70,12 +70,12 @@ export default function CoachingPage() {
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <Image
-                src="/assets/photos/podcast-monitor.webp"
+                src="/assets/photos/site/tiny-changes-1.jpg"
                 alt="A host being coached before recording"
                 fill
                 priority
                 sizes="(max-width: 860px) 100vw, 52vw"
-                style={{ objectPosition: "center top" }}
+                style={{ objectPosition: "center" }}
               />
               <div className={styles.heroStats} aria-label="Coaching service highlights">
                 {heroStats.map((stat) => (
