@@ -15,6 +15,7 @@ import { RehostLogosButton } from "./RehostLogosButton";
 import { WebsiteLogosButton } from "./WebsiteLogosButton";
 import { PublishImportedButton } from "./PublishImportedButton";
 import { ClaimInvitesPanel } from "./ClaimInvitesPanel";
+import { BackupButton } from "./BackupButton";
 import styles from "./Admin.module.css";
 
 export const metadata: Metadata = { title: "Admin | Plistic", robots: { index: false, follow: false } };
@@ -132,6 +133,16 @@ export default async function AdminPage() {
             <p style={{ margin: "0.5rem 0 0", fontSize: "0.8rem", color: "var(--p-muted)" }}>
               The person must have created an account first (at /login). Then enter their email here.
             </p>
+          </div>
+
+          {/* Data backup */}
+          <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+            <h3 style={{ margin: "0 0 0.3rem" }}>Data backup</h3>
+            <p style={{ margin: "0 0 0.2rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+              A snapshot of all your data is saved automatically every Sunday to private storage, and a
+              summary is emailed to you. Take one now before any big change — you can never have too many.
+            </p>
+            <BackupButton />
           </div>
 
           <div className={styles.stats}>

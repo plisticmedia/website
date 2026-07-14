@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { refreshRatings } from "@/lib/ratings";
 import { sweepAutoReleases } from "@/lib/orders";
 import { sendPricingFollowUps } from "@/lib/pricingLeads";
+import { runBackup } from "@/lib/backup";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -38,5 +39,18 @@ export async function GET(request: Request) {
   }
   // Follow up on unconverted calculator estimates (best-effort).
   const followUps = await sendPricingFollowUps(40);
-  return NextResponse.json({ ok: true, ...result, releases, followUps });
+
+  // Weekly data backup (Sundays) — the free Supabase tier has no automatic
+  // backups, so we snapshot to private Storage once a week. Best-effort.
+  let backup: Record<string, unknown> = { ran: false };
+  if (new Date().getUTCDay() === 0) {
+    try {
+      backup = { ran: true, ...(await runBackup()) };
+    } catch (err) {
+      console.error("[cron] backup failed", err);
+      backup = { ran: true, ok: false };
+    }
+  }
+
+  return NextResponse.json({ ok: true, ...result, releases, followUps, backup });
 }
