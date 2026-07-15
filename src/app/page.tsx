@@ -3,6 +3,7 @@ import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ClosingCTA } from "@/sections/ClosingCTA";
 import { Hero } from "@/sections/Hero";
+import { PlatformSignpost } from "@/sections/PlatformSignpost";
 import { ProofTrust } from "@/sections/ProofTrust";
 import { ServicesOverview } from "@/sections/ServicesOverview";
 import { Showreel } from "@/sections/Showreel";
@@ -20,6 +21,7 @@ export default function Home() {
         <Showreel />
         <ServicesOverview />
         <WorkPreview />
+        <PlatformSignpost />
         <Testimonials />
         <ClosingCTA />
       </main>
