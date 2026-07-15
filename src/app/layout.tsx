@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 export const metadata: Metadata = {
   title: "Plistic | Media made simPLISTIC",
@@ -19,7 +20,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://calendly.com" />
         <link rel="preconnect" href="https://assets.calendly.com" crossOrigin="" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {process.env.SITE_LIVE !== "true" && <FeedbackButton />}
+      </body>
     </html>
   );
 }
