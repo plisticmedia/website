@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { track } from "@vercel/analytics";
 import { Mail, CheckCircle2 } from "lucide-react";
 import styles from "./NewsletterSignup.module.css";
 
@@ -33,6 +34,7 @@ export function NewsletterSignup({ source = "site" }: { source?: string }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error ?? "Could not sign you up.");
+      track("newsletter_signup", { source });
       setStatus("done");
     } catch (e) {
       setStatus("error");

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { track } from "@vercel/analytics";
 import { CheckCircle2 } from "lucide-react";
 import styles from "../Showcase.module.css";
 import form from "./Submit.module.css";
@@ -31,6 +32,7 @@ export function SubmitShowcaseForm() {
       const res = await fetch("/api/showcase-submit", { method: "POST", body: new FormData(event.currentTarget) });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+      track("showcase_submitted", { kind });
       setStatus("success");
       setMessage("Thank you — your submission is in. We review everything and feature the best.");
     } catch (err) {

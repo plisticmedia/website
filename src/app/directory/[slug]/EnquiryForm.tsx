@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { track } from "@vercel/analytics";
 import { AlertCircle, CheckCircle2, Send } from "lucide-react";
 import styles from "./Listing.module.css";
 
@@ -26,6 +27,7 @@ export function EnquiryForm({ serviceId, serviceTitle }: { serviceId: string; se
       });
       const result = (await res.json().catch(() => null)) as { error?: string } | null;
       if (!res.ok) throw new Error(result?.error ?? "Could not send your enquiry. Please try again.");
+      track("enquiry_sent");
       form.reset();
       setStatus("success");
       setMessage("Your enquiry has been sent. The seller will reply to you by email.");
