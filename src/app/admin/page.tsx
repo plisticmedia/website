@@ -82,6 +82,15 @@ export default async function AdminPage() {
     }),
   );
 
+  // Mailing list (safe if the table/migration isn't in yet — falls back to empty).
+  const { data: subRows } = await svcRole
+    .from("subscribers")
+    .select("email, notify_stories, marketing, source, created_at")
+    .is("unsubscribed_at", null)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  const subscribers = (subRows ?? []) as Array<{ email: string; notify_stories: boolean; marketing: boolean; source: string | null; created_at: string }>;
+
   return (
     <>
       <SiteHeader />
@@ -143,6 +152,43 @@ export default async function AdminPage() {
               summary is emailed to you. Take one now before any big change — you can never have too many.
             </p>
             <BackupButton />
+          </div>
+
+          {/* Mailing list */}
+          <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+              <h3 style={{ margin: "0 0 0.3rem" }}>Mailing list ({subscribers.length}{subscribers.length === 50 ? "+" : ""})</h3>
+              {subscribers.length > 0 && (
+                <a className={styles.btnSmall} href="/api/admin/subscribers" download>
+                  Download all as CSV
+                </a>
+              )}
+            </div>
+            <p style={{ margin: "0 0 0.6rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+              People who signed up for story alerts and/or the newsletter, with what each opted into. Export the CSV to
+              send from an email tool.
+            </p>
+            {subscribers.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--p-muted)" }}>No signups yet.</p>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr><th>Email</th><th>Story alerts</th><th>Newsletter</th><th>Signed up</th></tr>
+                  </thead>
+                  <tbody>
+                    {subscribers.map((s) => (
+                      <tr key={s.email}>
+                        <td>{s.email}</td>
+                        <td>{s.notify_stories ? "Yes" : "—"}</td>
+                        <td>{s.marketing ? "Yes" : "—"}</td>
+                        <td>{new Date(s.created_at).toLocaleDateString("en-GB")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           <div className={styles.stats}>
