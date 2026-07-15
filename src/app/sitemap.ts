@@ -10,10 +10,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/directory",
     "/directory/density",
+    "/showcase",
+    "/compare",
     "/pricing",
     "/earn",
     "/about",
     "/book",
+    "/list-your-business",
+    // Service pages
+    "/services/podcasting",
+    "/services/video-production",
+    "/services/event-filming",
+    "/services/documentary",
+    "/services/coaching",
+    // Case studies
+    "/work/strathclyde-inspire",
+    "/work/tiny-changes",
+    "/work/connect-ed-network",
+    "/work/unfiltered-neurodiverse-entrepreneur",
     "/terms",
     "/privacy",
   ];
@@ -38,6 +52,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: s.updated_at ? new Date(s.updated_at) : undefined,
           changeFrequency: "weekly",
           priority: 0.6,
+        });
+      }
+
+      // Published showcase stories.
+      const { data: stories } = await supabase
+        .from("showcase_items")
+        .select("id, published_at")
+        .eq("status", "published")
+        .limit(2000);
+      for (const st of stories ?? []) {
+        routes.push({
+          url: `${BASE}/showcase/${st.id}`,
+          lastModified: st.published_at ? new Date(st.published_at) : undefined,
+          changeFrequency: "monthly",
+          priority: 0.5,
         });
       }
     }
