@@ -40,10 +40,11 @@ function listingFields(formData: FormData, categoryIds: string[], areaIds: strin
   if (booking && !/^https?:\/\//i.test(booking)) booking = `https://${booking}`;
 
   const social: Record<string, string> = {};
-  const instagram = str(formData, "instagram", 200);
-  const linkedin = str(formData, "linkedin", 200);
-  if (instagram) social.instagram = instagram;
-  if (linkedin) social.linkedin = linkedin;
+  const withScheme = (v: string) => (v && !/^https?:\/\//i.test(v) ? `https://${v}` : v);
+  for (const net of ["instagram", "linkedin", "youtube", "vimeo", "tiktok"] as const) {
+    const v = str(formData, net, 200);
+    if (v) social[net] = withScheme(v);
+  }
 
   return {
     title: str(formData, "title", 140),
