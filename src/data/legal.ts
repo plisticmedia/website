@@ -489,11 +489,17 @@ export const privacyDocument: LegalDocumentData = {
         {
           title: "2.6 Website Analytics",
           paragraphs: [
-            "We use Google Analytics to understand how visitors use our website - for example, which pages are viewed and how people generally arrive at our site. This data is aggregated and does not identify you personally. See Section 6 for more on Google as a third party.",
+            "We use a privacy-first, cookieless analytics tool (Vercel Web Analytics) to understand how visitors use our website - for example, which pages are viewed, how people arrive, and which actions are taken (such as sending an enquiry or signing up). This data is aggregated, does not use tracking cookies, and does not identify you personally.",
           ],
         },
         {
-          title: "2.7 Partner Directory",
+          title: "2.7 Cookies",
+          paragraphs: [
+            "Our website uses only strictly necessary cookies - those required for the site to function, such as keeping you signed in to your account and remembering site access during our pre-launch period. We do not use advertising or third-party tracking cookies, which is why you will not see a cookie consent banner. If we ever introduce non-essential cookies, we will ask for your consent first.",
+          ],
+        },
+        {
+          title: "2.8 Partner Directory",
           paragraphs: [
             "If you create a Seller account in our partner directory, we collect the email address you sign in with and the profile and listing details you choose to publish (including any images or media you upload). If you submit an enquiry on a Seller's listing, we collect your name, email, and message - and share these with the relevant Seller so they can reply to you directly (see Sections 6 and 7).",
             "If you book and pay for a Seller's package through the platform (a Marketplace Booking), we collect the information needed to process that payment and manage your order - such as your email address, the order details, and payment confirmation information. Card payments are handled by our payment provider, Stripe; we do not see or store your full card details. We share the order details with the relevant Seller so they can carry out the work, and Sellers who receive payouts provide their own details directly to Stripe.",
