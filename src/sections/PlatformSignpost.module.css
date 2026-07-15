@@ -15,7 +15,7 @@
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 2.5vw, 1.6rem);
 }
 .card {
@@ -73,7 +73,48 @@
 .card:hover .link {
   gap: 0.6rem;
 }
-@media (max-width: 720px) {
+.helper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.4rem;
+  margin-top: clamp(1.4rem, 3vw, 2.2rem);
+  padding: clamp(1rem, 2.5vw, 1.4rem) clamp(1.2rem, 3vw, 1.8rem);
+  border: 1px dashed color-mix(in srgb, var(--azure, #1faae9) 45%, var(--line, #dce6e8));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--azure, #1faae9) 6%, transparent);
+  text-align: center;
+}
+.helperText {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--ink, #333);
+}
+.helperText strong {
+  color: var(--ink-strong, #161616);
+}
+.helperBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  padding: 0.7rem 1.2rem;
+  border-radius: 3px;
+  background: var(--azure, #1faae9);
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.helperBtn:hover {
+  transform: translateY(-2px);
+  background: var(--azure-dark, #087db4);
+}
+
+@media (max-width: 860px) {
   .grid {
     grid-template-columns: 1fr;
   }
