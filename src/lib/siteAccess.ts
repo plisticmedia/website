@@ -1,8 +1,9 @@
 export const SITE_ACCESS_COOKIE = "plistic_site_access";
 export const SITE_ACCESS_COOKIE_VALUE = "fded09ba22fda31a3798426f110580489d2ebb95ebc6b4666465788d4c2d653a";
 
+// Coming-soon / beta access password (SHA-256). Current password: "plisticbeta".
 export const SITE_ACCESS_PASSWORD_HASH =
-  "df87fbf14a62c60364609e0d7de62a3395a5c9f142b7bf9743578fa950fca4c9";
+  "1bafaf02be1618d4170e193fbd6bf4c3558f3e142df2c31373725ce400c61cdb";
 
 export async function hashSiteAccessPassword(password: string) {
   const data = new TextEncoder().encode(password);
