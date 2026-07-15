@@ -63,7 +63,8 @@ export function PlatformSignpost() {
 
         <div className={styles.helper}>
           <p className={styles.helperText}>
-            <strong>Not sure what you need?</strong> Book a call and we&apos;ll help you work it out — no pressure, no jargon.
+            <strong>Not sure what you need?</strong>{" "}
+            Book a call and we&apos;ll help you work it out — no pressure, no jargon.
           </p>
           <Link href={bookingPagePath} className={styles.helperBtn}>
             Book a call <ArrowRight aria-hidden="true" size={16} />
