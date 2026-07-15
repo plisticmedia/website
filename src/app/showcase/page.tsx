@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, Plus } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getShowcaseItems, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import styles from "./Showcase.module.css";
 
 export const metadata: Metadata = {
@@ -154,6 +155,10 @@ export default async function ShowcasePage({
               </div>
             </>
           )}
+        </section>
+
+        <section className={`p-container ${styles.signupSection}`}>
+          <NewsletterSignup source="showcase" />
         </section>
       </main>
       <Footer />
