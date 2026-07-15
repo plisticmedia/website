@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from "react";
+import { track } from "@vercel/analytics";
 import Link from "next/link";
 import { CalendarDays, Check, ClipboardList, CreditCard, Film, Mic2, Sparkles } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
@@ -456,6 +457,7 @@ function EstimateLeadForm({
         throw new Error(responseBody?.error ?? "We could not send this estimate. Please try again.");
       }
 
+      track(isBrief ? "brief_sent" : "estimate_sent");
       form.reset();
       setStatus("success");
       setMessage(isBrief ? "Brief sent. Next step: book your call." : "Estimate sent. Our team now has your calculator details.");

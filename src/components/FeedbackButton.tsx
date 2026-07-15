@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { track } from "@vercel/analytics";
 import { MessageSquarePlus, X } from "lucide-react";
 
 /**
@@ -33,6 +34,7 @@ export function FeedbackButton() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error ?? "Could not send.");
+      track("feedback_sent");
       setStatus("done");
     } catch (e) {
       setStatus("error");
