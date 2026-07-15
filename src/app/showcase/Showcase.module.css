@@ -85,3 +85,8 @@
   font-size: 0.86rem; font-weight: 600; color: var(--p-azure-deep, #0c6f9e); text-decoration: none;
 }
 .readMore:hover { text-decoration: underline; }
+
+.signupSection {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+  padding-bottom: clamp(1rem, 3vw, 2rem);
+}
