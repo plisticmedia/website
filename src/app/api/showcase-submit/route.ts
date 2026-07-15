@@ -7,6 +7,8 @@ import { toShowcaseEmbed } from "@/lib/showcase";
 export const runtime = "nodejs";
 
 const KINDS = ["video", "image", "event", "news", "work"];
+const IMG_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
+const IMG_MAX = 8 * 1024 * 1024; // 8 MB
 
 function clean(v: FormDataEntryValue | null, max = 300) {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
   const source = clean(form.get("source"), 160);
   const location = clean(form.get("location"), 120);
   const email = clean(form.get("email"), 180).toLowerCase();
+  const body = clean(form.get("body"), 8000);
 
   if (!title) return NextResponse.json({ error: "Please add a title." }, { status: 400 });
   if (kind === "video" && embed && !toShowcaseEmbed(embed)) {
@@ -51,10 +54,31 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseServiceRoleClient();
+
+  // Optional image upload. Submissions are admin-reviewed before going public,
+  // so a rate-limited, size/type-checked upload here is safe.
+  let imageUrl: string | null = null;
+  const file = form.get("image");
+  if (file instanceof File && file.size > 0) {
+    if (file.size > IMG_MAX) return NextResponse.json({ error: "Image must be 8 MB or smaller." }, { status: 400 });
+    if (!IMG_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: "Please upload a JPG, PNG, WebP, AVIF or GIF image." }, { status: 400 });
+    }
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `showcase-submissions/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("service-media").upload(path, file, {
+      contentType: file.type,
+      upsert: false,
+    });
+    if (!upErr) imageUrl = supabase.storage.from("service-media").getPublicUrl(path).data.publicUrl;
+  }
+
   const { error } = await supabase.from("showcase_items").insert({
     kind,
     title,
     summary: summary || null,
+    body: body || null,
+    image_url: imageUrl,
     embed_url: embed || null,
     link_url: link || null,
     source: source || null,
