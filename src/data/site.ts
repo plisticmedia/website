@@ -28,9 +28,9 @@ export const launchOffer = {
 
 export const navItems: { label: string; href: string; highlight?: boolean }[] = [
   { label: "Home", href: "/#top" },
-  { label: "Services", href: "/#services" },
   { label: "Media Directory", href: "/directory", highlight: true },
-  { label: "Showcase", href: "/showcase" },
+  { label: "Scotland's Showcase", href: "/showcase", highlight: true },
+  { label: "Services", href: "/#services" },
   { label: "Our Work", href: "/#work" },
   { label: "Pricing", href: "/pricing" },
   { label: "Earn With Us", href: "/earn" },
