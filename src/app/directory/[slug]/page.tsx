@@ -391,11 +391,14 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                       <ExternalLink aria-hidden="true" size={14} /> Visit website
                     </a>
                   )}
-                  {socials.map(([net, href]) => (
-                    <a key={net} href={href} target="_blank" rel="noopener noreferrer nofollow" style={{ display: "block", marginTop: "0.4rem", textTransform: "capitalize" }}>
-                      {net}
-                    </a>
-                  ))}
+                  {socials.map(([net, href]) => {
+                    const label = ({ youtube: "YouTube", vimeo: "Vimeo", tiktok: "TikTok", linkedin: "LinkedIn", instagram: "Instagram" } as Record<string, string>)[net] ?? net;
+                    return (
+                      <a key={net} href={href} target="_blank" rel="noopener noreferrer nofollow" style={{ display: "block", marginTop: "0.4rem", textTransform: "capitalize" }}>
+                        {label}
+                      </a>
+                    );
+                  })}
                 </div>
               );
             })()}

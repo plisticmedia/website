@@ -206,6 +206,18 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 <span>LinkedIn</span>
                 <input name="linkedin" type="text" maxLength={200} defaultValue={social.linkedin ?? ""} placeholder="https://linkedin.com/…" />
               </label>
+              <label className={styles.field}>
+                <span>YouTube</span>
+                <input name="youtube" type="text" maxLength={200} defaultValue={social.youtube ?? ""} placeholder="https://youtube.com/@yourchannel" />
+              </label>
+              <label className={styles.field}>
+                <span>Vimeo</span>
+                <input name="vimeo" type="text" maxLength={200} defaultValue={social.vimeo ?? ""} placeholder="https://vimeo.com/yourchannel" />
+              </label>
+              <label className={styles.field}>
+                <span>TikTok</span>
+                <input name="tiktok" type="text" maxLength={200} defaultValue={social.tiktok ?? ""} placeholder="https://tiktok.com/@yourhandle" />
+              </label>
             </div>
             {/* Keep the primary single-category in sync for legacy fallback. */}
             <input type="hidden" name="category_id" value={service.category_id ?? ""} />
