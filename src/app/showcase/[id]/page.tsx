@@ -37,8 +37,20 @@ export default async function ShowcaseStoryPage({ params }: { params: Promise<{ 
     news: "News", work: "Standout work", event: "Event", video: "Film & video", image: "Image",
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": item.kind === "news" ? "NewsArticle" : "Article",
+    headline: item.title,
+    ...(item.summary ? { description: item.summary } : {}),
+    ...(item.image_url ? { image: [item.image_url] } : {}),
+    ...(item.published_at ? { datePublished: item.published_at } : {}),
+    author: { "@type": "Organization", name: item.source || "Plistic" },
+    publisher: { "@type": "Organization", name: "Plistic" },
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main className={styles.page}>
         <article className={`p-container ${styles.inner}`}>

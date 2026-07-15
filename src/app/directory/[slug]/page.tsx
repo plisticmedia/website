@@ -32,7 +32,9 @@ export async function generateMetadata({
   const service = await getServiceBySlug(slug);
   if (!service) return { title: "Listing not found | Plistic" };
   const title = `${service.title} | Plistic directory`;
-  const description = service.summary ?? undefined;
+  const description =
+    service.summary ??
+    `${service.title} — a creative and media business in Scotland. See their work and enquire directly in the Plistic directory.`;
   const image = toDisplayImage(service.cover_image_url, 1200) ?? toDisplayImage(service.logo_url, 1200) ?? undefined;
   return {
     title,
