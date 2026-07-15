@@ -11,6 +11,8 @@
 }
 .lead {
   margin-top: 0.7rem;
+  margin-inline: auto;
+  text-align: center;
   color: var(--muted, #66777d);
 }
 .grid {
