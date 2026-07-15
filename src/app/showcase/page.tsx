@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, Plus } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getShowcaseItems, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
+import { getShowcaseItems, showcaseHref, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import styles from "./Showcase.module.css";
 
@@ -33,6 +33,7 @@ function InternalOrExternal({ href, className, children }: { href: string; class
 
 function ShowcaseCard({ item, featured = false }: { item: ShowcaseItem; featured?: boolean }) {
   const embed = item.kind === "video" ? toShowcaseEmbed(item.embed_url) : null;
+  const href = showcaseHref(item);
   const eventDate = item.event_date
     ? new Date(item.event_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
@@ -50,7 +51,7 @@ function ShowcaseCard({ item, featured = false }: { item: ShowcaseItem; featured
           />
         </div>
       ) : item.image_url ? (
-        <InternalOrExternal href={item.link_url ?? "#"} className={styles.mediaLink}>
+        <InternalOrExternal href={href ?? "#"} className={styles.mediaLink}>
           <div className={styles.media}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.image_url} alt={item.title} loading="lazy" />
@@ -73,9 +74,10 @@ function ShowcaseCard({ item, featured = false }: { item: ShowcaseItem; featured
           {item.source && (
             <span className={styles.source}>{item.location ? `${item.source} · ${item.location}` : item.source}</span>
           )}
-          {item.link_url && (
-            <InternalOrExternal href={item.link_url} className={styles.readMore}>
-              {item.kind === "news" ? "Read more" : "View"} <ArrowRight aria-hidden="true" size={14} />
+          {href && (
+            <InternalOrExternal href={href} className={styles.readMore}>
+              {item.body ? "Read the story" : item.kind === "news" ? "Read more" : "View"}{" "}
+              <ArrowRight aria-hidden="true" size={14} />
             </InternalOrExternal>
           )}
         </div>

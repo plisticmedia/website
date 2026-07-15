@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { geocode, geocodeQuery } from "@/lib/geocode";
@@ -397,4 +398,73 @@ export async function toggleShowcaseFeatured(id: string, featured: boolean) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/showcase");
+}
+
+const SHOWCASE_KINDS = ["video", "image", "event", "news", "work"] as const;
+const SHOWCASE_IMG = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
+const SHOWCASE_MAX = 8 * 1024 * 1024; // 8 MB
+
+/**
+ * Create or edit a showcase story with no code: all fields plus an optional
+ * image upload (stored in our own Storage). Admin-created stories publish
+ * immediately; editing a pending submission and saving also publishes it.
+ */
+export async function saveShowcaseItem(id: string | null, formData: FormData) {
+  await requireAdmin();
+  const supabase = createSupabaseServiceRoleClient();
+
+  const str = (k: string, max: number) => {
+    const v = formData.get(k);
+    return typeof v === "string" ? v.trim().slice(0, max) : "";
+  };
+
+  const title = str("title", 200);
+  if (!title) throw new Error("A title is required.");
+
+  const kindRaw = str("kind", 20);
+  const kind = (SHOWCASE_KINDS as readonly string[]).includes(kindRaw) ? kindRaw : "news";
+
+  // Optional image upload → our Storage. Falls back to a pasted image URL.
+  let imageUrl = str("image_url", 600) || null;
+  const file = formData.get("image");
+  if (file instanceof File && file.size > 0) {
+    if (file.size > SHOWCASE_MAX) throw new Error("Image must be 8 MB or smaller.");
+    if (!SHOWCASE_IMG.includes(file.type)) throw new Error("Please upload a JPG, PNG, WebP, AVIF or GIF image.");
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `showcase/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("service-media")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (upErr) throw new Error(upErr.message);
+    imageUrl = supabase.storage.from("service-media").getPublicUrl(path).data.publicUrl;
+  }
+
+  const eventDate = str("event_date", 20);
+  const record: Record<string, unknown> = {
+    kind,
+    title,
+    summary: str("summary", 400) || null,
+    body: str("body", 8000) || null,
+    embed_url: str("embed_url", 600) || null,
+    link_url: str("link_url", 600) || null,
+    source: str("source", 160) || null,
+    location: str("location", 160) || null,
+    event_date: eventDate || null,
+    is_featured: formData.get("is_featured") === "on",
+    status: "published",
+  };
+  if (imageUrl !== null) record.image_url = imageUrl;
+
+  if (id) {
+    const { error } = await supabase.from("showcase_items").update(record).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    record.published_at = new Date().toISOString();
+    const { error } = await supabase.from("showcase_items").insert(record);
+    if (error) throw new Error(error.message);
+  }
+
+  revalidatePath("/admin/showcase");
+  revalidatePath("/showcase");
+  redirect("/admin/showcase?saved=1");
 }

@@ -36,6 +36,28 @@ export async function getShowcaseItems(kind?: ShowcaseKind): Promise<ShowcaseIte
   return (data ?? []) as ShowcaseItem[];
 }
 
+/** A single published showcase item by id, for its full-story page. */
+export async function getShowcaseItemById(id: string): Promise<ShowcaseItem | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("showcase_items")
+    .select(FIELDS)
+    .eq("id", id)
+    .eq("status", "published")
+    .maybeSingle();
+  return (data as ShowcaseItem) ?? null;
+}
+
+/**
+ * Where a showcase card should link. If the item has its own written story
+ * (a body), open our full-story page; otherwise fall back to any external/on-site
+ * link it carries. Items with neither aren't links.
+ */
+export function showcaseHref(item: Pick<ShowcaseItem, "id" | "body" | "link_url">): string | null {
+  if (item.body && item.body.trim()) return `/showcase/${item.id}`;
+  return item.link_url || null;
+}
+
 /** Admin: pending submissions awaiting review. Service role. */
 export async function getPendingShowcaseItems(): Promise<ShowcaseItem[]> {
   const supabase = createSupabaseServiceRoleClient();

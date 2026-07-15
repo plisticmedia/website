@@ -105,6 +105,9 @@ export default async function AdminPage() {
             <Link href="/admin/import" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
               Import listings from CSV →
             </Link>
+            <Link href="/admin/showcase" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
+              Write &amp; manage showcase stories →
+            </Link>
           </p>
           {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
           <RatingsButton />
