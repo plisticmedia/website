@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { FeedbackButton } from "@/components/FeedbackButton";
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body>
         {children}
         {process.env.SITE_LIVE !== "true" && <FeedbackButton />}
+        <Analytics />
       </body>
     </html>
   );
