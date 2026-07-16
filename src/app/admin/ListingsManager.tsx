@@ -36,6 +36,28 @@ function fmt(iso: string | null) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function ReleaseButton({ id, owner }: { id: string; owner: string }) {
+  return (
+    <form
+      action={releaseOwner.bind(null, id)}
+      onSubmit={(e) => {
+        if (
+          !window.confirm(
+            `Release ${owner} from this listing?\n\nThey'll lose access, but all the profile content stays. ` +
+              `You can then copy the claim link and send it to whoever should own it next.`,
+          )
+        ) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">
+        Release &amp; re-invite
+      </button>
+    </form>
+  );
+}
+
 function CopyClaimLink({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -146,11 +168,14 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
               <tr key={s.id}>
                 <td>
                   <Link href={`/directory/${s.slug}`} target="_blank">{s.title}</Link>
-                  <div style={{ marginTop: "0.3rem" }}>
+                  <div style={{ marginTop: "0.3rem", display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "flex-start" }}>
                     {s.seller_id ? (
-                      <span style={{ fontSize: "0.75rem", color: "var(--p-muted)" }}>
-                        Claimed{s.profiles?.display_name ? ` by ${s.profiles.display_name}` : ""} — no invite needed
-                      </span>
+                      <>
+                        <span style={{ fontSize: "0.75rem", color: "var(--p-muted)" }}>
+                          Claimed{s.profiles?.display_name ? ` by ${s.profiles.display_name}` : ""}
+                        </span>
+                        <ReleaseButton id={s.id} owner={s.profiles?.display_name ?? "the current owner"} />
+                      </>
                     ) : s.claim_token ? (
                       <CopyClaimLink url={`${siteUrl}/claim/${s.claim_token}`} />
                     ) : (
@@ -206,11 +231,6 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
                       <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Clear rating</button>
                     </form>
                   ) : null}
-                  {s.seller_id && (
-                    <form action={releaseOwner.bind(null, s.id)}>
-                      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Release owner</button>
-                    </form>
-                  )}
                 </td>
               </tr>
             ))}
