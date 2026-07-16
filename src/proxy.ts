@@ -1,54 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
-
-// Paths reachable without the coming-soon password.
-const publicPaths = new Set([
-  "/coming-soon",
-  "/api/site-access",
-  "/favicon.ico",
-  "/robots.txt",
-  "/sitemap.xml",
-  // Public sign-up funnel: businesses can list themselves before public launch.
-  "/list-your-business",
-  "/api/submit-listing",
-  // Password reset must always resolve, even without the coming-soon cookie.
-  "/reset-password",
-]);
-// Prefixes always allowed: framework assets, static assets, the auth
-// callback/confirm routes (so magic-link sign-in resolves even before the gate
-// cookie), and server-to-server endpoints hit by external callers with no
-// browser cookie (scheduled cron, inbound webhooks). Those enforce their own
-// auth (CRON_SECRET / webhook signatures).
-const publicPrefixes = ["/_next/", "/assets/", "/auth/", "/api/cron/", "/api/webhooks/", "/claim/"];
-
-function isPublicPath(pathname: string) {
-  return publicPaths.has(pathname) || publicPrefixes.some((p) => pathname.startsWith(p));
-}
-
-function hasSiteAccess(request: NextRequest) {
-  return request.cookies.get(SITE_ACCESS_COOKIE)?.value === SITE_ACCESS_COOKIE_VALUE;
-}
-
-// Launch switch. While unset (or anything other than "true") the whole site
-// stays behind the coming-soon password. Set SITE_LIVE=true in the hosting
-// environment to go public — no code change or redeploy of logic needed.
-const SITE_LIVE = process.env.SITE_LIVE === "true";
 
 export async function proxy(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
-
-  // 1) Coming-soon gate: until launch, hold the whole site behind the password.
-  //    Setting SITE_LIVE=true lifts it for everyone (public launch).
-  if (!SITE_LIVE && !isPublicPath(pathname) && !hasSiteAccess(request)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/coming-soon";
-    redirectUrl.search = "";
-    redirectUrl.searchParams.set("next", `${pathname}${search}`);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // 2) Refresh the Supabase session and gate /dashboard and /admin.
+  // Refresh the Supabase session and gate /dashboard and /admin.
   return updateSession(request);
 }
 

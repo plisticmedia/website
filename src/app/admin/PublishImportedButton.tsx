@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * One-click publish for imported (unclaimed) listings still in review. Shows a
- * confirm first, since it makes them public (once the coming-soon gate is off).
+ * confirm first, since it makes them public in the directory.
  */
 export function PublishImportedButton({ count }: { count: number }) {
   const [busy, setBusy] = useState(false);
@@ -22,7 +22,7 @@ export function PublishImportedButton({ count }: { count: number }) {
       const res = await fetch("/api/admin/publish-imported", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed.");
-      setMessage(`Published ${data.published} listing(s). They'll appear in the directory (once the coming-soon gate is off).`);
+      setMessage(`Published ${data.published} listing(s). They'll appear in the directory.`);
       router.refresh();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed.");
