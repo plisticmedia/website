@@ -146,11 +146,19 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
               <tr key={s.id}>
                 <td>
                   <Link href={`/directory/${s.slug}`} target="_blank">{s.title}</Link>
-                  {!s.seller_id && s.claim_token && (
-                    <div style={{ marginTop: "0.3rem" }}>
+                  <div style={{ marginTop: "0.3rem" }}>
+                    {s.seller_id ? (
+                      <span style={{ fontSize: "0.75rem", color: "var(--p-muted)" }}>
+                        Claimed{s.profiles?.display_name ? ` by ${s.profiles.display_name}` : ""} — no invite needed
+                      </span>
+                    ) : s.claim_token ? (
                       <CopyClaimLink url={`${siteUrl}/claim/${s.claim_token}`} />
-                    </div>
-                  )}
+                    ) : (
+                      <span style={{ fontSize: "0.75rem", color: "#b4690e" }}>
+                        No claim token yet — run the backfill SQL
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td>{s.profiles?.display_name ?? "—"}</td>
                 <td><span className={styles.badge}>{s.status}</span></td>
