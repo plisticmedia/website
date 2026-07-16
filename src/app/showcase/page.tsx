@@ -117,6 +117,10 @@ export default async function ShowcasePage({
   const isAdmin = profile?.role === "admin";
 
   const [lead, ...rest] = items;
+  const recent = rest.filter((i) => i.collection === "recent");
+  const hallOfFame = rest.filter((i) => i.collection === "hall_of_fame");
+  const other = rest.filter((i) => i.collection !== "recent" && i.collection !== "hall_of_fame");
+  const hasCollections = recent.length > 0 || hallOfFame.length > 0;
 
   return (
     <>
@@ -165,14 +169,48 @@ export default async function ShowcasePage({
             <p className={styles.empty}>
               Nothing here yet. <Link href="/showcase/submit">Submit something brilliant</Link> to get the showcase going.
             </p>
+          ) : activeTab.kind ? (
+            <div className={styles.grid}>
+              {items.map((item) => (
+                <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
+              ))}
+            </div>
           ) : (
             <>
-              {lead && !activeTab.kind && <ShowcaseCard item={lead} featured isAdmin={isAdmin} />}
-              <div className={styles.grid}>
-                {(activeTab.kind ? items : rest).map((item) => (
-                  <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
-                ))}
-              </div>
+              {lead && <ShowcaseCard item={lead} featured isAdmin={isAdmin} />}
+
+              {recent.length > 0 && (
+                <section className={styles.collection}>
+                  <h2 className={styles.collectionTitle}>Recent news</h2>
+                  <div className={styles.grid}>
+                    {recent.map((item) => (
+                      <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {hallOfFame.length > 0 && (
+                <section className={styles.collection}>
+                  <h2 className={styles.collectionTitle}>Hall of Fame</h2>
+                  <div className={styles.grid}>
+                    {hallOfFame.map((item) => (
+                      <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {other.length > 0 && (
+                <section className={styles.collection}>
+                  {hasCollections && <h2 className={styles.collectionTitle}>More from the showcase</h2>}
+                  <div className={styles.grid}>
+                    {other.map((item) => (
+                      <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
+                    ))}
+                  </div>
+                </section>
+              )}
             </>
           )}
         </section>

@@ -93,6 +93,15 @@ export function ShowcaseForm({ item }: { item?: ShowcaseItem }) {
           </label>
         </div>
 
+        <label className={styles.field}>
+          <span>Collection (which section it appears in)</span>
+          <select name="collection" defaultValue={item?.collection ?? ""}>
+            <option value="">General feed (no section)</option>
+            <option value="hall_of_fame">Hall of Fame — timeless best-of</option>
+            <option value="recent">Recent news — what&apos;s happening now</option>
+          </select>
+        </label>
+
         <label className={styles.checkline}>
           <input type="checkbox" name="is_featured" defaultChecked={item?.is_featured ?? false} />
           <span>Feature this (shown large / first)</span>

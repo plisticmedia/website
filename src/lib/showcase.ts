@@ -15,11 +15,19 @@ export type ShowcaseItem = {
   location: string | null;
   event_date: string | null;
   is_featured: boolean;
+  collection: string | null;
   published_at: string | null;
 };
 
+export type ShowcaseCollection = "hall_of_fame" | "recent";
+
+export const SHOWCASE_COLLECTIONS: Array<{ value: ShowcaseCollection; label: string }> = [
+  { value: "hall_of_fame", label: "Hall of Fame" },
+  { value: "recent", label: "Recent news" },
+];
+
 const FIELDS =
-  "id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, published_at";
+  "id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, collection, published_at";
 
 /** Published showcase items, featured first then newest. Optional kind filter. */
 export async function getShowcaseItems(kind?: ShowcaseKind): Promise<ShowcaseItem[]> {

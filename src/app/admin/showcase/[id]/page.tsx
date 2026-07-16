@@ -18,7 +18,7 @@ export default async function EditShowcasePage({ params }: { params: Promise<{ i
   const supabase = createSupabaseServiceRoleClient();
   const { data } = await supabase
     .from("showcase_items")
-    .select("id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, published_at")
+    .select("id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, collection, published_at")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
