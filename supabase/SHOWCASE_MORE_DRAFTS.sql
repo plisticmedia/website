@@ -43,10 +43,11 @@ select 'video',
   'Blazing Griffin / STUDIOCANAL', 'pending'
 where not exists (select 1 from showcase_items where title = 'California Schemin'': a Scottish story hits the big screen');
 
-insert into showcase_items (kind, title, summary, body, source, status)
-select 'news',
+insert into showcase_items (kind, title, summary, body, embed_url, source, status)
+select 'video',
   'Outlander: a global hit made in Scotland',
-  'The time-travelling drama loved around the world is filmed and built in Scotland, at Wardpark Studios in Cumbernauld.',
-  E'Few shows have done more for Scotland''s global image than Outlander. The time-spanning drama, adored by fans worldwide, is filmed across the country and produced at Wardpark Studios in Cumbernauld — one of Scotland''s major purpose-built studio facilities.\n\nBeyond the screen, it has driven a wave of "set-jetting" tourism to Scottish castles, glens and historic sites, and helped sustain a deep pool of Scottish crew, craftspeople and locations talent.\n\nWorld-class, globally loved television — made here, at scale.\n\n(Summary by Plistic.)',
-  'Made in Scotland', 'pending'
+  'The time-travelling drama loved around the world is filmed and built in Scotland — and it''s still going, with a 2026 final season and a new prequel.',
+  E'Few shows have done more for Scotland''s global image than Outlander. The time-spanning drama, adored by fans worldwide, is filmed across the country and produced at Wardpark Studios in Cumbernauld — one of Scotland''s major purpose-built studio facilities.\n\nAnd it''s far from over: the show''s final season arrived in 2026, alongside a new prequel, Outlander: Blood of My Blood — both shot in Scotland, keeping crews, craftspeople and locations busy.\n\nBeyond the screen, it has driven a wave of "set-jetting" tourism to Scottish castles, glens and historic sites. World-class, globally loved television — made here, at scale.\n\n(Trailer via STARZ''s official channel.)',
+  'https://www.youtube.com/watch?v=BKy4gqIVv9E',
+  'STARZ', 'pending'
 where not exists (select 1 from showcase_items where title = 'Outlander: a global hit made in Scotland');
