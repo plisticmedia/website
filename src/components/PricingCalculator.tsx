@@ -634,7 +634,7 @@ function getActiveSlate(
       result: podcastResult,
       status: podcastResult.depositEligible ? "Deposit path" : "Call first",
       ctaLabel: podcastResult.primaryCta,
-      intro: "Final pricing is confirmed after Plistic reviews the brief.",
+      intro: "Final pricing confirmed once we review your brief.",
       rows: [
         { label: "Need", value: podcastNeedLabels[podcast.need] },
         { label: "Episodes", value: podcastEpisodeLabels[podcast.episodes] },
@@ -653,7 +653,7 @@ function getActiveSlate(
       result: eventResult,
       status: eventResult.depositEligible ? "Deposit path" : "Call first",
       ctaLabel: eventResult.primaryCta,
-      intro: "The slate updates as duration, camera setup, location and outputs change.",
+      intro: "Updates live as you change the setup.",
       rows: [
         { label: "Duration", value: eventDurationLabels[event.duration] },
         { label: "Camera", value: cameraLabels[event.cameras] },
@@ -669,7 +669,7 @@ function getActiveSlate(
       result: musicVideoResult,
       status: "Call first",
       ctaLabel: musicVideoResult.primaryCta,
-      intro: "Music videos are shaped around the creative idea, location, crew, edit, and delivery needs.",
+      intro: "Shaped around the idea, crew, edit and delivery.",
       rows: [
         { label: "Category", value: "Music video" },
         { label: "Outputs", value: musicVideo.outputs.trim() ? "Added" : "To define" },
@@ -685,7 +685,7 @@ function getActiveSlate(
       result: documentaryResult,
       status: "Call first",
       ctaLabel: "Book a call",
-      intro: "Documentary pricing is always confirmed through a production call after the vision and production shape are clearer.",
+      intro: "Confirmed on a production call once the shape is clearer.",
       briefOnly: true,
       rows: [
         { label: "Length", value: documentaryScaleLabels[documentary.scale] },
@@ -702,7 +702,7 @@ function getActiveSlate(
       result: coachingResult,
       status: "Call first",
       ctaLabel: "Book a call",
-      intro: "Coaching is confirmed on a call once we understand who is preparing, what they are preparing for, and the format needed.",
+      intro: "Confirmed on a call once we know who's preparing and for what.",
       briefOnly: true,
       rows: [
         { label: "Format", value: coachingFormatLabels[coaching.format] },
@@ -746,7 +746,7 @@ function PodcastIntake({
         </span>
         <div>
           <h3>Podcast scope</h3>
-          <p>Choose the production shape, episode volume and launch context.</p>
+          <p>Production shape, episodes and launch timing.</p>
         </div>
       </div>
 
@@ -974,7 +974,7 @@ function EventIntake({
         </span>
         <div>
           <h3>Event filming</h3>
-          <p>Capture duration, camera package, location and delivery extras.</p>
+          <p>Duration, cameras, location and outputs.</p>
         </div>
       </div>
 
@@ -1067,10 +1067,6 @@ function EventIntake({
             onChange={(checked) => setEvent((current) => ({ ...current, rawFootage: checked }))}
           />
         </div>
-        <p className={styles.helperNote}>
-          A camera gimbal allows for motion shots that will create a dynamic tone for any of your event content.
-        </p>
-
         <div className={styles.inlineFields}>
           <Field label="Social clips">
             <input
@@ -1120,7 +1116,7 @@ function MusicVideoIntake({
         </span>
         <div>
           <h3>Music video brief</h3>
-          <p>Start with the creative idea, delivery needs, budget band, and timeline.</p>
+          <p>The idea, budget, timeline and outputs.</p>
         </div>
       </div>
 
@@ -1211,11 +1207,7 @@ function DocumentaryIntake({
         </span>
         <div>
           <h3>Documentary brief</h3>
-          <p>
-            Tell us a bit about your vision for your documentary using the form below to give us an idea about your
-            project before your kick off call. If you aren&apos;t sure yet, that&apos;s fine - we can work these out together
-            on call.
-          </p>
+          <p>A rough idea before your kick-off call. Not sure yet? We&apos;ll work it out together.</p>
         </div>
       </div>
 
@@ -1339,7 +1331,7 @@ function CoachingIntake({
         </span>
         <div>
           <h3>Coaching brief</h3>
-          <p>Useful for presenters, founders, podcast hosts and teams preparing to record.</p>
+          <p>For presenters, founders, hosts and teams.</p>
         </div>
       </div>
 
@@ -1466,7 +1458,7 @@ function OtherIntake({
         </span>
         <div>
           <h3>Open brief</h3>
-          <p>Use this route when the project does not fit a neat production category yet.</p>
+          <p>For anything that doesn&apos;t fit a neat category yet.</p>
         </div>
       </div>
 
