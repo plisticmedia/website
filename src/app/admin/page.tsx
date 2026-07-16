@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, clearRating, moderateService, publishShowcaseItem, recheckRating, refundDispute, rejectClaim, releaseDispute, releaseOwner, removeShowcaseItem, revokeAdmin, setFeatured, setFounding, setVerified } from "./actions";
+import { approveClaim, publishShowcaseItem, refundDispute, rejectClaim, releaseDispute, removeShowcaseItem, revokeAdmin } from "./actions";
+import { ListingsManager } from "./ListingsManager";
 import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
@@ -319,88 +320,7 @@ export default async function AdminPage() {
 
           {/* Listings moderation */}
           <h2 className={styles.sectionTitle}>Listings</h2>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr><th>Title</th><th>Seller</th><th>Status</th><th>Trusted</th><th>Google</th><th>Created</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                {svc.length === 0 && <tr><td colSpan={7} className={styles.emptyCell}>No listings yet.</td></tr>}
-                {svc.map((s) => (
-                  <tr key={s.id}>
-                    <td>
-                      <Link href={`/directory/${s.slug}`} target="_blank">{s.title}</Link>
-                      {!s.seller_id && s.claim_token && (
-                        <>
-                          <br />
-                          <a
-                            href={`${siteUrl}/claim/${s.claim_token}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ fontSize: "0.75rem", color: "var(--p-azure-deep)" }}
-                          >
-                            claim link ↗
-                          </a>
-                        </>
-                      )}
-                    </td>
-                    <td>{s.profiles?.display_name ?? "—"}</td>
-                    <td><span className={styles.badge}>{s.status}</span></td>
-                    <td>{s.is_featured ? <span className={`${styles.badge} ${styles.badgeTrusted}`}>Trusted</span> : "—"}</td>
-                    <td>
-                      {s.google_place_id === "SKIP"
-                        ? "off"
-                        : s.google_rating != null
-                          ? `★ ${s.google_rating}${s.google_rating_count != null ? ` (${s.google_rating_count})` : ""}`
-                          : "—"}
-                    </td>
-                    <td>{fmt(s.created_at)}</td>
-                    <td className={styles.actions}>
-                      {s.status !== "published" && (
-                        <form action={moderateService.bind(null, s.id, "published")}>
-                          <button className={styles.btnSmall} type="submit">Publish</button>
-                        </form>
-                      )}
-                      {s.status !== "removed" && (
-                        <form action={moderateService.bind(null, s.id, "removed")}>
-                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove</button>
-                        </form>
-                      )}
-                      {s.is_featured ? (
-                        <form action={setFeatured.bind(null, s.id, false)}>
-                          <button className={styles.btnSmall} type="submit">Un-trust</button>
-                        </form>
-                      ) : (
-                        <form action={setFeatured.bind(null, s.id, true)}>
-                          <button className={`${styles.btnSmall} ${styles.btnTrust}`} type="submit">Make trusted</button>
-                        </form>
-                      )}
-                      <form action={setVerified.bind(null, s.id, !s.verified)}>
-                        <button className={styles.btnSmall} type="submit">{s.verified ? "Unverify" : "Verify"}</button>
-                      </form>
-                      <form action={setFounding.bind(null, s.id, !s.founding)}>
-                        <button className={styles.btnSmall} type="submit">{s.founding ? "Un-found" : "Founding"}</button>
-                      </form>
-                      {s.google_place_id === "SKIP" ? (
-                        <form action={recheckRating.bind(null, s.id)}>
-                          <button className={styles.btnSmall} type="submit">Re-check Google</button>
-                        </form>
-                      ) : (s.google_rating != null || s.google_place_id) ? (
-                        <form action={clearRating.bind(null, s.id)}>
-                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Clear rating</button>
-                        </form>
-                      ) : null}
-                      {s.seller_id && (
-                        <form action={releaseOwner.bind(null, s.id)}>
-                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Release owner</button>
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ListingsManager listings={svc} siteUrl={siteUrl} />
 
           {/* Enquiries */}
           <h2 className={styles.sectionTitle}>Enquiries</h2>
