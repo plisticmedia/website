@@ -50,7 +50,7 @@ export default async function AdminPage() {
   const showcasePending = await getPendingShowcaseItems();
 
   const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.plisticmedia.com").replace(/\/$/, "");
   const enq = (enquiries.data ?? []) as unknown as Array<{ id: string; buyer_name: string; buyer_email: string; status: string; created_at: string; services: { title: string } | null }>;
   const refs = (referrals.data ?? []) as Array<Record<string, string>>;
   const parts = (partnerships.data ?? []) as Array<Record<string, string>>;

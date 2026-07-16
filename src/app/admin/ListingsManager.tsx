@@ -58,12 +58,18 @@ function ReleaseButton({ id, owner }: { id: string; owner: string }) {
   );
 }
 
-function CopyClaimLink({ url }: { url: string }) {
+function CopyClaimLink({ token, siteUrl }: { token: string; siteUrl: string }) {
   const [copied, setCopied] = useState(false);
+  // Always produce a full, sendable URL. Prefer the configured site URL, but
+  // fall back to the browser's own origin so a missing NEXT_PUBLIC_SITE_URL
+  // never yields a partial "/claim/..." link.
+  const base = (siteUrl || (typeof window !== "undefined" ? window.location.origin : "")).replace(/\/$/, "");
+  const url = `${base}/claim/${token}`;
   return (
     <button
       type="button"
       className={styles.btnSmall}
+      title={url}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(url);
@@ -177,7 +183,7 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
                         <ReleaseButton id={s.id} owner={s.profiles?.display_name ?? "the current owner"} />
                       </>
                     ) : s.claim_token ? (
-                      <CopyClaimLink url={`${siteUrl}/claim/${s.claim_token}`} />
+                      <CopyClaimLink token={s.claim_token} siteUrl={siteUrl} />
                     ) : (
                       <span style={{ fontSize: "0.75rem", color: "#b4690e" }}>
                         No claim token yet — run the backfill SQL
