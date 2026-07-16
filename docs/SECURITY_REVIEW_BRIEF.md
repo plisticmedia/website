@@ -66,7 +66,13 @@ creation** so later rate changes never touch in-flight orders.
 ### 3c. Public write endpoints (abuse surface)
 `src/app/api/enquiries/route.ts`, `src/app/api/pricing-lead/route.ts`,
 `src/app/api/earn/route.ts`, `src/app/api/submit-listing/route.ts`,
+`src/app/api/showcase-submit/route.ts` (**accepts an image upload**),
+`src/app/api/subscribe/route.ts` (newsletter — GDPR consent capture),
 `src/app/claim/[token]/actions.ts`, `src/app/api/webhooks/calcom/route.ts`.
+
+Both `submit-listing` and `showcase-submit` accept **file uploads** to the public
+`service-media` Storage bucket — review type/size validation and the generated
+storage path (see the file-upload checklist item under *General*).
 
 ## 4. Review checklist (what "pass" means)
 
@@ -103,6 +109,9 @@ creation** so later rate changes never touch in-flight orders.
 
 ### General
 - [ ] Public POST endpoints are rate-limited and validate + bound all input.
+- [ ] File uploads (`submit-listing`, `showcase-submit`) enforce an allow-list of
+      image MIME types and a size cap, generate a non-guessable server-side path,
+      and can't be used to overwrite existing objects or exhaust storage.
 - [ ] The claim-by-token flow can't be abused to hijack a listing (auto-approve
       only on verified email-domain / submitter-email match).
 - [ ] Error handling never leaks secrets or internal detail to users.
