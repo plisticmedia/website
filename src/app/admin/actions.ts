@@ -451,6 +451,7 @@ export async function saveShowcaseItem(id: string | null, formData: FormData) {
     location: str("location", 160) || null,
     event_date: eventDate || null,
     is_featured: formData.get("is_featured") === "on",
+    collection: ["hall_of_fame", "recent"].includes(str("collection", 20)) ? str("collection", 20) : null,
     status: "published",
   };
   if (imageUrl !== null) record.image_url = imageUrl;

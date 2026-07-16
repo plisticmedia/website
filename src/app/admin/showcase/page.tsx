@@ -18,7 +18,7 @@ export default async function ShowcaseAdminPage({ searchParams }: { searchParams
   const supabase = createSupabaseServiceRoleClient();
   const { data } = await supabase
     .from("showcase_items")
-    .select("id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, status, published_at, submitter_email, created_at")
+    .select("id, kind, title, summary, body, image_url, embed_url, link_url, source, location, event_date, is_featured, collection, status, published_at, submitter_email, created_at")
     .neq("status", "removed")
     .order("status", { ascending: true })
     .order("created_at", { ascending: false });
