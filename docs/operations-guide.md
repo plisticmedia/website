@@ -66,9 +66,11 @@ up-to-date list is in `docs/PRE-LAUNCH.md`; the earliest are:
 - Short description, website, logo/profile image, social links, publish consent.
 The importer maps these columns automatically.
 
-## Going live
-The public coming-soon password gate has been removed. The main site is public;
-dashboard, admin, and seller workflows remain protected by Supabase auth.
+## Going live (removing the "coming soon" gate)
+The whole site currently sits behind a password (`/coming-soon`). To launch, remove
+or bypass that gate — the mechanism is in `src/proxy.ts` + `src/lib/siteAccess.ts`
+(a developer flips it off, or changes the gate to allow the public in). Do this only
+when you're ready for the site to be public.
 
 ## Google ratings (built — needs an API key to switch on)
 Listings show their Google star rating + review count once a **Places API (New)**

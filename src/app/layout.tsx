@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 export const metadata: Metadata = {
   title: "Plistic | Media made simPLISTIC",
@@ -22,6 +23,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        {process.env.SITE_LIVE !== "true" && <FeedbackButton />}
         <Analytics />
       </body>
     </html>

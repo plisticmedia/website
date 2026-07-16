@@ -12,8 +12,12 @@ Launch date referenced in the claim emails: **13 July 2026** (change it in
 ## 0. Beta test first — the order to do things in
 
 Run a **private beta** with a trusted group before inviting the real businesses
-or going public. The public coming-soon password gate has now been removed, so
-publishing a listing makes it visible inside the public directory.
+or going public. The site has two separate locks:
+
+- **The "coming soon" password** = the whole-site lock. Nobody sees anything
+  without it. Give this password to beta testers; that's how they get in.
+- **Publishing a listing** = only makes it visible *inside* the directory, to
+  people already past the coming-soon lock.
 
 **Do NOT publish the ~82 imported businesses for the beta.** They should first
 hear about Plistic through their personal invite. If a beta tester spots a
@@ -21,18 +25,19 @@ business they know before it's been invited, it spoils the reveal and risks a
 consent/goodwill problem.
 
 **Beta sequence:**
-1. Add a few **demo listings** so testers have something to browse without
+1. Keep the coming-soon lock **ON**.
+2. Add a few **demo listings** so testers have something to browse without
    seeing real businesses — run `supabase/DEMO_LISTINGS.sql` (three fictional
    "(sample)" businesses). Then in `/admin` click **"Add listings to the map"**
    so they show as pins.
-2. Give beta testers the private test URL or instructions. They can sign up,
-   browse, test claiming a demo listing, and (in Stripe **test mode** only) test a
+3. Give beta testers the **coming-soon password**. They can sign up, browse,
+   test claiming a demo listing, and (in Stripe **test mode** only) test a
    booking with a fake card. No real money.
-3. Collect feedback, fix, and complete the **developer/security review** (§7).
-4. **Launch day:** publish the real imported businesses (`/admin` → "Publish all
+4. Collect feedback, fix, and complete the **developer/security review** (§7).
+5. **Launch day:** publish the real imported businesses (`/admin` → "Publish all
    imported listings" + "Add listings to the map"), **send the claim invites**,
-   and switch Stripe to live keys.
-5. After beta, remove the demo listings: run the `delete` line at the bottom of
+   switch Stripe to live keys, and turn the coming-soon lock off.
+6. After beta, remove the demo listings: run the `delete` line at the bottom of
    `supabase/DEMO_LISTINGS.sql`.
 
 Publishing ≠ emailing ≠ going public — they're three separate, deliberate steps.
@@ -102,19 +107,18 @@ once its migration is applied.
 - Owner steps in Stripe when you're ready (after review): enable Connect, and add
   the `account.updated`, transfer, and refund events to the webhook endpoint.
 
-## 6. Going public
+## 6. Going public (removing the "coming soon" gate)
 
-- See `docs/operations-guide.md` → "Going live". In short: the public gate has
-  been removed, so only publish/import listings when they are ready to be seen.
-- Before publishing imported listings: send the claim invites (Admin → claim
-  invites panel), preview a sample of listings, and confirm the imported pages
-  look good.
+- See `docs/operations-guide.md` → "Going live". In short: the coming-soon gate
+  hides unclaimed/preview listings until you're ready; lift it on launch day.
+- Before lifting it: send the claim invites (Admin → claim invites panel),
+  preview a sample of listings, and confirm the imported pages look good.
 
 ---
 
 ## 7. 🔒 PROFESSIONAL REVIEW BEFORE LAUNCH — NON-NEGOTIABLE (task #25)
 
-**Do not go live with real payments until an experienced
+**Do not go live with real payments or the gate removed until an experienced
 developer has reviewed the platform.** This was agreed and must not be skipped.
 Give them this scoped list:
 
