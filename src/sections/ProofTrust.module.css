@@ -56,7 +56,7 @@
 .logoRow {
   position: relative;
   inline-size: 100%;
-  min-block-size: 68px;
+  min-block-size: 84px;
   overflow: hidden;
 }
 .logoTrack {
@@ -85,53 +85,37 @@
   align-items: center;
   justify-content: center;
   inline-size: var(--logo-tile-width);
-  block-size: 68px;
+  block-size: 84px;
   overflow: hidden;
-  padding: 0.82rem 1rem;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 4px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 0.6rem;
 }
-.logoTile::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(79, 182, 255, 0.08), transparent);
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-.logoTile:hover::before { opacity: 1; }
 .logo {
   position: relative;
   inline-size: auto;
-  max-inline-size: 86%;
-  max-block-size: 38px;
+  max-inline-size: 100%;
+  max-block-size: 56px;
   object-fit: contain;
   filter: grayscale(1) brightness(0) invert(1);
-  opacity: 0.58;
+  opacity: 0.72;
   transition: opacity 180ms ease, filter 180ms ease;
 }
 .logoTile:hover .logo {
-  opacity: 0.88;
-  filter: grayscale(1) brightness(0) invert(1) drop-shadow(0 0 14px rgba(79, 182, 255, 0.12));
+  opacity: 1;
+  filter: grayscale(1) brightness(0) invert(1) drop-shadow(0 0 14px rgba(79, 182, 255, 0.14));
 }
 .tallLogo {
-  max-block-size: 56px;
+  max-block-size: 72px;
 }
 .eagleLogo {
   max-inline-size: 100%;
-  max-block-size: 46px;
+  max-block-size: 62px;
 }
 .tinyChangesLogo {
-  max-inline-size: 92%;
-  max-block-size: 72px;
+  max-inline-size: 100%;
+  max-block-size: 96px;
   clip-path: inset(39% 0 0 0);
-  opacity: 0.84;
-  transform: translateY(-10px);
+  opacity: 0.9;
+  transform: translateY(-13px);
 }
 .logoTile:hover .tinyChangesLogo {
   opacity: 1;

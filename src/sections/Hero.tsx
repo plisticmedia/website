@@ -50,7 +50,7 @@ export function Hero() {
           <p className={styles.tagline}>
             media made <span className={styles.sim}>sim</span>PLISTIC
           </p>
-          <p className={styles.subhead}>Scotland&apos;s home for everything media. Made in Scotland.</p>
+          <p className={styles.subhead}>Your home for everything media. Made in Scotland.</p>
           <p className={styles.disciplines}>
             Podcasts <i>·</i> Video <i>·</i> Documentary <i>·</i> Ads <i>·</i> Music Videos <i>·</i> Strategy
           </p>
