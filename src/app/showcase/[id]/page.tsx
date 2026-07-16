@@ -25,7 +25,7 @@ export default async function ShowcaseStoryPage({ params }: { params: Promise<{ 
   const item = await getShowcaseItemById(id);
   if (!item) notFound();
 
-  const embed = item.kind === "video" ? toShowcaseEmbed(item.embed_url) : null;
+  const embed = toShowcaseEmbed(item.embed_url);
   const date = item.published_at
     ? new Date(item.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     : null;

@@ -6,9 +6,12 @@ import { Hero } from "@/sections/Hero";
 import { PlatformSignpost } from "@/sections/PlatformSignpost";
 import { ProofTrust } from "@/sections/ProofTrust";
 import { ServicesOverview } from "@/sections/ServicesOverview";
+import { ShowcaseHighlights } from "@/sections/ShowcaseHighlights";
 import { Showreel } from "@/sections/Showreel";
 import { Testimonials } from "@/sections/Testimonials";
 import { WorkPreview } from "@/sections/WorkPreview";
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
@@ -22,6 +25,7 @@ export default function Home() {
         <ServicesOverview />
         <WorkPreview />
         <PlatformSignpost />
+        <ShowcaseHighlights />
         <Testimonials />
         <ClosingCTA />
       </main>
