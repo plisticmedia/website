@@ -50,12 +50,38 @@ export async function getShowcaseItemById(id: string): Promise<ShowcaseItem | nu
 
 /**
  * Where a showcase card should link. If the item has its own written story
- * (a body), open our full-story page; otherwise fall back to any external/on-site
- * link it carries. Items with neither aren't links.
+ * (a body) or a video to play, open our full-story page; otherwise fall back to
+ * any external/on-site link it carries. Items with none aren't links.
  */
-export function showcaseHref(item: Pick<ShowcaseItem, "id" | "body" | "link_url">): string | null {
-  if (item.body && item.body.trim()) return `/showcase/${item.id}`;
+export function showcaseHref(item: Pick<ShowcaseItem, "id" | "body" | "link_url" | "embed_url">): string | null {
+  if ((item.body && item.body.trim()) || item.embed_url) return `/showcase/${item.id}`;
   return item.link_url || null;
+}
+
+/**
+ * The thumbnail to show on a card/tile: the chosen cover image if there is one,
+ * otherwise the video's own poster frame (YouTube) so video items still show a
+ * still image instead of a heavy live embed.
+ */
+export function showcaseThumb(item: Pick<ShowcaseItem, "image_url" | "embed_url">): string | null {
+  if (item.image_url) return item.image_url;
+  const embed = toShowcaseEmbed(item.embed_url);
+  const yt = embed?.match(/youtube\.com\/embed\/([\w-]+)/);
+  if (yt) return `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
+  return null;
+}
+
+/** Featured, published showcase items for the homepage highlights carousel. */
+export async function getFeaturedShowcaseItems(limit = 10): Promise<ShowcaseItem[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("showcase_items")
+    .select(FIELDS)
+    .eq("status", "published")
+    .eq("is_featured", true)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as ShowcaseItem[];
 }
 
 /** Admin: pending submissions awaiting review. Service role. */

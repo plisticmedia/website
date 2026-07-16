@@ -77,8 +77,8 @@ export function SubmitShowcaseForm() {
         </label>
 
         <label className={form.field}>
-          <span>The full story (optional — write it however you&apos;d like it to read)</span>
-          <textarea name="body" rows={7} maxLength={8000} placeholder="Tell the whole story here. Separate paragraphs with a blank line. Leave blank if you just want a short card with a link." />
+          <span>The full story (optional, but recommended — a few paragraphs make it far more compelling)</span>
+          <textarea name="body" rows={7} maxLength={8000} placeholder="Tell the whole story here. Separate paragraphs with a blank line. A short card with a link works too if you'd rather keep it brief." />
         </label>
 
         <label className={form.field}>

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Plus } from "lucide-react";
+import { ArrowRight, CalendarDays, Pencil, Play, Plus } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getShowcaseItems, showcaseHref, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
+import { getShowcaseItems, showcaseHref, showcaseThumb, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
+import { getSessionProfile } from "@/lib/auth";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import styles from "./Showcase.module.css";
 
@@ -31,32 +32,38 @@ function InternalOrExternal({ href, className, children }: { href: string; class
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function ShowcaseCard({ item, featured = false }: { item: ShowcaseItem; featured?: boolean }) {
-  const embed = item.kind === "video" ? toShowcaseEmbed(item.embed_url) : null;
+function ShowcaseCard({ item, featured = false, isAdmin = false }: { item: ShowcaseItem; featured?: boolean; isAdmin?: boolean }) {
   const href = showcaseHref(item);
+  const thumb = showcaseThumb(item);
+  const hasVideo = !!toShowcaseEmbed(item.embed_url);
   const eventDate = item.event_date
     ? new Date(item.event_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
 
   return (
     <article className={`${styles.card} ${featured ? styles.cardFeatured : ""}`}>
-      {embed ? (
+      {thumb ? (
+        <InternalOrExternal href={href ?? "#"} className={styles.mediaLink}>
+          <div className={styles.media}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={thumb} alt={item.title} loading="lazy" />
+            {hasVideo && (
+              <span className={styles.playBadge} aria-hidden="true">
+                <Play size={featured ? 26 : 20} fill="currentColor" />
+              </span>
+            )}
+          </div>
+        </InternalOrExternal>
+      ) : hasVideo ? (
         <div className={styles.media}>
           <iframe
-            src={embed}
+            src={toShowcaseEmbed(item.embed_url) ?? ""}
             title={item.title}
             loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         </div>
-      ) : item.image_url ? (
-        <InternalOrExternal href={href ?? "#"} className={styles.mediaLink}>
-          <div className={styles.media}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.image_url} alt={item.title} loading="lazy" />
-          </div>
-        </InternalOrExternal>
       ) : null}
 
       <div className={styles.cardBody}>
@@ -76,11 +83,16 @@ function ShowcaseCard({ item, featured = false }: { item: ShowcaseItem; featured
           )}
           {href && (
             <InternalOrExternal href={href} className={styles.readMore}>
-              {item.body ? "Read the story" : item.kind === "news" ? "Read more" : "View"}{" "}
+              {item.body ? "Read the story" : hasVideo ? "Watch" : item.kind === "news" ? "Read more" : "View"}{" "}
               <ArrowRight aria-hidden="true" size={14} />
             </InternalOrExternal>
           )}
         </div>
+        {isAdmin && (
+          <Link href={`/admin/showcase/${item.id}`} className={styles.adminEdit}>
+            <Pencil aria-hidden="true" size={13} /> Edit story
+          </Link>
+        )}
       </div>
     </article>
   );
@@ -101,7 +113,8 @@ export default async function ShowcasePage({
 }) {
   const { kind } = await searchParams;
   const activeTab = KIND_TABS.find((t) => t.slug === kind) ?? KIND_TABS[0];
-  const items = await getShowcaseItems(activeTab.kind);
+  const [items, profile] = await Promise.all([getShowcaseItems(activeTab.kind), getSessionProfile()]);
+  const isAdmin = profile?.role === "admin";
 
   const [lead, ...rest] = items;
 
@@ -120,8 +133,13 @@ export default async function ShowcasePage({
               making them. Discovered something brilliant? Put it forward.
             </p>
             <div className={styles.heroActions}>
-              <Link href="/showcase/submit" className="p-btn">
-                <Plus aria-hidden="true" size={18} /> Submit work or a story
+              {isAdmin && (
+                <Link href="/admin/showcase" className="p-btn">
+                  <Plus aria-hidden="true" size={18} /> Add a story
+                </Link>
+              )}
+              <Link href="/showcase/submit" className={isAdmin ? styles.heroSecondary : "p-btn"}>
+                {!isAdmin && <Plus aria-hidden="true" size={18} />} Submit work or a story
               </Link>
               <Link href="/directory" className={styles.heroSecondary}>
                 Browse the directory <ArrowRight aria-hidden="true" size={16} />
@@ -149,10 +167,10 @@ export default async function ShowcasePage({
             </p>
           ) : (
             <>
-              {lead && !activeTab.kind && <ShowcaseCard item={lead} featured />}
+              {lead && !activeTab.kind && <ShowcaseCard item={lead} featured isAdmin={isAdmin} />}
               <div className={styles.grid}>
                 {(activeTab.kind ? items : rest).map((item) => (
-                  <ShowcaseCard key={item.id} item={item} />
+                  <ShowcaseCard key={item.id} item={item} isAdmin={isAdmin} />
                 ))}
               </div>
             </>
