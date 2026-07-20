@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getShowcaseItemById, toShowcaseEmbed } from "@/lib/showcase";
+import { ShowcaseThumb } from "@/components/ShowcaseThumb";
 import styles from "./Story.module.css";
 
 export const dynamic = "force-dynamic";
@@ -74,8 +75,7 @@ export default async function ShowcaseStoryPage({ params }: { params: Promise<{ 
             </div>
           ) : item.image_url ? (
             <div className={styles.mediaImage}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.image_url} alt={item.title} />
+              <ShowcaseThumb src={item.image_url} alt={item.title} kindLabel={kindLabel[item.kind] ?? "Showcase"} />
             </div>
           ) : null}
 
