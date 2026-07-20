@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug, getServiceReviews } from "@/lib/services";
+import { getConfirmedCollaborators } from "@/lib/peers";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
@@ -64,6 +65,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const seller = service.profiles;
   const { reviews, average: reviewAvg, count: reviewCount } = await getServiceReviews(service.id);
+  const collaborators = await getConfirmedCollaborators(service.id);
 
   const viewer = await getSessionProfile();
 
@@ -347,6 +349,28 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                       <p className={styles.reviewMeta}>
                         {r.buyer_name ?? "Verified buyer"} · {new Date(r.created_at).toLocaleDateString("en-GB")}
                       </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {collaborators.length > 0 && (
+              <div className={styles.workedWith}>
+                <h2>Worked with</h2>
+                <p className={styles.workedWithNote}>Confirmed collaborations across Scotland&apos;s creative scene.</p>
+                <ul className={styles.workedWithList}>
+                  {collaborators.map((c) => (
+                    <li key={c.id}>
+                      <Link href={`/directory/${c.slug}`} className={styles.workedWithChip}>
+                        {c.logo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.logo_url} alt="" />
+                        ) : (
+                          <span className={styles.workedWithInitial} aria-hidden="true">{c.title.charAt(0)}</span>
+                        )}
+                        {c.title}
+                      </Link>
                     </li>
                   ))}
                 </ul>
