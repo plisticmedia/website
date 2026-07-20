@@ -123,6 +123,18 @@
 
 .cta { display: inline-flex; align-items: center; gap: 0.5rem; }
 
+/* Sign-in button + disclaimer side by side, using the horizontal space; wraps to
+   stacked on narrow screens. */
+.signinRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.5rem;
+  margin-top: 0.4rem;
+}
+.signinRow .cta { flex: 0 0 auto; }
+.signinRow .hint { flex: 1 1 240px; margin: 0; max-width: none; }
+
 .preview {
   display: inline-flex;
   align-items: center;
