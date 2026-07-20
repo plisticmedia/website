@@ -24,12 +24,12 @@ select 'news',
   'Rockstar Games', 'pending'
 where not exists (select 1 from showcase_items where title = 'The biggest game on Earth is made in Scotland');
 
-insert into showcase_items (kind, title, summary, body, image_url, link_url, source, status)
+insert into showcase_items (kind, title, summary, body, embed_url, link_url, source, status)
 select 'news',
   'The Glasgow studio recording Hollywood''s soundtracks',
   'The Royal Scottish National Orchestra''s Glasgow studio is now recording major film scores — putting Scotland alongside London and LA.',
-  E'When you hear a sweeping orchestral score in a Hollywood film, there''s a growing chance it was recorded in Glasgow.\n\nThe Royal Scottish National Orchestra''s purpose-built recording space, Scotland''s Studio, is the only orchestral facility in the UK that can record sound to picture. Its aim is to become the go-to studio for film and game soundtracks outside London — and it''s delivering. Recent work includes the films Horizon: An American Saga, The Woman King and Argylle; the BAFTA-winning series Silo; and video games including Avatar: Frontiers of Pandora and Star Wars Outlaws.\n\nThe facility earned the Association of British Orchestras'' Impact Award for Innovation, and the RSNO runs a Film Composers Lab to develop the next generation of screen composers, with a public screening in Glasgow in summer 2026.\n\nWorld-class film music, made in Scotland.\n\n(Summary by Plistic — see the RSNO via the link below.)',
-  '/assets/photos/drum-studio.webp',
+  E'When you hear a sweeping orchestral score in a Hollywood film, there''s a growing chance it was recorded in Glasgow.\n\nThe Royal Scottish National Orchestra''s purpose-built recording space, Scotland''s Studio, is the only orchestral facility in the UK that can record sound to picture. Its aim is to become the go-to studio for film and game soundtracks outside London — and it''s delivering. Recent work includes the films Horizon: An American Saga, The Woman King and Argylle; the BAFTA-winning series Silo; and video games including Avatar: Frontiers of Pandora and Star Wars Outlaws.\n\nThe facility earned the Association of British Orchestras'' Impact Award for Innovation, and the RSNO runs a Film Composers Lab to develop the next generation of screen composers, with a public screening in Glasgow in summer 2026.\n\nWorld-class film music, made in Scotland.\n\n(Video: the trailer for Argylle — one of the films scored at Scotland''s Studio — via Universal Pictures'' official channel.)',
+  'https://www.youtube.com/watch?v=IYwX51FYi0Q',
   'https://www.rsno.org.uk/about/scotlands-studio/',
   'Royal Scottish National Orchestra', 'pending'
 where not exists (select 1 from showcase_items where title = 'The Glasgow studio recording Hollywood''s soundtracks');
