@@ -155,6 +155,15 @@ export async function approveClaim(claimId: string) {
 }
 
 /** Admin: toggle the free "Verified" trust badge (distinct from paid featured). */
+/** Hide or show a business's public peer-confidence aggregate (dispute resolution). */
+export async function setPeerConfidenceHidden(id: string, hidden: boolean) {
+  await requireAdmin();
+  const supabase = createSupabaseServiceRoleClient();
+  const { error } = await supabase.from("services").update({ peer_confidence_hidden: hidden }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
 export async function setVerified(id: string, verified: boolean) {
   await requireAdmin();
   const supabase = await createSupabaseServerClient();

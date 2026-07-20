@@ -526,3 +526,17 @@
   width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center;
   background: rgba(31, 170, 233, 0.14); color: var(--p-azure-deep); font-weight: 800; font-size: 0.8rem;
 }
+
+/* Peer confidence (Layer 2 — shown only when the feature flag is on) */
+.peerConf { margin-top: 2rem; padding: 1.1rem 1.2rem; border: 1px solid var(--p-line); border-radius: 14px; background: rgba(31,170,233,0.04); }
+.peerConf h2 { margin: 0 0 0.2rem; }
+.peerConfNote { color: var(--p-muted); font-size: 0.85rem; margin: 0 0 0.9rem; }
+.peerConfStats { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+.peerConfStat {
+  flex: 1 1 120px; text-align: center;
+  border: 1px solid var(--p-line); border-radius: 10px; padding: 0.7rem 0.5rem; background: var(--white, #fff);
+}
+.peerConfStat strong { display: block; font-size: 1.5rem; color: var(--p-azure-deep); line-height: 1; }
+.peerConfStat span { display: block; font-size: 0.76rem; color: var(--p-muted); margin-top: 0.3rem; }
+.peerConfReply { margin: 0.9rem 0 0; font-size: 0.9rem; color: var(--ink-strong, #161616); line-height: 1.5; }
+.peerConfReply strong { color: var(--ink-strong, #161616); }

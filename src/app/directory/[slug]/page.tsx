@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug, getServiceReviews } from "@/lib/services";
-import { getConfirmedCollaborators } from "@/lib/peers";
+import { getConfirmedCollaborators, getPublicPeerConfidence } from "@/lib/peers";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
@@ -68,6 +68,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const collaborators = await getConfirmedCollaborators(service.id);
 
   const viewer = await getSessionProfile();
+  const peerConf = await getPublicPeerConfidence(service.id, !!viewer);
 
   // Count a public view AFTER the page has been sent, so it never adds to load
   // time. Best-effort; skip the owner and admins.
@@ -374,6 +375,36 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {peerConf && (
+              <div className={styles.peerConf}>
+                <h2>Peer confidence</h2>
+                <p className={styles.peerConfNote}>
+                  Aggregated, anonymous feedback from {peerConf.confidence.count} businesses who&apos;ve worked with them.
+                  Visible to signed-in businesses.
+                </p>
+                <div className={styles.peerConfStats}>
+                  <div className={styles.peerConfStat}>
+                    <strong>{peerConf.confidence.wouldAgainPct}%</strong>
+                    <span>would work with them again</span>
+                  </div>
+                  {peerConf.confidence.reliability != null && (
+                    <div className={styles.peerConfStat}><strong>{peerConf.confidence.reliability}</strong><span>reliability</span></div>
+                  )}
+                  {peerConf.confidence.communication != null && (
+                    <div className={styles.peerConfStat}><strong>{peerConf.confidence.communication}</strong><span>communication</span></div>
+                  )}
+                  {peerConf.confidence.quality != null && (
+                    <div className={styles.peerConfStat}><strong>{peerConf.confidence.quality}</strong><span>quality</span></div>
+                  )}
+                </div>
+                {peerConf.reply && (
+                  <p className={styles.peerConfReply}>
+                    <strong>{service.title} responds:</strong> {peerConf.reply}
+                  </p>
+                )}
               </div>
             )}
           </div>
