@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import type { ShowcaseItem } from "@/lib/showcase";
 import { publishShowcaseItem, removeShowcaseItem } from "../actions";
+import { ActionButton } from "@/components/ActionButton";
 import { ShowcaseForm } from "./ShowcaseForm";
 import styles from "./ShowcaseAdmin.module.css";
 
@@ -53,12 +54,12 @@ export default async function ShowcaseAdminPage({ searchParams }: { searchParams
                     </div>
                     <div className={styles.rowActions}>
                       <Link className={styles.btnSmall} href={`/admin/showcase/${i.id}`}>Review &amp; edit</Link>
-                      <form action={publishShowcaseItem.bind(null, i.id)}>
-                        <button className={styles.btnSmall} type="submit">Publish</button>
-                      </form>
-                      <form action={removeShowcaseItem.bind(null, i.id)}>
-                        <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Reject</button>
-                      </form>
+                      <ActionButton action={publishShowcaseItem.bind(null, i.id)} pendingText="Publishing…" className={styles.btnSmall}>
+                        Publish
+                      </ActionButton>
+                      <ActionButton action={removeShowcaseItem.bind(null, i.id)} pendingText="Rejecting…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                        Reject
+                      </ActionButton>
                     </div>
                   </li>
                 ))}
@@ -79,9 +80,9 @@ export default async function ShowcaseAdminPage({ searchParams }: { searchParams
                   </div>
                   <div className={styles.rowActions}>
                     <Link className={styles.btnSmall} href={`/admin/showcase/${i.id}`}>Edit</Link>
-                    <form action={removeShowcaseItem.bind(null, i.id)}>
-                      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove</button>
-                    </form>
+                    <ActionButton action={removeShowcaseItem.bind(null, i.id)} pendingText="Removing…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                      Remove
+                    </ActionButton>
                   </div>
                 </li>
               ))}

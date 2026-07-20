@@ -11,6 +11,7 @@ import {
   setFounding,
   setVerified,
 } from "./actions";
+import { ActionButton } from "@/components/ActionButton";
 import styles from "./Admin.module.css";
 
 export type AdminListing = {
@@ -34,28 +35,6 @@ export type AdminListing = {
 function fmt(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function ReleaseButton({ id, owner }: { id: string; owner: string }) {
-  return (
-    <form
-      action={releaseOwner.bind(null, id)}
-      onSubmit={(e) => {
-        if (
-          !window.confirm(
-            `Release ${owner} from this listing?\n\nThey'll lose access, but all the profile content stays. ` +
-              `You can then copy the claim link and send it to whoever should own it next.`,
-          )
-        ) {
-          e.preventDefault();
-        }
-      }}
-    >
-      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">
-        Release &amp; re-invite
-      </button>
-    </form>
-  );
 }
 
 function CopyClaimLink({ token, siteUrl }: { token: string; siteUrl: string }) {
@@ -180,7 +159,14 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
                         <span style={{ fontSize: "0.75rem", color: "var(--p-muted)" }}>
                           Claimed{s.profiles?.display_name ? ` by ${s.profiles.display_name}` : ""}
                         </span>
-                        <ReleaseButton id={s.id} owner={s.profiles?.display_name ?? "the current owner"} />
+                        <ActionButton
+                          action={releaseOwner.bind(null, s.id)}
+                          pendingText="Releasing…"
+                          className={`${styles.btnSmall} ${styles.btnDanger}`}
+                          confirm={`Release ${s.profiles?.display_name ?? "the current owner"} from this listing?\n\nThey'll lose access, but all the profile content stays. You can then copy the claim link and send it to whoever should own it next.`}
+                        >
+                          Release &amp; re-invite
+                        </ActionButton>
                       </>
                     ) : s.claim_token ? (
                       <CopyClaimLink token={s.claim_token} siteUrl={siteUrl} />
@@ -204,38 +190,38 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
                 <td>{fmt(s.created_at)}</td>
                 <td className={styles.actions}>
                   {s.status !== "published" && (
-                    <form action={moderateService.bind(null, s.id, "published")}>
-                      <button className={styles.btnSmall} type="submit">Publish</button>
-                    </form>
+                    <ActionButton action={moderateService.bind(null, s.id, "published")} pendingText="…" className={styles.btnSmall}>
+                      Publish
+                    </ActionButton>
                   )}
                   {s.status !== "removed" && (
-                    <form action={moderateService.bind(null, s.id, "removed")}>
-                      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove</button>
-                    </form>
+                    <ActionButton action={moderateService.bind(null, s.id, "removed")} pendingText="…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                      Remove
+                    </ActionButton>
                   )}
                   {s.is_featured ? (
-                    <form action={setFeatured.bind(null, s.id, false)}>
-                      <button className={styles.btnSmall} type="submit">Un-trust</button>
-                    </form>
+                    <ActionButton action={setFeatured.bind(null, s.id, false)} pendingText="…" className={styles.btnSmall}>
+                      Un-trust
+                    </ActionButton>
                   ) : (
-                    <form action={setFeatured.bind(null, s.id, true)}>
-                      <button className={`${styles.btnSmall} ${styles.btnTrust}`} type="submit">Make trusted</button>
-                    </form>
+                    <ActionButton action={setFeatured.bind(null, s.id, true)} pendingText="…" className={`${styles.btnSmall} ${styles.btnTrust}`}>
+                      Make trusted
+                    </ActionButton>
                   )}
-                  <form action={setVerified.bind(null, s.id, !s.verified)}>
-                    <button className={styles.btnSmall} type="submit">{s.verified ? "Unverify" : "Verify"}</button>
-                  </form>
-                  <form action={setFounding.bind(null, s.id, !s.founding)}>
-                    <button className={styles.btnSmall} type="submit">{s.founding ? "Un-found" : "Founding"}</button>
-                  </form>
+                  <ActionButton action={setVerified.bind(null, s.id, !s.verified)} pendingText="…" className={styles.btnSmall}>
+                    {s.verified ? "Unverify" : "Verify"}
+                  </ActionButton>
+                  <ActionButton action={setFounding.bind(null, s.id, !s.founding)} pendingText="…" className={styles.btnSmall}>
+                    {s.founding ? "Un-found" : "Founding"}
+                  </ActionButton>
                   {s.google_place_id === "SKIP" ? (
-                    <form action={recheckRating.bind(null, s.id)}>
-                      <button className={styles.btnSmall} type="submit">Re-check Google</button>
-                    </form>
+                    <ActionButton action={recheckRating.bind(null, s.id)} pendingText="…" className={styles.btnSmall}>
+                      Re-check Google
+                    </ActionButton>
                   ) : (s.google_rating != null || s.google_place_id) ? (
-                    <form action={clearRating.bind(null, s.id)}>
-                      <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Clear rating</button>
-                    </form>
+                    <ActionButton action={clearRating.bind(null, s.id)} pendingText="…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                      Clear rating
+                    </ActionButton>
                   ) : null}
                 </td>
               </tr>
