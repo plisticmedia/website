@@ -29,10 +29,14 @@ set embed_url = 'https://www.youtube.com/watch?v=72hK6FUmm8o',
     image_url = null
 where title = 'Scotland''s screens fill up: a bumper year of productions';
 
--- Sector reports with no single on-topic official video — remove interim photos
--- so they read as clean text stories.
+-- Screen Scotland skills story — embed the official Screen Scotland Showreel
+-- (Creative Scotland's Vimeo). A cleared sector showreel, on-topic. Drop photo.
+update showcase_items
+set embed_url = 'https://vimeo.com/1186171885',
+    image_url = null
+where title = 'Skills take centre stage for Scotland''s screen sector';
+
+-- BAFTA look-ahead — no single on-topic official video yet; remove interim photo
+-- so it reads as a clean text story until a press-cleared image is available.
 update showcase_items set image_url = null
-where title in (
-  'Skills take centre stage for Scotland''s screen sector',
-  'BAFTA looks ahead to a big 2026 for Scotland'
-);
+where title = 'BAFTA looks ahead to a big 2026 for Scotland';
