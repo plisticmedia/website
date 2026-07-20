@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt, ShieldCheck, Search, Store } from "lucide-react";
+import { ClipboardList, Inbox, UserRound, Wallet, ShoppingBag, Receipt, ShieldCheck, Search, Store, Users } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
@@ -93,6 +93,12 @@ export default async function DashboardPage({
                   title="Sales"
                   body="Bookings buyers have made. Mark work delivered to release your payout."
                   href="/dashboard/sales"
+                />
+                <DashboardCard
+                  icon={<Users aria-hidden="true" size={20} />}
+                  title="My network"
+                  body="Map who you've worked with. Confirmed collaborations show on your profile."
+                  href="/dashboard/network"
                 />
               </>
             )}

@@ -9,6 +9,7 @@ import { ListingsManager } from "./ListingsManager";
 import { ActionButton } from "@/components/ActionButton";
 import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
+import { getPeerFeedbackForAdmin } from "@/lib/peers";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
@@ -49,6 +50,7 @@ export default async function AdminPage() {
     ]);
 
   const showcasePending = await getPendingShowcaseItems();
+  const peerFeedback = await getPeerFeedbackForAdmin();
 
   const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.plisticmedia.com").replace(/\/$/, "");
@@ -193,6 +195,42 @@ export default async function AdminPage() {
                         <td>{s.notify_stories ? "Yes" : "—"}</td>
                         <td>{s.marketing ? "Yes" : "—"}</td>
                         <td>{new Date(s.created_at).toLocaleDateString("en-GB")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Peer feedback — private B2B signal, never shown publicly */}
+          <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+            <h3 style={{ margin: "0 0 0.3rem" }}>Peer feedback ({peerFeedback.length}) <span style={{ fontWeight: 400, fontSize: "0.85rem", color: "var(--p-muted)" }}>· private</span></h3>
+            <p style={{ margin: "0 0 0.6rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+              Businesses&apos; private feedback on confirmed collaborators. Never shown publicly or to the rated business —
+              use it to steer who you feature and recommend.
+            </p>
+            {peerFeedback.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--p-muted)" }}>No peer feedback yet.</p>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr><th>About</th><th>From</th><th>Again?</th><th>Rel/Com/Qual</th><th>Note</th><th>Date</th></tr>
+                  </thead>
+                  <tbody>
+                    {peerFeedback.map((f) => (
+                      <tr key={f.id}>
+                        <td>{f.subject}</td>
+                        <td>{f.rater}</td>
+                        <td>
+                          <span className={styles.badge} style={f.wouldWorkAgain === "no" ? { background: "rgba(200,40,40,0.12)", color: "#b42318" } : f.wouldWorkAgain === "mixed" ? { background: "rgba(180,105,14,0.12)", color: "#b4690e" } : undefined}>
+                            {f.wouldWorkAgain}
+                          </span>
+                        </td>
+                        <td>{[f.reliability, f.communication, f.quality].map((n) => n ?? "–").join(" / ")}</td>
+                        <td>{f.privateNote ?? "—"}</td>
+                        <td>{fmt(f.createdAt)}</td>
                       </tr>
                     ))}
                   </tbody>
