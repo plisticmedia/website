@@ -19,6 +19,7 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { toDisplayImage, initialOf } from "@/lib/images";
 import { LAUNCH_DATE } from "@/lib/claimInvite";
 import { claimListing, optOut } from "./actions";
+import { SubmitButton } from "@/components/SubmitButton";
 import styles from "./Claim.module.css";
 
 export const dynamic = "force-dynamic";
@@ -162,9 +163,9 @@ export default async function ClaimPage({
                       <input type="checkbox" name="marketing" />
                       <span>Keep me updated about Plistic (optional).</span>
                     </label>
-                    <button type="submit" className={`p-btn ${styles.cta}`}>
+                    <SubmitButton pendingText="Claiming…" className={`p-btn ${styles.cta}`}>
                       Claim this page <ArrowRight aria-hidden="true" size={18} />
-                    </button>
+                    </SubmitButton>
                   </form>
                 ) : (
                   <div className={styles.signinRow}>
@@ -186,7 +187,7 @@ export default async function ClaimPage({
                 </Link>
 
                 <form action={optOut.bind(null, token)} className={styles.optOut}>
-                  <button type="submit" className={styles.optOutBtn}>This isn&apos;t my business / remove it</button>
+                  <SubmitButton pendingText="Removing…" className={styles.optOutBtn}>This isn&apos;t my business / remove it</SubmitButton>
                 </form>
               </>
             )}

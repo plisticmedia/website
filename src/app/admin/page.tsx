@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { approveClaim, publishShowcaseItem, refundDispute, rejectClaim, releaseDispute, removeShowcaseItem, revokeAdmin } from "./actions";
 import { ListingsManager } from "./ListingsManager";
+import { ActionButton } from "@/components/ActionButton";
 import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
@@ -133,9 +134,14 @@ export default async function AdminPage() {
                       <td>{a.name ?? "—"}</td>
                       <td>{a.email ?? "—"}</td>
                       <td>
-                        <form action={revokeAdmin.bind(null, a.id)}>
-                          <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Remove admin</button>
-                        </form>
+                        <ActionButton
+                          action={revokeAdmin.bind(null, a.id)}
+                          pendingText="Removing…"
+                          className={`${styles.btnSmall} ${styles.btnDanger}`}
+                          confirm={`Remove admin access from ${a.name ?? a.email ?? "this person"}?`}
+                        >
+                          Remove admin
+                        </ActionButton>
                       </td>
                     </tr>
                   ))}
@@ -229,12 +235,12 @@ export default async function AdminPage() {
                         <td className={styles.actions}>
                           {d.orders?.id && (
                             <>
-                              <form action={refundDispute.bind(null, d.orders.id)}>
-                                <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Refund buyer</button>
-                              </form>
-                              <form action={releaseDispute.bind(null, d.orders.id)}>
-                                <button className={styles.btnSmall} type="submit">Release to seller</button>
-                              </form>
+                              <ActionButton action={refundDispute.bind(null, d.orders.id)} pendingText="Refunding…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                                Refund buyer
+                              </ActionButton>
+                              <ActionButton action={releaseDispute.bind(null, d.orders.id)} pendingText="Releasing…" className={styles.btnSmall}>
+                                Release to seller
+                              </ActionButton>
                             </>
                           )}
                         </td>
@@ -267,12 +273,12 @@ export default async function AdminPage() {
                         <td>{c.evidence ?? "—"}</td>
                         <td>{fmt(c.created_at)}</td>
                         <td className={styles.actions}>
-                          <form action={approveClaim.bind(null, c.id)}>
-                            <button className={styles.btnSmall} type="submit">Approve</button>
-                          </form>
-                          <form action={rejectClaim.bind(null, c.id)}>
-                            <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Reject</button>
-                          </form>
+                          <ActionButton action={approveClaim.bind(null, c.id)} pendingText="Approving…" className={styles.btnSmall}>
+                            Approve
+                          </ActionButton>
+                          <ActionButton action={rejectClaim.bind(null, c.id)} pendingText="Rejecting…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                            Reject
+                          </ActionButton>
                         </td>
                       </tr>
                     ))}
@@ -303,12 +309,12 @@ export default async function AdminPage() {
                           {!s.link_url && !s.embed_url ? "—" : null}
                         </td>
                         <td className={styles.actions}>
-                          <form action={publishShowcaseItem.bind(null, s.id)}>
-                            <button className={styles.btnSmall} type="submit">Publish</button>
-                          </form>
-                          <form action={removeShowcaseItem.bind(null, s.id)}>
-                            <button className={`${styles.btnSmall} ${styles.btnDanger}`} type="submit">Reject</button>
-                          </form>
+                          <ActionButton action={publishShowcaseItem.bind(null, s.id)} pendingText="Publishing…" className={styles.btnSmall}>
+                            Publish
+                          </ActionButton>
+                          <ActionButton action={removeShowcaseItem.bind(null, s.id)} pendingText="Rejecting…" className={`${styles.btnSmall} ${styles.btnDanger}`}>
+                            Reject
+                          </ActionButton>
                         </td>
                       </tr>
                     ))}
