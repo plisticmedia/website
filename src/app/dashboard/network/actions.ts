@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
+import { sendEmail, adminEmail, siteUrl } from "@/lib/email";
 
 type Svc = ReturnType<typeof createSupabaseServiceRoleClient>;
 
@@ -93,6 +94,32 @@ export async function removeCollaboration(connectionId: string) {
     (await ownsService(svc, profile.id, conn.peer_service_id as string));
   if (!owns) throw new Error("Not yours.");
   await svc.from("peer_connections").delete().eq("id", connectionId);
+  revalidatePath("/dashboard/network");
+}
+
+/** The business's public right-of-reply to its peer-confidence aggregate. */
+export async function savePeerReply(formData: FormData) {
+  const profile = await requireUser("/dashboard/network");
+  const myServiceId = String(formData.get("myServiceId") ?? "");
+  const reply = String(formData.get("reply") ?? "").trim().slice(0, 500) || null;
+  const svc = createSupabaseServiceRoleClient();
+  if (!(await ownsService(svc, profile.id, myServiceId))) throw new Error("That isn't your listing.");
+  await svc.from("services").update({ peer_reply: reply }).eq("id", myServiceId);
+  revalidatePath("/dashboard/network");
+}
+
+/** Flag the peer-confidence aggregate for admin review (dispute). */
+export async function disputePeerConfidence(myServiceId: string) {
+  const profile = await requireUser("/dashboard/network");
+  const svc = createSupabaseServiceRoleClient();
+  if (!(await ownsService(svc, profile.id, myServiceId))) throw new Error("That isn't your listing.");
+  await svc.from("services").update({ peer_confidence_disputed_at: new Date().toISOString() }).eq("id", myServiceId);
+  const { data: s } = await svc.from("services").select("title").eq("id", myServiceId).maybeSingle();
+  await sendEmail({
+    to: adminEmail(),
+    subject: `Peer confidence disputed: ${(s as { title?: string } | null)?.title ?? myServiceId}`,
+    text: `A business has disputed its peer-confidence score.\n\nReview it in the admin dashboard and hide the score if appropriate:\n${siteUrl()}/admin`,
+  });
   revalidatePath("/dashboard/network");
 }
 

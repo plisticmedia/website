@@ -2,6 +2,63 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export type PeerBusiness = { id: string; title: string; slug: string; logo_url: string | null };
 
+/**
+ * Minimum number of raters before an aggregate is ever computed or shown — even
+ * to the business itself — so no individual rater is identifiable.
+ */
+export const PEER_MIN_RATERS = 4;
+
+/** Whether the public peer-confidence aggregate is switched on. Off by default;
+ *  flip PEER_CONFIDENCE_PUBLIC=true only after legal sign-off. */
+export function peerConfidencePublic(): boolean {
+  return process.env.PEER_CONFIDENCE_PUBLIC === "true";
+}
+
+export type PeerConfidence = {
+  count: number;
+  wouldAgainPct: number; // % who said "yes"
+  positivePct: number; // % "yes" or "mixed"
+  reliability: number | null;
+  communication: number | null;
+  quality: number | null;
+};
+
+/**
+ * Aggregate peer feedback for a business, or null if there aren't enough raters
+ * to protect anonymity. Ignores the public flag and the admin hide switch — the
+ * caller decides whether to display it (public vs the business's own view).
+ */
+export async function getPeerConfidence(serviceId: string): Promise<PeerConfidence | null> {
+  const supabase = createSupabaseServiceRoleClient();
+  const { data } = await supabase
+    .from("peer_feedback")
+    .select("would_work_again, reliability, communication, quality")
+    .eq("subject_service_id", serviceId);
+  const rows = (data ?? []) as Array<{
+    would_work_again: string;
+    reliability: number | null;
+    communication: number | null;
+    quality: number | null;
+  }>;
+  if (rows.length < PEER_MIN_RATERS) return null;
+
+  const count = rows.length;
+  const yes = rows.filter((r) => r.would_work_again === "yes").length;
+  const positive = rows.filter((r) => r.would_work_again !== "no").length;
+  const avg = (key: "reliability" | "communication" | "quality") => {
+    const vals = rows.map((r) => r[key]).filter((v): v is number => typeof v === "number");
+    return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
+  };
+  return {
+    count,
+    wouldAgainPct: Math.round((yes / count) * 100),
+    positivePct: Math.round((positive / count) * 100),
+    reliability: avg("reliability"),
+    communication: avg("communication"),
+    quality: avg("quality"),
+  };
+}
+
 /** Confirmed collaborators of a listing (for the public profile "Worked with"). */
 export async function getConfirmedCollaborators(serviceId: string): Promise<PeerBusiness[]> {
   const supabase = createSupabaseServiceRoleClient();
@@ -19,6 +76,49 @@ export async function getConfirmedCollaborators(serviceId: string): Promise<Peer
     .in("id", otherIds)
     .eq("status", "published");
   return (svcs ?? []) as PeerBusiness[];
+}
+
+/**
+ * The peer-confidence block to show on a PUBLIC profile, or null. Applies every
+ * gate: the feature flag, a logged-in viewer, the admin hide switch, and the
+ * anonymity threshold. Returns the aggregate plus the business's right-of-reply.
+ */
+export async function getPublicPeerConfidence(
+  serviceId: string,
+  viewerLoggedIn: boolean,
+): Promise<{ confidence: PeerConfidence; reply: string | null } | null> {
+  if (!peerConfidencePublic() || !viewerLoggedIn) return null;
+  const supabase = createSupabaseServiceRoleClient();
+  const { data: svc } = await supabase
+    .from("services")
+    .select("peer_confidence_hidden, peer_reply")
+    .eq("id", serviceId)
+    .maybeSingle();
+  const row = svc as { peer_confidence_hidden?: boolean; peer_reply?: string | null } | null;
+  if (!row || row.peer_confidence_hidden) return null;
+  const confidence = await getPeerConfidence(serviceId);
+  if (!confidence) return null;
+  return { confidence, reply: row.peer_reply ?? null };
+}
+
+/** A business's own peer standing (for their dashboard) — always visible to
+ *  them above the anonymity threshold, regardless of the public flag. */
+export async function getPeerStanding(
+  serviceId: string,
+): Promise<{ confidence: PeerConfidence | null; reply: string | null; hidden: boolean; disputedAt: string | null }> {
+  const supabase = createSupabaseServiceRoleClient();
+  const { data } = await supabase
+    .from("services")
+    .select("peer_reply, peer_confidence_hidden, peer_confidence_disputed_at")
+    .eq("id", serviceId)
+    .maybeSingle();
+  const row = data as { peer_reply?: string | null; peer_confidence_hidden?: boolean; peer_confidence_disputed_at?: string | null } | null;
+  return {
+    confidence: await getPeerConfidence(serviceId),
+    reply: row?.peer_reply ?? null,
+    hidden: !!row?.peer_confidence_hidden,
+    disputedAt: row?.peer_confidence_disputed_at ?? null,
+  };
 }
 
 export type NetworkConnection = {
@@ -95,6 +195,23 @@ export async function getLinkableBusinesses(sellerId: string): Promise<PeerBusin
   return ((data ?? []) as Array<PeerBusiness & { seller_id: string | null }>)
     .filter((s) => s.seller_id !== sellerId)
     .map(({ id, title, slug, logo_url }) => ({ id, title, slug, logo_url }));
+}
+
+/** Admin-only: businesses that have flagged their peer-confidence for review. */
+export async function getDisputedPeerConfidence() {
+  const supabase = createSupabaseServiceRoleClient();
+  const { data } = await supabase
+    .from("services")
+    .select("id, title, slug, peer_confidence_hidden, peer_confidence_disputed_at")
+    .not("peer_confidence_disputed_at", "is", null)
+    .order("peer_confidence_disputed_at", { ascending: false });
+  return (data ?? []) as Array<{
+    id: string;
+    title: string;
+    slug: string;
+    peer_confidence_hidden: boolean;
+    peer_confidence_disputed_at: string;
+  }>;
 }
 
 /** Admin-only: all peer feedback with rater/subject titles, for the private view. */

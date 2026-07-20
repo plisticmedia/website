@@ -23,17 +23,21 @@ peer sentiment — including negatives — **without publishing anything defamat
   This is the "would have saved us hassle" mechanism — it protects users by
   informing curation, not by publishing accusations.
 
-### Layer 2 — Public "peer confidence" aggregate — SPEC'D, NOT BUILT / OFF
-The valuable-but-sensitive bit. **Deliberately not built for public display yet** —
-gated behind sign-off from a legal advice session. When/if enabled it would:
-- Show an **aggregate only**, and **only above a volume threshold** (e.g. ≥4–5 raters)
-  so no individual is identifiable and one grudge can't tank someone. Below threshold:
-  "Not enough peer feedback yet."
-- Be **honest**, including bad numbers (e.g. "45% would work again (n=9)") — no whitewash.
-- Show only to **logged-in verified businesses** weighing a collaboration — not the
-  open public / competitors / press.
-- Include a **right of reply** and a dispute/flag route for the rated business.
-- Never expose free-text or an individual's rating publicly.
+### Layer 2 — Public "peer confidence" aggregate — BUILT, OFF BY DEFAULT
+Fully built and wired, but **gated behind the `PEER_CONFIDENCE_PUBLIC` env flag**
+(unset/false = off). Flip it to `true` **only after the legal advice session** and
+the whole thing switches on. It:
+- Shows an **aggregate only**, and **only above a volume threshold** (`PEER_MIN_RATERS`,
+  currently 4) so no individual is identifiable and one grudge can't tank someone.
+  Below threshold: nothing shows (even to the business itself).
+- Is **honest**, including bad numbers (e.g. "45% would work again, from 9 peers") — no whitewash.
+- Shows only to **logged-in** viewers on the public profile — not anonymous public / press.
+- The business gets a **right of reply** (shown beside the score) and can **flag a dispute**,
+  which emails the admin; the admin can **hide** the score while reviewing (Admin → Peer-confidence disputes).
+- Never exposes free-text or an individual's rating publicly.
+
+**To switch it on (after sign-off):** set `PEER_CONFIDENCE_PUBLIC=true` in Vercel and redeploy.
+To adjust the anonymity threshold, change `PEER_MIN_RATERS` in `src/lib/peers.ts`.
 
 ## Data model (migration `0025_peer_network.sql`)
 - `peer_connections` (requester_service_id, peer_service_id, status, note, confirmed_at).

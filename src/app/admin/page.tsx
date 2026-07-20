@@ -4,12 +4,12 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { approveClaim, publishShowcaseItem, refundDispute, rejectClaim, releaseDispute, removeShowcaseItem, revokeAdmin } from "./actions";
+import { approveClaim, publishShowcaseItem, refundDispute, rejectClaim, releaseDispute, removeShowcaseItem, revokeAdmin, setPeerConfidenceHidden } from "./actions";
 import { ListingsManager } from "./ListingsManager";
 import { ActionButton } from "@/components/ActionButton";
 import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
-import { getPeerFeedbackForAdmin } from "@/lib/peers";
+import { getPeerFeedbackForAdmin, getDisputedPeerConfidence } from "@/lib/peers";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
@@ -51,6 +51,7 @@ export default async function AdminPage() {
 
   const showcasePending = await getPendingShowcaseItems();
   const peerFeedback = await getPeerFeedbackForAdmin();
+  const peerDisputes = await getDisputedPeerConfidence();
 
   const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.plisticmedia.com").replace(/\/$/, "");
@@ -202,6 +203,39 @@ export default async function AdminPage() {
               </div>
             )}
           </div>
+
+          {/* Peer-confidence disputes — hide a score while reviewing */}
+          {peerDisputes.length > 0 && (
+            <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+              <h3 style={{ margin: "0 0 0.3rem" }}>Peer-confidence disputes ({peerDisputes.length})</h3>
+              <p style={{ margin: "0 0 0.6rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+                Businesses that flagged their public peer score. Hide it while you look into it.
+              </p>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead><tr><th>Business</th><th>Flagged</th><th>Public score</th><th>Action</th></tr></thead>
+                  <tbody>
+                    {peerDisputes.map((d) => (
+                      <tr key={d.id}>
+                        <td><Link href={`/directory/${d.slug}`} target="_blank">{d.title}</Link></td>
+                        <td>{fmt(d.peer_confidence_disputed_at)}</td>
+                        <td>{d.peer_confidence_hidden ? "Hidden" : "Visible"}</td>
+                        <td className={styles.actions}>
+                          <ActionButton
+                            action={setPeerConfidenceHidden.bind(null, d.id, !d.peer_confidence_hidden)}
+                            pendingText="…"
+                            className={styles.btnSmall}
+                          >
+                            {d.peer_confidence_hidden ? "Show score" : "Hide score"}
+                          </ActionButton>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Peer feedback — private B2B signal, never shown publicly */}
           <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>

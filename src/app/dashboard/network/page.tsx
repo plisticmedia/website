@@ -4,10 +4,26 @@ import { Check, Handshake, Users, X } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
-import { getSellerNetwork, getLinkableBusinesses, type NetworkConnection } from "@/lib/peers";
+import {
+  getSellerNetwork,
+  getLinkableBusinesses,
+  getPeerStanding,
+  peerConfidencePublic,
+  PEER_MIN_RATERS,
+  type NetworkConnection,
+  type PeerBusiness,
+} from "@/lib/peers";
 import { ActionButton } from "@/components/ActionButton";
 import { SubmitButton } from "@/components/SubmitButton";
-import { addCollaboration, confirmCollaboration, declineCollaboration, removeCollaboration, submitPeerFeedback } from "./actions";
+import {
+  addCollaboration,
+  confirmCollaboration,
+  declineCollaboration,
+  disputePeerConfidence,
+  removeCollaboration,
+  savePeerReply,
+  submitPeerFeedback,
+} from "./actions";
 import styles from "./Network.module.css";
 
 export const metadata: Metadata = { title: "My network | Plistic" };
@@ -17,6 +33,11 @@ export default async function NetworkPage() {
   const profile = await requireUser("/dashboard/network");
   const [network, linkable] = await Promise.all([getSellerNetwork(profile.id), getLinkableBusinesses(profile.id)]);
   const { confirmed, incoming, outgoing, myServices } = network;
+  const standings = await Promise.all(
+    myServices.map(async (s) => ({ service: s, ...(await getPeerStanding(s.id)) })),
+  );
+  const showConfidence = standings.some((st) => st.confidence);
+  const isPublic = peerConfidencePublic();
 
   return (
     <>
@@ -39,6 +60,32 @@ export default async function NetworkPage() {
             </p>
           ) : (
             <>
+              {/* The business's own peer standing */}
+              {showConfidence && (
+                <section className={styles.block}>
+                  <h2 className={styles.h2}>Your peer confidence</h2>
+                  <p className={styles.hint} style={{ marginTop: 0 }}>
+                    {isPublic
+                      ? "This aggregate is shown to signed-in businesses on your public profile."
+                      : "Not shown publicly yet. You can see it here, and reply in advance."}
+                  </p>
+                  {standings.map((st) =>
+                    st.confidence ? (
+                      <StandingCard
+                        key={st.service.id}
+                        service={st.service}
+                        showLabel={myServices.length > 1}
+                        wouldAgainPct={st.confidence.wouldAgainPct}
+                        count={st.confidence.count}
+                        reply={st.reply}
+                        disputed={!!st.disputedAt}
+                        hidden={st.hidden}
+                      />
+                    ) : null,
+                  )}
+                </section>
+              )}
+
               {/* Incoming requests to confirm */}
               {incoming.length > 0 && (
                 <section className={styles.block}>
@@ -156,6 +203,57 @@ export default async function NetworkPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function StandingCard({
+  service,
+  showLabel,
+  wouldAgainPct,
+  count,
+  reply,
+  disputed,
+  hidden,
+}: {
+  service: PeerBusiness;
+  showLabel: boolean;
+  wouldAgainPct: number;
+  count: number;
+  reply: string | null;
+  disputed: boolean;
+  hidden: boolean;
+}) {
+  return (
+    <div className={styles.rowCol}>
+      <div className={styles.rowTop}>
+        <div>
+          {showLabel ? <div className={styles.note}>{service.title}</div> : null}
+          <strong style={{ fontSize: "1.4rem", color: "var(--p-azure-deep)" }}>{wouldAgainPct}%</strong>{" "}
+          would work with you again <span className={styles.note}>· from {count} peers</span>
+          {hidden ? <div className={styles.note}>Currently hidden by an admin while a dispute is reviewed.</div> : null}
+        </div>
+        <ActionButton
+          action={disputePeerConfidence.bind(null, service.id)}
+          pendingText="…"
+          className={`${styles.btnSmall} ${styles.btnGhost}`}
+          confirm="Flag this score for admin review? Use this if you think it's unfair or wrong."
+        >
+          {disputed ? "Disputed ✓" : "Dispute"}
+        </ActionButton>
+      </div>
+      <details className={styles.feedback}>
+        <summary>Add a public reply</summary>
+        <p className={styles.privacyNote}>Shown next to your score on your profile — your chance to add context.</p>
+        <form action={savePeerReply} className={styles.fbForm}>
+          <input type="hidden" name="myServiceId" value={service.id} />
+          <label className={styles.field}>
+            <span>Your reply (optional, max 500 chars)</span>
+            <textarea name="reply" rows={2} maxLength={500} defaultValue={reply ?? ""} />
+          </label>
+          <SubmitButton pendingText="Saving…" className={styles.btnSmall}>Save reply</SubmitButton>
+        </form>
+      </details>
+    </div>
   );
 }
 
