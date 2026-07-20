@@ -141,8 +141,7 @@ export default async function ClaimPage({
 
                 <h2 className={styles.q}>This page is already built — it&apos;s yours to claim.</h2>
                 <p className={styles.lead}>
-                  We put {svc.title} on Plistic, the new home for Scotland&apos;s creative and media scene. Claiming it
-                  takes about two minutes, it&apos;s completely free, and then you&apos;re in control.
+                  {`We put ${svc.title} on Plistic, the new home for Scotland’s creative and media scene. Claiming it takes about two minutes, it’s completely free, and then you’re in control.`}
                 </p>
 
                 <ul className={styles.benefits}>
@@ -168,16 +167,18 @@ export default async function ClaimPage({
                     </button>
                   </form>
                 ) : (
-                  <>
+                  <div className={styles.signinRow}>
                     <Link href={`/login?next=${encodeURIComponent(`/claim/${token}`)}`} className={`p-btn ${styles.cta}`}>
                       Sign in to claim your page <ArrowRight aria-hidden="true" size={18} />
                     </Link>
                     <p className={styles.hint}>
                       <Clock aria-hidden="true" size={14} />
-                      You&apos;ll sign in with your email — that&apos;s how we confirm it&apos;s you. Use your business
-                      email (the one on your website) and it&apos;s approved instantly.
+                      <span>
+                        You&apos;ll sign in with your email — that&apos;s how we confirm it&apos;s you. Use your business
+                        email (the one on your website) and it&apos;s approved instantly.
+                      </span>
                     </p>
-                  </>
+                  </div>
                 )}
 
                 <Link href={`/directory/${svc.slug}`} className={styles.preview}>

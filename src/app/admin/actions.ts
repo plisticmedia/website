@@ -377,6 +377,7 @@ export async function publishShowcaseItem(id: string) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
+  revalidatePath("/admin/showcase");
   revalidatePath("/showcase");
 }
 
@@ -387,6 +388,7 @@ export async function removeShowcaseItem(id: string) {
   const { error } = await supabase.from("showcase_items").update({ status: "removed" }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
+  revalidatePath("/admin/showcase");
   revalidatePath("/showcase");
 }
 
@@ -397,6 +399,7 @@ export async function toggleShowcaseFeatured(id: string, featured: boolean) {
   const { error } = await supabase.from("showcase_items").update({ is_featured: featured }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
+  revalidatePath("/admin/showcase");
   revalidatePath("/showcase");
 }
 

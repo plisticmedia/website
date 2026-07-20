@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Compass, LayoutDashboard, LogIn, Menu, Sparkles, Store, X } from "lucide-react";
 import { bookingPagePath, brand, caseStudies, navItems, services } from "@/data/site";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -20,6 +21,14 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   // null = still checking; used to avoid a sign-in/dashboard flash.
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const pathname = usePathname();
+
+  // Close the mobile drawer whenever the route changes. This is the reliable
+  // close signal — closing only in each link's onClick can unmount the tapped
+  // link mid-navigation on mobile, which can swallow the tap.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     let active = true;
