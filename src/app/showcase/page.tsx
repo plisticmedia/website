@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getShowcaseItems, showcaseHref, showcaseThumb, toShowcaseEmbed, type ShowcaseItem, type ShowcaseKind } from "@/lib/showcase";
 import { getSessionProfile } from "@/lib/auth";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { ShowcaseThumb } from "@/components/ShowcaseThumb";
 import styles from "./Showcase.module.css";
 
 export const metadata: Metadata = {
@@ -40,31 +41,29 @@ function ShowcaseCard({ item, featured = false, isAdmin = false }: { item: Showc
     ? new Date(item.event_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
 
+  const media = (
+    <div className={styles.media}>
+      <ShowcaseThumb
+        src={thumb}
+        alt={item.title}
+        kindLabel={labelForKind(item.kind)}
+        placeholderClassName={styles.mediaPlaceholder}
+      />
+      {hasVideo && (
+        <span className={styles.playBadge} aria-hidden="true">
+          <Play size={featured ? 26 : 20} fill="currentColor" />
+        </span>
+      )}
+    </div>
+  );
+
   return (
     <article className={`${styles.card} ${featured ? styles.cardFeatured : ""}`}>
-      {thumb ? (
-        <InternalOrExternal href={href ?? "#"} className={styles.mediaLink}>
-          <div className={styles.media}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={thumb} alt={item.title} loading="lazy" />
-            {hasVideo && (
-              <span className={styles.playBadge} aria-hidden="true">
-                <Play size={featured ? 26 : 20} fill="currentColor" />
-              </span>
-            )}
-          </div>
-        </InternalOrExternal>
-      ) : hasVideo ? (
-        <div className={styles.media}>
-          <iframe
-            src={toShowcaseEmbed(item.embed_url) ?? ""}
-            title={item.title}
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      ) : null}
+      {href ? (
+        <InternalOrExternal href={href} className={styles.mediaLink}>{media}</InternalOrExternal>
+      ) : (
+        media
+      )}
 
       <div className={styles.cardBody}>
         <div className={styles.metaRow}>

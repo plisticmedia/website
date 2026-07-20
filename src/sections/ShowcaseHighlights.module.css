@@ -61,7 +61,15 @@
 .card:hover .media img { transform: scale(1.04); }
 .mediaEmpty {
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, #12303f, #0d1117);
+  display: grid; place-items: center;
+  background:
+    radial-gradient(120% 120% at 15% 0%, rgba(31, 170, 233, 0.25), transparent 55%),
+    linear-gradient(135deg, #12303f, #0d1117);
+}
+.mediaEmpty span {
+  font-size: 0.64rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.26); padding: 0.25rem 0.6rem; border-radius: 6px;
 }
 .play {
   position: absolute; inset: 0; margin: auto;

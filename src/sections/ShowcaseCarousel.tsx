@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ShowcaseThumb } from "@/components/ShowcaseThumb";
 import styles from "./ShowcaseHighlights.module.css";
 
 export type ShowcaseCardData = {
@@ -32,12 +33,12 @@ export function ShowcaseCarousel({ cards }: { cards: ShowcaseCardData[] }) {
           <article className={styles.card} key={c.id}>
             <Link href={c.href ?? "/showcase"} className={styles.cardLink}>
               <div className={styles.media}>
-                {c.thumb ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={c.thumb} alt={c.title} loading="lazy" />
-                ) : (
-                  <div className={styles.mediaEmpty} aria-hidden="true" />
-                )}
+                <ShowcaseThumb
+                  src={c.thumb}
+                  alt={c.title}
+                  kindLabel={c.kindLabel}
+                  placeholderClassName={styles.mediaEmpty}
+                />
                 {c.hasVideo && (
                   <span className={styles.play} aria-hidden="true">
                     <Play size={20} fill="currentColor" />
