@@ -14,6 +14,7 @@ import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
 import { BookButton } from "./BookButton";
+import { ProfileShowreel } from "./ProfileShowreel";
 import { requestClaim } from "./actions";
 import styles from "./Listing.module.css";
 
@@ -287,7 +288,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     );
                   }
                   return m.kind === "video" ? (
-                    <video key={m.id} src={m.url} controls className={styles.galleryItem} />
+                    <ProfileShowreel key={m.id} src={m.url} />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={m.id} src={m.url} alt="" loading="lazy" className={styles.galleryItem} />
