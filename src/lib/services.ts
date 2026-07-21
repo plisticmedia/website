@@ -132,6 +132,7 @@ export type CompareRow = {
   fromPrice: number;
   deliveryDays: number | null;
   isFeatured: boolean;
+  bookable: boolean; // cheapest package is bookable AND the seller can take payouts
 };
 
 /**
@@ -162,10 +163,11 @@ export async function getComparableServices(
   const rows: CompareRow[] = [];
   const cats = new Map<string, string>();
   for (const r of (data ?? []) as unknown as Row[]) {
-    if (!r.profiles?.payouts_enabled) continue;
-    const bookable = r.service_packages.filter((p) => p.is_bookable && typeof p.price_gbp === "number" && p.price_gbp > 0);
-    if (bookable.length === 0) continue;
-    const cheapest = bookable.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b));
+    // Any package with a real price counts — display or bookable — so buyers can
+    // compare and enquire even before a seller has switched on online booking.
+    const priced = r.service_packages.filter((p) => typeof p.price_gbp === "number" && p.price_gbp > 0);
+    if (priced.length === 0) continue;
+    const cheapest = priced.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b));
     if (r.categories?.slug) cats.set(r.categories.slug, r.categories.name);
     rows.push({
       slug: r.slug,
@@ -178,6 +180,7 @@ export async function getComparableServices(
       fromPrice: cheapest.price_gbp as number,
       deliveryDays: cheapest.delivery_days,
       isFeatured: r.is_featured,
+      bookable: !!cheapest.is_bookable && !!r.profiles?.payouts_enabled,
     });
   }
 
