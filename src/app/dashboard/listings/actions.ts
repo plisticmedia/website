@@ -383,18 +383,25 @@ export async function uploadMedia(
 }
 
 /**
- * Add a showreel / video to the portfolio gallery from a YouTube or Vimeo link.
- * Stored as a `kind: "embed"` media row; the public profile renders it as a
- * responsive iframe.
+ * Add a showreel / video to the portfolio gallery from a YouTube, Vimeo or
+ * Google Drive link. Stored as a `kind: "embed"` media row; the public profile
+ * renders it as a responsive iframe. Returns a serializable result instead of
+ * throwing, so the client can show a gentle inline message.
  */
-export async function addEmbed(serviceId: string, formData: FormData) {
+export async function addEmbed(
+  serviceId: string,
+  formData: FormData,
+): Promise<{ ok: boolean; error: string | null }> {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
   const url = str(formData, "showreel", 400);
-  if (!url) throw new Error("Please paste a YouTube or Vimeo link.");
+  if (!url) return { ok: false, error: "Please paste a video link." };
   if (!toEmbedUrl(url)) {
-    throw new Error("That doesn't look like a YouTube or Vimeo link.");
+    return {
+      ok: false,
+      error: "That link isn't recognised. Paste a YouTube, Vimeo or Google Drive link.",
+    };
   }
 
   // Confirm ownership before writing the child row.
@@ -404,14 +411,15 @@ export async function addEmbed(serviceId: string, formData: FormData) {
     .eq("id", serviceId)
     .eq("seller_id", profile.id)
     .maybeSingle();
-  if (!owned) throw new Error("Listing not found.");
+  if (!owned) return { ok: false, error: "Listing not found." };
 
   const { error } = await supabase
     .from("service_media")
     .insert({ service_id: serviceId, url, kind: "embed" });
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath(`/dashboard/listings/${serviceId}`);
+  return { ok: true, error: null };
 }
 
 export async function deleteMedia(id: string, serviceId: string) {

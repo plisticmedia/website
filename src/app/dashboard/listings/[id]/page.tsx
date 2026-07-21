@@ -8,7 +8,6 @@ import { requireUser } from "@/lib/auth";
 import { getCategories, getLocations, getSellerServiceById } from "@/lib/services";
 import { getListingInsights } from "@/lib/insights";
 import {
-  addEmbed,
   addPackage,
   deleteListing,
   deleteMedia,
@@ -21,6 +20,7 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PhotoUploader } from "./PhotoUploader";
 import { LogoUploader } from "./LogoUploader";
+import { VideoEmbedForm } from "./VideoEmbedForm";
 import styles from "../Listings.module.css";
 
 export const metadata: Metadata = { title: "Edit listing | Plistic" };
@@ -272,7 +272,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           {/* Showreel / video */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Showreel &amp; video</h2>
-            <p className={styles.sub}>Paste a YouTube or Vimeo link and it plays right on your profile.</p>
+            <p className={styles.sub}>Paste a YouTube, Vimeo or Google Drive link and it plays right on your profile. For a Google Drive video, set its sharing to <strong>&ldquo;Anyone with the link&rdquo;</strong> first, or it won&apos;t play for visitors.</p>
             {showreels.length > 0 && (
               <ul className={styles.packageList}>
                 {showreels.map((m) => (
@@ -287,10 +287,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 ))}
               </ul>
             )}
-            <form action={addEmbed.bind(null, service.id)} className={styles.uploadForm}>
-              <input name="showreel" type="url" required placeholder="https://youtube.com/watch?v=… or vimeo.com/…" style={{ flex: 1, minWidth: "240px" }} />
-              <button type="submit" className="p-btn p-btn--ghost">Add video</button>
-            </form>
+            <VideoEmbedForm serviceId={service.id} />
           </div>
 
           {/* Packages */}
