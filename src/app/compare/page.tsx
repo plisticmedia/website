@@ -18,13 +18,30 @@ function gbp(n: number) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);
 }
 
+const SORTS: Array<{ key: string; label: string }> = [
+  { key: "price", label: "Cheapest first" },
+  { key: "price_desc", label: "Most expensive" },
+  { key: "rating", label: "Top rated" },
+];
+
 export default async function ComparePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string; max?: string }>;
 }) {
-  const { category } = await searchParams;
-  const { rows, categories } = await getComparableServices(category);
+  const { category, sort, max } = await searchParams;
+  const maxPrice = max && /^\d+$/.test(max) ? Number(max) : undefined;
+  const activeSort = SORTS.some((s) => s.key === sort) ? (sort as string) : "price";
+  const { rows, categories } = await getComparableServices(category, activeSort, maxPrice);
+
+  // Build a /compare URL preserving the other filters.
+  const urlWith = (patch: Record<string, string | undefined>) => {
+    const p = new URLSearchParams();
+    const merged = { category, sort: activeSort === "price" ? undefined : activeSort, max, ...patch };
+    for (const [k, v] of Object.entries(merged)) if (v) p.set(k, v);
+    const qs = p.toString();
+    return qs ? `/compare?${qs}` : "/compare";
+  };
 
   return (
     <>
@@ -45,13 +62,13 @@ export default async function ComparePage({
         <section className={`p-container ${styles.body}`}>
           {categories.length > 0 && (
             <div className={styles.filters}>
-              <Link href="/compare" className={!category ? styles.chipActive : styles.chip}>
+              <Link href={urlWith({ category: undefined })} className={!category ? styles.chipActive : styles.chip}>
                 All
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.slug}
-                  href={`/compare?category=${c.slug}`}
+                  href={urlWith({ category: c.slug })}
                   className={category === c.slug ? styles.chipActive : styles.chip}
                 >
                   {titleCaseName(c.name)}
@@ -59,6 +76,30 @@ export default async function ComparePage({
               ))}
             </div>
           )}
+
+          <div className={styles.controls}>
+            <div className={styles.sorts} aria-label="Sort">
+              {SORTS.map((s) => (
+                <Link
+                  key={s.key}
+                  href={urlWith({ sort: s.key === "price" ? undefined : s.key })}
+                  className={activeSort === s.key ? styles.chipActive : styles.chip}
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+            <form className={styles.maxForm} action="/compare" method="get">
+              {category && <input type="hidden" name="category" value={category} />}
+              {activeSort !== "price" && <input type="hidden" name="sort" value={activeSort} />}
+              <label>
+                Max £
+                <input type="number" name="max" min="0" step="50" defaultValue={max ?? ""} placeholder="any" />
+              </label>
+              <button type="submit" className={styles.chip}>Apply</button>
+              {maxPrice ? <Link href={urlWith({ max: undefined })} className={styles.clearMax}>clear</Link> : null}
+            </form>
+          </div>
 
           {rows.length === 0 ? (
             <p className={styles.empty}>

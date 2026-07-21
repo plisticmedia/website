@@ -142,6 +142,8 @@ export type CompareRow = {
  */
 export async function getComparableServices(
   categorySlug?: string,
+  sort?: string,
+  maxPrice?: number,
 ): Promise<{ rows: CompareRow[]; categories: Array<{ slug: string; name: string }> }> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
@@ -184,8 +186,18 @@ export async function getComparableServices(
     });
   }
 
-  const filtered = categorySlug ? rows.filter((r) => r.categorySlug === categorySlug) : rows;
-  filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.fromPrice - b.fromPrice);
+  let filtered = categorySlug ? rows.filter((r) => r.categorySlug === categorySlug) : rows;
+  if (typeof maxPrice === "number" && maxPrice > 0) filtered = filtered.filter((r) => r.fromPrice <= maxPrice);
+
+  if (sort === "price_desc") {
+    filtered.sort((a, b) => b.fromPrice - a.fromPrice);
+  } else if (sort === "rating") {
+    filtered.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1) || a.fromPrice - b.fromPrice);
+  } else {
+    // Default: featured first, then cheapest.
+    filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.fromPrice - b.fromPrice);
+  }
+
   const categories = [...cats.entries()].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name));
   return { rows: filtered, categories };
 }

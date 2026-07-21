@@ -50,3 +50,17 @@
   font-weight: 600; color: var(--p-azure-deep, #0c6f9e); text-decoration: none;
 }
 .viewBtn:hover { text-decoration: underline; }
+
+/* Sort + max-price controls */
+.controls {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; margin: 0.4rem 0 1.2rem;
+}
+.sorts { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.maxForm { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+.maxForm label { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; }
+.maxForm input {
+  width: 90px; font: inherit; padding: 0.35rem 0.5rem;
+  border: 1px solid var(--p-line); border-radius: 8px;
+}
+.clearMax { font-size: 0.85rem; color: var(--p-muted); }
