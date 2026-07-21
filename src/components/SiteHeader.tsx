@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Compass, LayoutDashboard, LogIn, Menu, Sparkles, Store, X } from "lucide-react";
-import { bookingPagePath, brand, caseStudies, navItems, services } from "@/data/site";
+import { bookingPagePath, brand, navItems } from "@/data/site";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   NavigationMenu,
@@ -78,123 +78,64 @@ export function SiteHeader() {
         viewport={false}
       >
         <NavigationMenuList className="primary-nav-list">
-          {navItems.slice(1).map((item) =>
-            item.label === "Services" ? (
-              <NavigationMenuItem
-                className="nav-mega"
-                key={item.href}
-                value="services"
-                onPointerEnter={() => setActiveMenu("services")}
-                onPointerLeave={() => setActiveMenu("")}
-                onFocus={() => setActiveMenu("services")}
-                onBlur={(event) => {
-                  const nextFocus = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+          {navItems.slice(1).map((item) => {
+            const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
 
-                  if (!event.currentTarget.contains(nextFocus)) {
-                    setActiveMenu("");
-                  }
-                }}
-              >
-                <NavigationMenuTrigger
-                  className="nav-mega-trigger"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveMenu((current) => (current === "services" ? "" : "services"));
+            // Grouped item → dropdown menu.
+            if (item.children && item.children.length > 0) {
+              const menuKey = item.href;
+              return (
+                <NavigationMenuItem
+                  className="nav-mega"
+                  key={item.href}
+                  value={menuKey}
+                  onPointerEnter={() => setActiveMenu(menuKey)}
+                  onPointerLeave={() => setActiveMenu("")}
+                  onFocus={() => setActiveMenu(menuKey)}
+                  onBlur={(event) => {
+                    const nextFocus = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+                    if (!event.currentTarget.contains(nextFocus)) {
+                      setActiveMenu("");
+                    }
                   }}
                 >
-                  <span>{item.label}</span>
-                  <ChevronDown aria-hidden="true" size={13} />
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="nav-mega-panel" forceMount>
-                  <div className="nav-mega-head">
-                    <p>Services</p>
-                  </div>
-                  <div className="nav-mega-grid">
-                    {services.map((service, index) => {
-                      const href = service.href ?? item.href;
+                  <NavigationMenuTrigger
+                    className={item.highlight ? "nav-mega-trigger nav-trigger-pill" : "nav-mega-trigger"}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setActiveMenu((current) => (current === menuKey ? "" : menuKey));
+                    }}
+                  >
+                    {item.highlight && <HighlightIcon aria-hidden="true" size={15} />}
+                    <span>{item.label}</span>
+                    <ChevronDown aria-hidden="true" size={13} />
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent className="nav-drop-panel" forceMount>
+                    {item.children.map((child) => (
+                      <NavigationMenuLink asChild key={child.href}>
+                        <Link className="nav-drop-link" href={child.href}>
+                          <strong>{child.label}</strong>
+                          {child.description && <span>{child.description}</span>}
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              );
+            }
 
-                      return (
-                        <NavigationMenuLink asChild key={service.title}>
-                          <Link className="nav-mega-card" href={href} aria-label={`${service.title} service`}>
-                            <span className="nav-mega-num">
-                              {String(index + 1).padStart(2, "0")} / {String(services.length).padStart(2, "0")}
-                            </span>
-                            <strong>{service.title}</strong>
-                            <span>{service.summary}</span>
-                          </Link>
-                        </NavigationMenuLink>
-                      );
-                    })}
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            ) : item.label === "Our Work" ? (
-              <NavigationMenuItem
-                className="nav-mega"
-                key={item.href}
-                value="work"
-                onPointerEnter={() => setActiveMenu("work")}
-                onPointerLeave={() => setActiveMenu("")}
-                onFocus={() => setActiveMenu("work")}
-                onBlur={(event) => {
-                  const nextFocus = event.relatedTarget instanceof Node ? event.relatedTarget : null;
-
-                  if (!event.currentTarget.contains(nextFocus)) {
-                    setActiveMenu("");
-                  }
-                }}
-              >
-                <NavigationMenuTrigger
-                  className="nav-mega-trigger"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveMenu((current) => (current === "work" ? "" : "work"));
-                  }}
-                >
-                  <span>{item.label}</span>
-                  <ChevronDown aria-hidden="true" size={13} />
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="nav-mega-panel" forceMount>
-                  <div className="nav-mega-head">
-                    <p>Selected work</p>
-                  </div>
-                  <div className="nav-mega-grid">
-                    {caseStudies.map((study, index) => {
-                      const href = study.href ?? item.href;
-
-                      return (
-                        <NavigationMenuLink asChild key={study.client}>
-                          <Link className="nav-mega-card" href={href} aria-label={`${study.client} case study`}>
-                            <span className="nav-mega-num">
-                              {String(index + 1).padStart(2, "0")} / {String(caseStudies.length).padStart(2, "0")}
-                            </span>
-                            <strong>{study.client}</strong>
-                            <span>
-                              {study.service} - {study.description}
-                            </span>
-                          </Link>
-                        </NavigationMenuLink>
-                      );
-                    })}
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            ) : (
+            // Plain / highlighted single link.
+            return (
               <NavigationMenuItem key={item.href}>
                 <NavigationMenuLink asChild>
                   <Link href={item.href} className={item.highlight ? "nav-directory" : undefined}>
-                    {item.highlight &&
-                      (item.href === "/showcase" ? (
-                        <Sparkles aria-hidden="true" size={15} />
-                      ) : (
-                        <Compass aria-hidden="true" size={15} />
-                      ))}
+                    {item.highlight && <HighlightIcon aria-hidden="true" size={15} />}
                     {item.label}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            ),
-          )}
+            );
+          })}
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -230,23 +171,32 @@ export function SiteHeader() {
               </button>
             </div>
             <ul className="mobile-menu-list">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={item.highlight ? "mobile-nav-directory" : undefined}
-                  >
-                    {item.highlight &&
-                      (item.href === "/showcase" ? (
-                        <Sparkles aria-hidden="true" size={18} />
-                      ) : (
-                        <Compass aria-hidden="true" size={18} />
-                      ))}
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {navItems.map((item) => {
+                const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={item.highlight ? "mobile-nav-directory" : undefined}
+                    >
+                      {item.highlight && <HighlightIcon aria-hidden="true" size={18} />}
+                      {item.label}
+                    </Link>
+                    {item.children && item.children.length > 0 && (
+                      <ul className="mobile-submenu">
+                        {item.children.map((child) => (
+                          <li key={child.href}>
+                            <Link href={child.href} onClick={() => setMobileOpen(false)}>
+                              {child.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             <div className="mobile-menu-foot">
               <Link href="/list-your-business" className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>

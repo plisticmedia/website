@@ -9,7 +9,7 @@ import { ListingsManager } from "./ListingsManager";
 import { ActionButton } from "@/components/ActionButton";
 import { GrantAdminForm } from "./GrantAdminForm";
 import { getPendingShowcaseItems } from "@/lib/showcase";
-import { getPeerFeedbackForAdmin, getDisputedPeerConfidence } from "@/lib/peers";
+import { getPeerFeedbackForAdmin, getDisputedPeerConfidence, peerConfidencePublic } from "@/lib/peers";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { GeocodeButton } from "./GeocodeButton";
 import { RatingsButton } from "./RatingsButton";
@@ -114,6 +114,27 @@ export default async function AdminPage() {
               Write &amp; manage showcase stories →
             </Link>
           </p>
+          {process.env.SITE_LIVE === "true" && peerConfidencePublic() && (
+            <div
+              role="alert"
+              style={{
+                margin: "0 0 1.4rem",
+                padding: "1rem 1.2rem",
+                border: "1px solid #b4690e",
+                borderRadius: 12,
+                background: "rgba(180,105,14,0.08)",
+                color: "var(--p-ink)",
+              }}
+            >
+              <strong>⚠️ Launch reminder — peer confidence is publicly visible.</strong>
+              <p style={{ margin: "0.3rem 0 0", fontSize: "0.92rem", lineHeight: 1.5 }}>
+                The site is now live and the peer-confidence ratings are showing to signed-in visitors. If you
+                haven&apos;t had legal sign-off yet, hide them by setting{" "}
+                <code>PEER_CONFIDENCE_PUBLIC=false</code> in your Vercel environment variables and redeploying.
+                This banner disappears once it&apos;s hidden.
+              </p>
+            </div>
+          )}
           {(missingGeo.count ?? 0) > 0 && <GeocodeButton remaining={missingGeo.count ?? 0} />}
           <RatingsButton />
           <ConsolidateButton />
