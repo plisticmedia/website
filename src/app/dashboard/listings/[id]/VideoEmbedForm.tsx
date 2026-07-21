@@ -46,7 +46,7 @@ export function VideoEmbedForm({ serviceId }: { serviceId: string }) {
       <input
         ref={inputRef}
         type="url"
-        placeholder="https://youtube.com/watch?v=… , vimeo.com/… or a Google Drive link"
+        placeholder="YouTube, Vimeo, Google Drive — or a direct .mp4 link"
         style={{ flex: 1, minWidth: "240px" }}
         disabled={busy}
         onChange={() => setError(null)}

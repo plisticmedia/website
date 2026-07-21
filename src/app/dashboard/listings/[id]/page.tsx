@@ -61,8 +61,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const social = service.social_links ?? {};
   const packages = [...service.service_packages].sort((a, b) => a.sort_order - b.sort_order);
   const media = [...service.service_media].sort((a, b) => a.sort_order - b.sort_order);
-  const photos = media.filter((m) => m.kind !== "embed");
-  const showreels = media.filter((m) => m.kind === "embed");
+  const photos = media.filter((m) => m.kind === "image");
+  const showreels = media.filter((m) => m.kind === "embed" || m.kind === "video");
 
   // Bookable packages need a payout account; gate the option on that.
   const supabase = await createSupabaseServerClient();
@@ -272,7 +272,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           {/* Showreel / video */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Showreel &amp; video</h2>
-            <p className={styles.sub}>Paste a YouTube, Vimeo or Google Drive link and it plays right on your profile. For a Google Drive video, set its sharing to <strong>&ldquo;Anyone with the link&rdquo;</strong> first, or it won&apos;t play for visitors.</p>
+            <p className={styles.sub}>Paste a YouTube, Vimeo or Google Drive link — or a direct link to an <strong>.mp4</strong> video file — and it plays right on your profile. For a Google Drive video, set its sharing to <strong>&ldquo;Anyone with the link&rdquo;</strong> first, or it won&apos;t play for visitors.</p>
             {showreels.length > 0 && (
               <ul className={styles.packageList}>
                 {showreels.map((m) => (

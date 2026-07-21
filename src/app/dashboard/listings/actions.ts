@@ -382,10 +382,17 @@ export async function uploadMedia(
   return { uploaded, errors };
 }
 
+/** A direct link to a video file we can drop into a <video> tag (e.g. a
+ *  self-hosted .mp4). Must be https to avoid mixed-content blocking. */
+function isDirectVideoUrl(url: string): boolean {
+  return /^https:\/\/.+\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url);
+}
+
 /**
- * Add a showreel / video to the portfolio gallery from a YouTube, Vimeo or
- * Google Drive link. Stored as a `kind: "embed"` media row; the public profile
- * renders it as a responsive iframe. Returns a serializable result instead of
+ * Add a showreel / video to the portfolio gallery. Accepts a YouTube, Vimeo or
+ * Google Drive link (stored as `kind: "embed"`, rendered as an iframe) OR a
+ * direct link to a video file such as an .mp4 (stored as `kind: "video"`,
+ * rendered as a <video> player). Returns a serializable result instead of
  * throwing, so the client can show a gentle inline message.
  */
 export async function addEmbed(
@@ -397,10 +404,14 @@ export async function addEmbed(
 
   const url = str(formData, "showreel", 400);
   if (!url) return { ok: false, error: "Please paste a video link." };
-  if (!toEmbedUrl(url)) {
+
+  const isEmbed = !!toEmbedUrl(url);
+  const isVideoFile = isDirectVideoUrl(url);
+  if (!isEmbed && !isVideoFile) {
     return {
       ok: false,
-      error: "That link isn't recognised. Paste a YouTube, Vimeo or Google Drive link.",
+      error:
+        "That link isn't recognised. Paste a YouTube, Vimeo or Google Drive link — or a direct link to an .mp4 video file.",
     };
   }
 
@@ -415,7 +426,7 @@ export async function addEmbed(
 
   const { error } = await supabase
     .from("service_media")
-    .insert({ service_id: serviceId, url, kind: "embed" });
+    .insert({ service_id: serviceId, url, kind: isEmbed ? "embed" : "video" });
   if (error) return { ok: false, error: error.message };
 
   revalidatePath(`/dashboard/listings/${serviceId}`);
