@@ -26,17 +26,44 @@ export const launchOffer = {
   cta: "Get an instant estimate",
 };
 
-export const navItems: { label: string; href: string; highlight?: boolean }[] = [
+export type NavChild = { label: string; href: string; description?: string };
+export type NavItem = {
+  label: string;
+  href: string;
+  highlight?: boolean;
+  icon?: "compass" | "sparkles";
+  children?: NavChild[];
+};
+
+// Order: Home, then the studio pages, Earn With Us, then the platform
+// (Directory + Showcase) — the studio work sits under one "Plistic Studio"
+// menu, and Compare + List-your-business live inside "Media Directory" because
+// they're two doors into the same marketplace.
+export const navItems: NavItem[] = [
   { label: "Home", href: "/#top" },
-  { label: "Media Directory", href: "/directory", highlight: true },
-  { label: "Scotland's Showcase", href: "/showcase", highlight: true },
-  { label: "Compare Prices", href: "/compare" },
-  { label: "List Your Business", href: "/list-your-business" },
-  { label: "Services", href: "/#services" },
-  { label: "Our Work", href: "/#work" },
-  { label: "Pricing", href: "/pricing" },
+  {
+    label: "Plistic Studio",
+    href: "/#services",
+    children: [
+      { label: "Services", href: "/#services", description: "Podcasting, video, events, documentary, coaching" },
+      { label: "Our Work", href: "/#work", description: "Selected case studies" },
+      { label: "Pricing", href: "/pricing", description: "Get an instant estimate" },
+      { label: "About", href: "/about", description: "Who we are, and how we work" },
+    ],
+  },
   { label: "Earn With Us", href: "/earn" },
-  { label: "About", href: "/about" },
+  {
+    label: "Media Directory",
+    href: "/directory",
+    highlight: true,
+    icon: "compass",
+    children: [
+      { label: "Browse businesses", href: "/directory", description: "Search Scotland's media companies & freelancers" },
+      { label: "Compare prices & services", href: "/compare", description: "Search by service — see who offers it & what they charge" },
+      { label: "List your business", href: "/list-your-business", description: "Add yourself to the directory — it's free" },
+    ],
+  },
+  { label: "Scotland's Showcase", href: "/showcase", highlight: true, icon: "sparkles" },
 ];
 
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
