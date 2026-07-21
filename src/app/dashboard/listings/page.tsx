@@ -76,7 +76,8 @@ export default async function ListingsPage({
             <p style={{ margin: "0 0 1.2rem", color: "var(--p-muted)", fontSize: "0.92rem", lineHeight: 1.5 }}>
               You can run more than one listing from this login — e.g. your company <em>and</em> a separate
               freelance profile, each with its own categories, enquiries and page.{" "}
-              <Link href="/dashboard/listings/new" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>Add another →</Link>
+              <Link href="/dashboard/listings/new" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>Add another →</Link>{" "}
+              <Link href="/directory/plistic-media" target="_blank" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>See an example profile →</Link>
             </p>
           )}
 

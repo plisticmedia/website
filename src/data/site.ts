@@ -31,6 +31,7 @@ export const navItems: { label: string; href: string; highlight?: boolean }[] = 
   { label: "Media Directory", href: "/directory", highlight: true },
   { label: "Scotland's Showcase", href: "/showcase", highlight: true },
   { label: "Compare Prices", href: "/compare" },
+  { label: "List Your Business", href: "/list-your-business" },
   { label: "Services", href: "/#services" },
   { label: "Our Work", href: "/#work" },
   { label: "Pricing", href: "/pricing" },

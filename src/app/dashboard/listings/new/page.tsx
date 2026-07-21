@@ -24,7 +24,11 @@ export default async function NewListingPage() {
           </p>
           <h1>Create a listing</h1>
           <p className={styles.sub}>
-            Start with the basics. You can add packages, photos, and publish on the next step.
+            Start with the basics. You can add packages, photos, and publish on the next step.{" "}
+            Not sure what good looks like?{" "}
+            <Link href="/directory/plistic-media" target="_blank" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
+              See Plistic Media&apos;s example profile →
+            </Link>
           </p>
 
           <form action={createListing} className={styles.form}>
