@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  experimental: {
+    // Photo uploads run through Server Actions, whose body limit defaults to
+    // 1 MB — smaller than most phone photos, which caused the upload to error.
+    // Photos are resized in-browser first, but a batch of several still needs
+    // headroom (and logos upload uncompressed up to 15 MB).
+    serverActions: {
+      bodySizeLimit: "30mb",
+    },
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
