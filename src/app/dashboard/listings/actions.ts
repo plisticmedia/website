@@ -9,7 +9,7 @@ import { geocode, geocodeQuery } from "@/lib/geocode";
 import { toEmbedUrl } from "@/lib/images";
 import type { ServiceStatus } from "@/lib/types";
 
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB (photos are resized in-browser before upload)
 const ALLOWED_IMAGE = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
 
 function str(form: FormData, key: string, max = 2000) {
@@ -307,53 +307,79 @@ export async function deletePackage(id: string, serviceId: string) {
   revalidatePath(`/dashboard/listings/${serviceId}`);
 }
 
-export async function uploadMedia(serviceId: string, formData: FormData) {
+/**
+ * Upload one OR many photos in a single call. Returns a serializable result
+ * ({ uploaded, errors }) instead of throwing, so the client can show a gentle
+ * inline message rather than crashing to the error page. Bad files are skipped
+ * individually — a single dud never fails the whole batch.
+ */
+export async function uploadMedia(
+  serviceId: string,
+  formData: FormData,
+): Promise<{ uploaded: number; errors: string[] }> {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Please choose an image to upload.");
-  }
-  if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Images must be 5 MB or smaller.");
-  }
-  if (!ALLOWED_IMAGE.includes(file.type)) {
-    throw new Error("Please upload a JPG, PNG, WebP, AVIF or GIF image.");
-  }
-
-  // Confirm ownership.
+  // Confirm ownership once.
   const { data: service } = await supabase
     .from("services")
     .select("id, cover_image_url")
     .eq("id", serviceId)
     .eq("seller_id", profile.id)
     .maybeSingle();
-  if (!service) throw new Error("Listing not found.");
+  if (!service) return { uploaded: 0, errors: ["Listing not found."] };
 
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  // Storage RLS requires the seller's uid as the top folder.
-  const path = `${profile.id}/${serviceId}/${Date.now()}.${ext}`;
+  const files = formData.getAll("file").filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) return { uploaded: 0, errors: ["Please choose at least one photo."] };
 
-  const { error: uploadError } = await supabase.storage
-    .from("service-media")
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (uploadError) throw new Error(uploadError.message);
+  let coverUrl = service.cover_image_url as string | null;
+  let uploaded = 0;
+  const errors: string[] = [];
 
-  const { data: pub } = supabase.storage.from("service-media").getPublicUrl(path);
-  const url = pub.publicUrl;
+  for (const file of files) {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      errors.push(`${file.name}: too large (max 15 MB).`);
+      continue;
+    }
+    if (!ALLOWED_IMAGE.includes(file.type)) {
+      errors.push(`${file.name}: not a supported image type.`);
+      continue;
+    }
 
-  const { error: rowError } = await supabase
-    .from("service_media")
-    .insert({ service_id: serviceId, url, kind: "image" });
-  if (rowError) throw new Error(rowError.message);
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    // Storage RLS requires the seller's uid as the top folder. Include a counter
+    // so several files uploaded within the same millisecond don't collide.
+    const path = `${profile.id}/${serviceId}/${Date.now()}-${uploaded}.${ext}`;
 
-  // First image becomes the cover.
-  if (!service.cover_image_url) {
-    await supabase.from("services").update({ cover_image_url: url }).eq("id", serviceId);
+    const { error: uploadError } = await supabase.storage
+      .from("service-media")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (uploadError) {
+      errors.push(`${file.name}: ${uploadError.message}`);
+      continue;
+    }
+
+    const { data: pub } = supabase.storage.from("service-media").getPublicUrl(path);
+    const url = pub.publicUrl;
+
+    const { error: rowError } = await supabase
+      .from("service_media")
+      .insert({ service_id: serviceId, url, kind: "image" });
+    if (rowError) {
+      errors.push(`${file.name}: ${rowError.message}`);
+      continue;
+    }
+
+    // First image on the listing becomes the cover.
+    if (!coverUrl) {
+      coverUrl = url;
+      await supabase.from("services").update({ cover_image_url: url }).eq("id", serviceId);
+    }
+    uploaded++;
   }
 
   revalidatePath(`/dashboard/listings/${serviceId}`);
+  return { uploaded, errors };
 }
 
 /**
@@ -401,19 +427,22 @@ export async function deleteMedia(id: string, serviceId: string) {
  * at the top of the profile. Stored in our own Storage so it always renders
  * (unlike hot-linked Google Drive images).
  */
-export async function uploadLogo(serviceId: string, formData: FormData) {
+export async function uploadLogo(
+  serviceId: string,
+  formData: FormData,
+): Promise<{ ok: boolean; error: string | null }> {
   const profile = await requireUser("/dashboard/listings");
   const supabase = await createSupabaseServerClient();
 
   const file = formData.get("logo");
   if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Please choose a logo image to upload.");
+    return { ok: false, error: "Please choose a logo image to upload." };
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Logos must be 5 MB or smaller.");
+    return { ok: false, error: "Logos must be 15 MB or smaller." };
   }
   if (!ALLOWED_IMAGE.includes(file.type)) {
-    throw new Error("Please upload a JPG, PNG, WebP, AVIF or GIF image.");
+    return { ok: false, error: "Please upload a JPG, PNG, WebP, AVIF or GIF image." };
   }
 
   // Confirm ownership.
@@ -423,7 +452,7 @@ export async function uploadLogo(serviceId: string, formData: FormData) {
     .eq("id", serviceId)
     .eq("seller_id", profile.id)
     .maybeSingle();
-  if (!service) throw new Error("Listing not found.");
+  if (!service) return { ok: false, error: "Listing not found." };
 
   const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
   // Storage RLS requires the seller's uid as the top folder.
@@ -432,7 +461,7 @@ export async function uploadLogo(serviceId: string, formData: FormData) {
   const { error: uploadError } = await supabase.storage
     .from("service-media")
     .upload(path, file, { contentType: file.type, upsert: false });
-  if (uploadError) throw new Error(uploadError.message);
+  if (uploadError) return { ok: false, error: uploadError.message };
 
   const { data: pub } = supabase.storage.from("service-media").getPublicUrl(path);
   const { error } = await supabase
@@ -440,10 +469,11 @@ export async function uploadLogo(serviceId: string, formData: FormData) {
     .update({ logo_url: pub.publicUrl })
     .eq("id", serviceId)
     .eq("seller_id", profile.id);
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath(`/dashboard/listings/${serviceId}`);
   revalidatePath("/directory");
+  return { ok: true, error: null };
 }
 
 export async function removeLogo(serviceId: string) {

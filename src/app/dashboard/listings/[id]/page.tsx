@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, Trash2, Upload } from "lucide-react";
+import { ExternalLink, Trash2 } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
@@ -17,10 +17,10 @@ import {
   setListingStatus,
   setPackageBookable,
   updateListing,
-  uploadLogo,
-  uploadMedia,
 } from "../actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PhotoUploader } from "./PhotoUploader";
+import { LogoUploader } from "./LogoUploader";
 import styles from "../Listings.module.css";
 
 export const metadata: Metadata = { title: "Edit listing | Plistic" };
@@ -234,7 +234,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
           {/* Logo */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Logo</h2>
-            <p className={styles.sub}>Shown on your directory card and at the top of your profile. A square or wide logo on a transparent/white background works best. JPG/PNG/WebP, up to 5 MB.</p>
+            <p className={styles.sub}>Shown on your directory card and at the top of your profile. A square or wide logo on a transparent/white background works best. JPG, PNG or WebP.</p>
             {service.logo_url && (
               <div className={styles.logoPreview}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -244,18 +244,13 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 </form>
               </div>
             )}
-            <form action={uploadLogo.bind(null, service.id)} className={styles.uploadForm}>
-              <input type="file" name="logo" accept="image/*" required />
-              <button type="submit" className="p-btn p-btn--ghost">
-                <Upload aria-hidden="true" size={16} /> {service.logo_url ? "Replace logo" : "Upload logo"}
-              </button>
-            </form>
+            <LogoUploader serviceId={service.id} hasLogo={!!service.logo_url} />
           </div>
 
           {/* Media */}
           <div className={styles.block}>
             <h2 className={styles.sectionTitle}>Photos</h2>
-            <p className={styles.sub}>Showcase your work. The first image becomes your cover. JPG/PNG/WebP, up to 5 MB.</p>
+            <p className={styles.sub}>Showcase your work — select several at once. The first image becomes your cover. Big photos straight off your phone are fine; we resize them for you automatically.</p>
             {photos.length > 0 && (
               <div className={styles.mediaGrid}>
                 {photos.map((m) => (
@@ -271,12 +266,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 ))}
               </div>
             )}
-            <form action={uploadMedia.bind(null, service.id)} className={styles.uploadForm}>
-              <input type="file" name="file" accept="image/*" required />
-              <button type="submit" className="p-btn p-btn--ghost">
-                <Upload aria-hidden="true" size={16} /> Upload
-              </button>
-            </form>
+            <PhotoUploader serviceId={service.id} />
           </div>
 
           {/* Showreel / video */}
