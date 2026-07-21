@@ -33,6 +33,16 @@ export default async function NewListingPage() {
               <input name="title" type="text" required maxLength={140} placeholder="e.g. Podcast launch package" />
             </label>
             <label className={styles.field}>
+              <span>Is this a business or an individual?</span>
+              <select name="listing_type" defaultValue="business">
+                <option value="business">A business or organisation</option>
+                <option value="individual">An individual / freelancer</option>
+              </select>
+              <small style={{ color: "var(--p-muted)", fontWeight: 400 }}>
+                You can run several listings from one login — e.g. your company and a separate freelance profile.
+              </small>
+            </label>
+            <label className={styles.field}>
               <span>Category</span>
               <select name="category_id" defaultValue="">
                 <option value="">Choose a category…</option>

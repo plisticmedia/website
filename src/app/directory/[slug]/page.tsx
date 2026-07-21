@@ -181,6 +181,9 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 const display = tags.length ? tags : service.categories?.name ? [service.categories.name] : [];
                 return display.length ? <span className={styles.cat}>{display.join(" · ")}</span> : null;
               })()}
+              {(service as { listing_type?: string }).listing_type === "individual" && (
+                <span className={styles.typeBadge}>Individual · Freelancer</span>
+              )}
               <h1>{service.title}</h1>
               {service.google_rating != null && (
                 <p style={{ margin: "0.5rem 0 0" }}>
