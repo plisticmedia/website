@@ -67,7 +67,7 @@ export default async function DirectoryPage({
             </h1>
             <p className={styles.lead}>
               Browse independent media and creative specialists. Found a fit? Send an enquiry — you deal with
-              them directly. Or <Link href="/compare" className={styles.compareLink}>compare bookable services →</Link>
+              them directly. Or <Link href="/compare" className={styles.compareLink}>compare everyone&apos;s prices side by side →</Link>
             </p>
 
             <form className={styles.searchBar} action="/directory" method="get">

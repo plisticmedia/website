@@ -9,8 +9,8 @@ import { titleCaseName } from "@/lib/format";
 import styles from "./Compare.module.css";
 
 export const metadata: Metadata = {
-  title: "Compare services | Plistic",
-  description: "Compare bookable creative services in Scotland side by side — price, delivery time and rating.",
+  title: "Browse & compare services | Plistic",
+  description: "Browse Scotland's creative services by category and compare prices side by side — then enquire or book.",
 };
 export const dynamic = "force-dynamic";
 
@@ -33,10 +33,11 @@ export default async function ComparePage({
         <section className={styles.hero}>
           <div className="p-container">
             <p className={styles.kicker}>Marketplace</p>
-            <h1>Compare bookable services</h1>
+            <h1>Browse &amp; compare services</h1>
             <p className={styles.lead}>
-              Shop around Scotland&apos;s creative talent — compare price, delivery time and rating, then book securely
-              through Plistic with your payment held safely until the work is delivered.
+              Pick a category and see everyone in Scotland who offers it, side by side by price, delivery time and
+              rating. Enquire directly — or, where a business offers it, book securely with your payment held safely
+              until the work is delivered.
             </p>
           </div>
         </section>
@@ -61,7 +62,7 @@ export default async function ComparePage({
 
           {rows.length === 0 ? (
             <p className={styles.empty}>
-              No bookable services here yet. Browse the full <Link href="/directory">directory</Link> to send an enquiry.
+              No priced services in this category yet. Browse the full <Link href="/directory">directory</Link> to send an enquiry.
             </p>
           ) : (
             <div className={styles.tableWrap}>
@@ -120,7 +121,7 @@ export default async function ComparePage({
                         </td>
                         <td>
                           <Link href={`/directory/${r.slug}`} className={styles.viewBtn}>
-                            View <ArrowRight aria-hidden="true" size={15} />
+                            {r.bookable ? "Book" : "View & enquire"} <ArrowRight aria-hidden="true" size={15} />
                           </Link>
                         </td>
                       </tr>
