@@ -131,6 +131,13 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <span>Title *</span>
               <input name="title" type="text" required maxLength={140} defaultValue={service.title} />
             </label>
+            <label className={styles.field}>
+              <span>Business or individual?</span>
+              <select name="listing_type" defaultValue={(service as { listing_type?: string }).listing_type ?? "business"}>
+                <option value="business">A business or organisation</option>
+                <option value="individual">An individual / freelancer</option>
+              </select>
+            </label>
             <fieldset className={styles.field} style={{ border: "none", padding: 0, margin: 0 }}>
               <span>Services offered</span>
               <div className={styles.checkGrid}>

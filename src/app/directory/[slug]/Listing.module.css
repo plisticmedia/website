@@ -540,3 +540,11 @@
 .peerConfStat span { display: block; font-size: 0.76rem; color: var(--p-muted); margin-top: 0.3rem; }
 .peerConfReply { margin: 0.9rem 0 0; font-size: 0.9rem; color: var(--ink-strong, #161616); line-height: 1.5; }
 .peerConfReply strong { color: var(--ink-strong, #161616); }
+
+/* Individual / freelancer badge */
+.typeBadge {
+  display: inline-block; margin-left: 0.5rem;
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--p-azure-deep); background: rgba(31, 170, 233, 0.12);
+  padding: 0.2rem 0.5rem; border-radius: 6px; vertical-align: middle;
+}

@@ -48,6 +48,7 @@ function listingFields(formData: FormData, categoryIds: string[], areaIds: strin
 
   return {
     title: str(formData, "title", 140),
+    listing_type: str(formData, "listing_type", 20) === "individual" ? "individual" : "business",
     summary: str(formData, "summary", 280) || null,
     description: str(formData, "description", 6000) || null,
     category_id: categoryIds[0] ?? (str(formData, "category_id", 80) || null),

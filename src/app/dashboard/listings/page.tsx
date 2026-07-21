@@ -72,6 +72,14 @@ export default async function ListingsPage({
             </Link>
           </header>
 
+          {services.length > 0 && (
+            <p style={{ margin: "0 0 1.2rem", color: "var(--p-muted)", fontSize: "0.92rem", lineHeight: 1.5 }}>
+              You can run more than one listing from this login — e.g. your company <em>and</em> a separate
+              freelance profile, each with its own categories, enquiries and page.{" "}
+              <Link href="/dashboard/listings/new" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>Add another →</Link>
+            </p>
+          )}
+
           {services.length === 0 ? (
             <div className={styles.empty}>
               <p>You haven&apos;t created any listings yet.</p>
@@ -95,6 +103,7 @@ export default async function ListingsPage({
                     <div className={styles.rowMain}>
                       <strong>{s.title}</strong>
                       <span className={styles.rowMeta}>
+                        {(s as { listing_type?: string }).listing_type === "individual" ? "Freelancer" : "Business"} ·{" "}
                         {s.categories?.name ?? "Uncategorised"} · {s.view_count ?? 0} view
                         {(s.view_count ?? 0) === 1 ? "" : "s"} · {enquiryCount.get(s.id) ?? 0} enquir
                         {(enquiryCount.get(s.id) ?? 0) === 1 ? "y" : "ies"}
