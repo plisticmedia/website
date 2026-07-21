@@ -49,6 +49,10 @@ export function toEmbedUrl(url: string | null | undefined): string | null {
   if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
   const vimeo = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
   if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  // Google Drive share links (…/file/d/ID/view, …/open?id=ID, …/uc?id=ID).
+  // The file must be shared "anyone with the link" for the embed to play.
+  const drive = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^]*?id=)([\w-]+)/i);
+  if (drive) return `https://drive.google.com/file/d/${drive[1]}/preview`;
   return null;
 }
 
