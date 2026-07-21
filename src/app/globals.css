@@ -880,6 +880,29 @@ textarea {
   background: rgba(31, 170, 233, 0.06);
   outline: none;
 }
+/* Supply-side CTA: distinct from the "Book a Call" demand CTA. Outline style so
+   the two don't compete; hidden on mobile where it lives in the burger foot. */
+.header-list {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--azure-deep, #0c6f9e);
+  padding: 0.5rem 0.85rem;
+  border-radius: 7px;
+  border: 1.5px solid color-mix(in srgb, var(--azure) 55%, transparent);
+  white-space: nowrap;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+.header-list:hover,
+.header-list:focus-visible {
+  color: #fff;
+  background: var(--azure, #1faae9);
+  border-color: var(--azure, #1faae9);
+  outline: none;
+}
+
 .header-burger {
   display: none;
   align-items: center;
@@ -2039,6 +2062,10 @@ textarea {
   }
 
   .header-account {
+    display: none;
+  }
+
+  .header-list {
     display: none;
   }
 

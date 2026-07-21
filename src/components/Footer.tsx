@@ -1,8 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { brand, navItems, services } from "@/data/site";
+import { brand, services } from "@/data/site";
 
-const companyLinks = navItems.filter((item) => item.label !== "Home" && item.label !== "Services");
+// Explicit footer list (not derived from the header nav, so restructuring the
+// header dropdowns never silently drops footer links).
+const companyLinks = [
+  { label: "Media Directory", href: "/directory" },
+  { label: "Compare Prices", href: "/compare" },
+  { label: "Scotland's Showcase", href: "/showcase" },
+  { label: "List Your Business", href: "/list-your-business" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Earn With Us", href: "/earn" },
+  { label: "About", href: "/about" },
+];
 const legalLinks = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },

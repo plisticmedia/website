@@ -140,6 +140,10 @@ export function SiteHeader() {
       </NavigationMenu>
 
       <div className="header-actions">
+        <Link className="header-list" href="/list-your-business">
+          <Store aria-hidden="true" size={16} />
+          <span>List your business</span>
+        </Link>
         <Link className="header-account" href={accountHref}>
           <AccountIcon aria-hidden="true" size={16} />
           <span>{accountLabel}</span>
