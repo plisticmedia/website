@@ -22,15 +22,15 @@ export default async function ListYourBusinessPage() {
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className="p-container">
-            <p className={styles.kicker}>Join the directory · Launching July 2026</p>
+            <p className={styles.kicker}>Join Scotland&apos;s creative directory</p>
             <h1>
               Get found by people who need <span>Scotland&apos;s creative talent</span>.
             </h1>
             <p className={styles.lead}>
               Plistic is a directory and marketplace for Scotland&apos;s creative and media businesses — film &amp; TV,
               music, games, animation, design, PR, audio, photography and the studios and venues behind them. Buyers
-              (brands, charities, broadcasters and productions) come here to find and hire you, free. Add your business
-              now and it&apos;ll be ready and waiting when we launch in <strong>July 2026</strong>.
+              (brands, charities, broadcasters and productions) come here to find and hire you — <strong>free</strong>.
+              Add your business now and start getting found.
             </p>
           </div>
         </section>
