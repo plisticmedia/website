@@ -8,10 +8,21 @@ export type PeerBusiness = { id: string; title: string; slug: string; logo_url: 
  */
 export const PEER_MIN_RATERS = 4;
 
-/** Whether the public peer-confidence aggregate is switched on. Off by default;
- *  flip PEER_CONFIDENCE_PUBLIC=true only after legal sign-off. */
+/** Whether the public peer-confidence aggregate is switched on.
+ *
+ *  Two ways it can be on:
+ *   1. During BETA (site behind the coming-soon gate, i.e. SITE_LIVE !== "true")
+ *      it is on automatically, so beta testers can see it and give feedback.
+ *   2. On the LIVE site it is OFF by default and only comes on if
+ *      PEER_CONFIDENCE_PUBLIC=true is set — flip that ONLY after legal sign-off.
+ *
+ *  This means it turns itself off the moment the site goes live (SITE_LIVE=true),
+ *  unless it has been explicitly re-enabled. It is always additionally gated on a
+ *  logged-in viewer and the anonymity threshold (see getPublicPeerConfidence). */
 export function peerConfidencePublic(): boolean {
-  return process.env.PEER_CONFIDENCE_PUBLIC === "true";
+  if (process.env.PEER_CONFIDENCE_PUBLIC === "true") return true;
+  // Beta mode (coming-soon gate up): on for signed-in testers.
+  return process.env.SITE_LIVE !== "true";
 }
 
 export type PeerConfidence = {
