@@ -7,6 +7,18 @@ export const brand = {
   quoteLabel: "Get an instant estimate",
 };
 
+// Registered-company details for the statutory trading disclosure (Companies
+// Act 2006 + the Company, LLP and Business (Names and Trading Disclosures)
+// Regulations 2015). "Plistic Media" is a trading name of the registered
+// company, so the registered name must be shown alongside it. Not VAT-registered.
+export const legalEntity = {
+  registeredName: "Songplistic Ltd",
+  tradingName: "Plistic Media",
+  companyNumber: "SC699049",
+  jurisdiction: "Scotland",
+  registeredOffice: "2 West Drive Cottage, Stracathro, Brechin, Scotland, DD9 7QF",
+};
+
 // Default "From" for outbound email. MUST be on a domain verified in Resend —
 // `updates.plisticmedia.com` is verified; the bare `plisticmedia.com` is not, so
 // sending from it fails authentication and lands in spam. Replies still go to
