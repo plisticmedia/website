@@ -2008,6 +2008,14 @@ textarea {
   margin: 0;
 }
 
+.footer-legal {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 0.9rem 0 0;
+  opacity: 0.85;
+}
+
 .experiments-page {
   margin: 0 auto;
   max-width: 1180px;

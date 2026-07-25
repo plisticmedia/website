@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { brand, services } from "@/data/site";
+import { brand, legalEntity, services } from "@/data/site";
 
 // Explicit footer list (not derived from the header nav, so restructuring the
 // header dropdowns never silently drops footer links).
@@ -56,7 +56,7 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2026 Plistic. All rights reserved.</p>
+          <p>&copy; 2026 {legalEntity.registeredName}. All rights reserved.</p>
           <div>
             <Link href="/#top">Back to top</Link>
             {legalLinks.map((link) => (
@@ -66,6 +66,12 @@ export function Footer() {
             ))}
           </div>
         </div>
+
+        <p className="footer-legal">
+          {legalEntity.tradingName} is a trading name of {legalEntity.registeredName}, a company registered in{" "}
+          {legalEntity.jurisdiction} (company number {legalEntity.companyNumber}). Registered office:{" "}
+          {legalEntity.registeredOffice}.
+        </p>
       </div>
     </footer>
   );
