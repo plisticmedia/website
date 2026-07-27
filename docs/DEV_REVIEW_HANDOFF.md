@@ -9,7 +9,7 @@ A directory + marketplace + showcase for Scotland's creative/media sector:
 - **Directory** — searchable business/freelancer profiles (map, filters, enquiries).
 - **Marketplace** — bookable packages on a listing → Stripe **escrow** → payout to the seller.
 - **Showcase** — a curated editorial feed ("Best of Scotland").
-- **Peer network** — verified "worked with" links + (flagged-off) peer confidence.
+- **Peer network** — verified "worked with" links + peer confidence (public to signed-in users; see flag note below).
 
 ## Stack
 - **Next.js (App Router) on Vercel** — SSR pages, Route Handlers (`src/app/api/**`),
@@ -68,7 +68,7 @@ order-gated reviews); featured-listing subscription; showcase (public + no-code 
 
 ## Known state / not-yet
 - Stripe is **test mode** (no live keys until the security review passes).
-- Public **peer confidence** aggregate is built but **off** behind `PEER_CONFIDENCE_PUBLIC` (pending legal advice) — see `PEER_NETWORK_SPEC.md`.
+- Public **peer confidence** aggregate is controlled by `PEER_CONFIDENCE_PUBLIC` (a simple on/off; **on by default** so beta testers can see it — shown only to signed-in users, and only once a business has ≥4 raters for anonymity). Set `PEER_CONFIDENCE_PUBLIC=false` to hide it; the admin dashboard shows a reminder to review this before full public launch (pending legal advice) — see `PEER_NETWORK_SPEC.md` / `PEER_NETWORK_LEGAL_BRIEF.md`.
 - A couple of showcase news items are text-only pending press images.
 
 ## How to give feedback
