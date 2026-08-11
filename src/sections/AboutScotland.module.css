@@ -168,3 +168,33 @@
     padding: 1rem;
   }
 }
+
+/* "Why we built the platform" cards on the About page. */
+.buildGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.6rem);
+  margin-top: 1.4rem;
+}
+.buildCard {
+  padding: clamp(1.2rem, 2.5vw, 1.6rem);
+  border: 1px solid var(--p-line, rgba(20, 20, 23, 0.12));
+  border-radius: 16px;
+  background: var(--p-paper, #f7f9f9);
+}
+.buildCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: var(--p-ink, #141417);
+}
+.buildCard p {
+  margin: 0;
+  color: var(--p-muted, #5d6b71);
+  line-height: 1.6;
+  font-size: 0.98rem;
+}
+@media (max-width: 700px) {
+  .buildGrid {
+    grid-template-columns: 1fr;
+  }
+}

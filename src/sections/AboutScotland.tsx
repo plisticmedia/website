@@ -19,10 +19,8 @@ const founders = [
       position: "50% 38%",
     },
     paragraphs: [
-      "Kayla founded Plistic with a simple conviction: that the best media work happens when the people making it genuinely care about what's being said. As founder, they lead on everything that happens before a camera rolls or a microphone goes live - the storyboarding, scripting, research, and partnerships that turn a client's vision into reality.",
-      "Kayla believes that everyone has an important story to tell. The projects that excite them span everything from a mental health podcast for young musicians to a documentary on neurodivergent entrepreneurship to a long-running business podcast that became number one in its niche on Apple Podcasts - and plenty in between that would surprise you. What they most value in this work is helping people figure out how to tell their story well, making space for voices that don't always get the platform they deserve, and doing the research and preparation that determines whether a project actually lands. They also work directly with hosts, presenters, and on-camera talent - coaching people to show up at their best rather than simply pointing a camera at them and hoping for the best.",
-      "That instinct is sharpened by something unusual in a media producer: Kayla is a PhD researcher at the University of St Andrews, with their research sitting at the intersection of psychology, technology, and media. This directly informs how Kayla approaches production, where understanding how an audience receives and experiences content matters just as much as how the content is made.",
-      "Outside of Plistic, Kayla sits on the board of the Royal Scottish National Orchestra, contributes to the Cross-Party Group on Music in the Scottish Parliament, and has given evidence to the Scottish Parliament's Economy and Fair Work Committee on AI and the creative industries. They are also a published children's author.",
+      "Kayla leads everything that happens before a camera rolls - the storyboarding, scripting, research and partnerships - on the conviction that the best media happens when the makers genuinely care about what's being said. They believe everyone has a story worth telling, and make space for voices that don't always get a platform: a mental-health podcast for young musicians, a documentary on neurodivergent entrepreneurship, a business podcast that hit #1 in its niche on Apple Podcasts.",
+      "A PhD researcher at St Andrews working across psychology, technology and media, Kayla treats how an audience receives content as seriously as how it's made - which is why they coach hosts and on-camera talent to show up at their best, not just point a camera and hope. (They also sit on the board of the RSNO and are a published children's author.)",
     ],
   },
   {
@@ -34,11 +32,8 @@ const founders = [
       position: "50% 50%",
     },
     paragraphs: [
-      "Ross Sloan co-founded Plistic because he believed that professional media production should not be out of reach for the people and organisations who have the most interesting things to say. As Head of Production and Operations, he is the person who makes the work happen - overseeing production across every project, from the first recording day through to the final delivered file.",
-      "His background in psychology shapes his understanding of how audiences engage with content, how format and pacing affect attention, and what makes something genuinely watchable or listenable rather than merely well-produced. It runs through the decisions he makes in the edit room and on set.",
-      "Among the projects Ross enjoys most are event recordings - the challenge of capturing something live, in real time, across multiple cameras, then shaping it into something that holds together long after the event itself is over.",
-      "Recent highlights include two large-scale music video projects produced in collaboration with Lockie Media: twelve videos across eighteen months in locations ranging from a newsroom to a near-3,000 square metre warehouse with pyrotechnics and drones, plus a full choreography shoot at Strathclyde Union.",
-      "Ross is committed to making the audio and video production industry more accessible - to musicians, podcasters, and organisations that have something worth sharing but are not sure where to start. That commitment, alongside his curiosity about what great media production actually requires, is what makes him the right person at the centre of everything Plistic produces.",
+      "Ross makes the work happen - overseeing every project from the first recording day to the final delivered file - because he believes professional production shouldn't be out of reach for the people with the most interesting things to say. His background in psychology runs through every edit-room and on-set decision: how format and pacing hold attention, and what makes something genuinely watchable rather than merely well-produced.",
+      "He's at his best on live event captures - multi-camera, in real time, shaped into something that outlasts the day. Recent highlights include two large-scale music-video projects with Lockie Media: twelve videos over eighteen months, from a newsroom to a near-3,000 m² warehouse with pyrotechnics and drones.",
     ],
   },
 ];
@@ -54,8 +49,9 @@ export function AboutScotland() {
               Built for how people actually <span className="azu">listen &amp; watch</span>.
             </h1>
             <p className="p-lead">
-              Plistic is the evolution of Songplistic and Podplistic - Glasgow-based production companies that started
-              off in music and podcast production, but have now combined to cover all your media needs.
+              For six years - first as Songplistic and Podplistic, now combined as Plistic - we've made media in
+              Scotland with one belief at the core: understand the psychology of both the people on screen and the
+              people watching, and you make work that actually lands.
             </p>
             <div className={styles.points}>
               <div className={styles.point}>
@@ -64,7 +60,7 @@ export function AboutScotland() {
               </div>
               <div className={styles.point}>
                 <Brain aria-hidden="true" size={20} />
-                <span>Psychology-informed production shapes the research, pacing, coaching, and delivery behind every project.</span>
+                <span>Psychology-informed production - getting the best from those on screen and those watching - across six years of work.</span>
               </div>
             </div>
           </div>
@@ -77,6 +73,32 @@ export function AboutScotland() {
               fill
               sizes="(max-width: 860px) 100vw, 50vw"
             />
+          </div>
+        </div>
+
+        <div style={{ marginTop: "clamp(2.4rem, 5vw, 3.6rem)" }} aria-labelledby="building-title">
+          <p className="p-eyebrow">More than a studio</p>
+          <h2 id="building-title" className="p-h2">
+            Why we built the <span className="azu">Media Directory</span> &amp; Scotland&apos;s Showcase.
+          </h2>
+          <div className={styles.buildGrid}>
+            <div className={styles.buildCard}>
+              <h3>The Media Directory</h3>
+              <p>
+                Making media accessible was never just about our own studio. Scotland is full of brilliant creative
+                and media businesses that are hard to find and hard to hire. The directory puts them in one place -
+                searchable by service, price and place - so buyers can find the right people, and every business,
+                from a solo freelancer to a full studio, gets a page of their own.
+              </p>
+            </div>
+            <div className={styles.buildCard}>
+              <h3>Scotland&apos;s Showcase</h3>
+              <p>
+                So much world-class work is made here and never celebrated as Scottish. The Showcase is our home for
+                the best of it - the films, records, events and stories worth shouting about - so the country&apos;s
+                creative scene gets the recognition it deserves, and the people behind it get seen.
+              </p>
+            </div>
           </div>
         </div>
 
