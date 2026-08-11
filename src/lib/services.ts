@@ -144,25 +144,32 @@ export async function getComparableServices(
   categorySlug?: string,
   sort?: string,
   maxPrice?: number,
+  q?: string,
 ): Promise<{ rows: CompareRow[]; categories: Array<{ slug: string; name: string }> }> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("services")
     .select(
-      "slug, title, logo_url, is_featured, google_rating, google_rating_count, categories!category_id(name, slug), profiles(payouts_enabled), service_packages(price_gbp, delivery_days, is_bookable)",
+      "slug, title, summary, logo_url, is_featured, google_rating, google_rating_count, categories!category_id(name, slug), listing_services(categories(name, slug)), profiles(payouts_enabled), service_packages(price_gbp, delivery_days, is_bookable)",
     )
     .eq("status", "published")
     .limit(400);
 
   type Row = {
-    slug: string; title: string; logo_url: string | null; is_featured: boolean;
+    slug: string; title: string; summary: string | null; logo_url: string | null; is_featured: boolean;
     google_rating: number | null; google_rating_count: number | null;
     categories: { name: string; slug: string } | null;
+    listing_services: Array<{ categories: { name: string; slug: string } | null }> | null;
     profiles: { payouts_enabled: boolean } | null;
     service_packages: Array<{ price_gbp: number | null; delivery_days: number | null; is_bookable: boolean }>;
   };
 
-  const rows: CompareRow[] = [];
+  // Loose word match so "podcasts" finds "podcasting" etc. (strip a trailing s).
+  const destem = (w: string) => w.toLowerCase().replace(/s$/, "");
+  const needles = (q ?? "").trim().toLowerCase().split(/\s+/).filter(Boolean).map(destem);
+
+  type Enriched = CompareRow & { disciplineSlugs: string[]; haystack: string };
+  const rows: Enriched[] = [];
   const cats = new Map<string, string>();
   for (const r of (data ?? []) as unknown as Row[]) {
     // Any package with a real price counts — display or bookable — so buyers can
@@ -170,23 +177,36 @@ export async function getComparableServices(
     const priced = r.service_packages.filter((p) => typeof p.price_gbp === "number" && p.price_gbp > 0);
     if (priced.length === 0) continue;
     const cheapest = priced.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b));
-    if (r.categories?.slug) cats.set(r.categories.slug, r.categories.name);
+
+    // Every discipline the listing offers — primary category + the m2m links —
+    // so it's findable by any service it provides, not just its main one.
+    const disciplines = [
+      r.categories,
+      ...(r.listing_services ?? []).map((ls) => ls.categories),
+    ].filter((c): c is { name: string; slug: string } => !!c);
+    for (const c of disciplines) cats.set(c.slug, c.name);
+    const disciplineSlugs = [...new Set(disciplines.map((c) => c.slug))];
+    const haystack = [r.title, r.summary ?? "", ...disciplines.map((c) => c.name)].join(" ").toLowerCase();
+
     rows.push({
       slug: r.slug,
       title: r.title,
       logo_url: r.logo_url,
-      category: r.categories?.name ?? null,
-      categorySlug: r.categories?.slug ?? null,
+      category: r.categories?.name ?? disciplines[0]?.name ?? null,
+      categorySlug: r.categories?.slug ?? disciplines[0]?.slug ?? null,
       rating: r.google_rating,
       ratingCount: r.google_rating_count,
       fromPrice: cheapest.price_gbp as number,
       deliveryDays: cheapest.delivery_days,
       isFeatured: r.is_featured,
       bookable: !!cheapest.is_bookable && !!r.profiles?.payouts_enabled,
+      disciplineSlugs,
+      haystack,
     });
   }
 
-  let filtered = categorySlug ? rows.filter((r) => r.categorySlug === categorySlug) : rows;
+  let filtered = categorySlug ? rows.filter((r) => r.disciplineSlugs.includes(categorySlug)) : rows;
+  if (needles.length > 0) filtered = filtered.filter((r) => needles.every((n) => r.haystack.includes(n)));
   if (typeof maxPrice === "number" && maxPrice > 0) filtered = filtered.filter((r) => r.fromPrice <= maxPrice);
 
   if (sort === "price_desc") {

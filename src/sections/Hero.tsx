@@ -6,12 +6,6 @@ import { ArrowRight, CalendarDays } from "lucide-react";
 import { bookingPagePath, prefixWords } from "@/data/site";
 import styles from "./Hero.module.css";
 
-const trustLogos = [
-  { name: "King's Trust", src: "/assets/logos/king-s-trust-logo-svg.png" },
-  { name: "Robert Gordon University", src: "/assets/logos/rgu-logo.png" },
-  { name: "Techscaler", src: "/assets/logos/techscaler-logo.png" },
-];
-
 export function Hero() {
   const [s, setS] = useState({ i: 0, prev: -1, n: 0 });
 
@@ -64,18 +58,6 @@ export function Hero() {
               <CalendarDays aria-hidden="true" size={18} />
               Book a Call
             </Link>
-          </div>
-
-          <div className={styles.trust}>
-            <span className={styles.trustLabel}>Trusted by</span>
-            <div className={styles.logos}>
-              {trustLogos.map((logo) => (
-                <span className={styles.chip} key={logo.name}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={logo.src} alt={logo.name} />
-                </span>
-              ))}
-            </div>
           </div>
         </div>
       </div>

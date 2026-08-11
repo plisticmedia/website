@@ -124,7 +124,7 @@ export default function UnfilteredCaseStudyPage() {
                 research on neurodiverse entrepreneurship to a wider audience.
               </p>
               <div className={styles.heroActions}>
-                <Link className="p-btn" href="/pricing">
+                <Link className="p-btn" href="/pricing?service=documentary">
                   Scope a documentary
                   <ArrowRight aria-hidden="true" size={18} />
                 </Link>

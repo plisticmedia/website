@@ -126,7 +126,7 @@ export default function ConnectEdNetworkCaseStudyPage() {
                 Entrepreneur in Residence: the practitioners embedded across Scotland&apos;s universities and colleges.
               </p>
               <div className={styles.heroActions}>
-                <Link className="p-btn" href="/pricing">
+                <Link className="p-btn" href="/pricing?service=event">
                   Scope event content
                   <ArrowRight aria-hidden="true" size={18} />
                 </Link>

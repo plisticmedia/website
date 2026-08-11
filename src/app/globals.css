@@ -2064,6 +2064,24 @@ textarea {
   padding: 0.7rem;
 }
 
+/* Collapse the primary nav to the burger earlier than the grid breakpoints.
+   The grouped nav (two dropdowns) + the List-your-business and Book-a-Call CTAs
+   need room; between ~860–1120px they used to overlap the logo. */
+@media (max-width: 1120px) {
+  .primary-nav {
+    display: none;
+  }
+  .header-account {
+    display: none;
+  }
+  .header-list {
+    display: none;
+  }
+  .header-burger {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 860px) {
   .primary-nav {
     display: none;
