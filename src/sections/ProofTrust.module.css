@@ -103,19 +103,22 @@
   opacity: 1;
   filter: grayscale(1) brightness(0) invert(1) drop-shadow(0 0 14px rgba(79, 182, 255, 0.14));
 }
+/* All logos share the base .logo height (max-block-size: 56px) so they read at a
+   consistent size. tinyChanges keeps its clip (its source has heavy whitespace)
+   but is tuned so the *visible* mark matches that same ~56px height. */
 .tallLogo {
-  max-block-size: 72px;
+  max-block-size: 56px;
 }
 .eagleLogo {
   max-inline-size: 100%;
-  max-block-size: 62px;
+  max-block-size: 56px;
 }
 .tinyChangesLogo {
   max-inline-size: 100%;
-  max-block-size: 96px;
+  max-block-size: 92px;
   clip-path: inset(39% 0 0 0);
   opacity: 0.9;
-  transform: translateY(-13px);
+  transform: translateY(-12px);
 }
 .logoTile:hover .tinyChangesLogo {
   opacity: 1;

@@ -14,6 +14,7 @@ type EmailPayload = {
   to: string[];
   subject: string;
   text: string;
+  replyTo?: string;
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -128,8 +129,10 @@ export async function POST(request: Request) {
   try {
     await sendEmail(apiKey, from, {
       to: notifyTo,
-      subject: `New pricing estimate: ${serviceTitle} - ${name}`,
+      subject: `New pricing estimate: ${serviceTitle} - ${name} (${email})`,
       text: internalText,
+      // Reply goes straight to the potential client, not our own inbox.
+      replyTo: email,
     });
   } catch (error) {
     console.error("[pricing-lead] Internal email send failed.", error);
@@ -169,7 +172,7 @@ async function sendEmail(apiKey: string, from: string, payload: EmailPayload) {
       to: payload.to,
       subject: payload.subject,
       text: payload.text,
-      reply_to: brand.email,
+      reply_to: payload.replyTo ?? brand.email,
     }),
   });
 

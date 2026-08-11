@@ -20,11 +20,11 @@ export default function Home() {
       <SiteHeader />
       <main>
         <Hero />
+        <PlatformSignpost />
         <ProofTrust />
         <Showreel />
         <ServicesOverview />
         <WorkPreview />
-        <PlatformSignpost />
         <ShowcaseHighlights />
         <Testimonials />
         <ClosingCTA />
