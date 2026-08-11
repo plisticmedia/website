@@ -27,17 +27,18 @@ const SORTS: Array<{ key: string; label: string }> = [
 export default async function ComparePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; sort?: string; max?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string; max?: string; q?: string }>;
 }) {
-  const { category, sort, max } = await searchParams;
+  const { category, sort, max, q } = await searchParams;
+  const query = (q ?? "").trim().slice(0, 80);
   const maxPrice = max && /^\d+$/.test(max) ? Number(max) : undefined;
   const activeSort = SORTS.some((s) => s.key === sort) ? (sort as string) : "price";
-  const { rows, categories } = await getComparableServices(category, activeSort, maxPrice);
+  const { rows, categories } = await getComparableServices(category, activeSort, maxPrice, query);
 
   // Build a /compare URL preserving the other filters.
   const urlWith = (patch: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
-    const merged = { category, sort: activeSort === "price" ? undefined : activeSort, max, ...patch };
+    const merged = { category, sort: activeSort === "price" ? undefined : activeSort, max, q: query || undefined, ...patch };
     for (const [k, v] of Object.entries(merged)) if (v) p.set(k, v);
     const qs = p.toString();
     return qs ? `/compare?${qs}` : "/compare";
@@ -60,6 +61,26 @@ export default async function ComparePage({
         </section>
 
         <section className={`p-container ${styles.body}`}>
+          <form className={styles.searchForm} action="/compare" method="get" role="search">
+            {activeSort !== "price" && <input type="hidden" name="sort" value={activeSort} />}
+            {max && <input type="hidden" name="max" value={max} />}
+            <input
+              type="search"
+              name="q"
+              defaultValue={query}
+              placeholder="Search a service — e.g. podcasting, video, mural, photography…"
+              aria-label="Search services"
+            />
+            <button type="submit" className="p-btn">Search</button>
+            {(query || category) && <Link href="/compare" className={styles.clearMax}>reset</Link>}
+          </form>
+
+          {query && (
+            <p className={styles.resultNote}>
+              {rows.length} result{rows.length === 1 ? "" : "s"} for &ldquo;{query}&rdquo;
+            </p>
+          )}
+
           {categories.length > 0 && (
             <div className={styles.filters}>
               <Link href={urlWith({ category: undefined })} className={!category ? styles.chipActive : styles.chip}>
@@ -92,6 +113,7 @@ export default async function ComparePage({
             <form className={styles.maxForm} action="/compare" method="get">
               {category && <input type="hidden" name="category" value={category} />}
               {activeSort !== "price" && <input type="hidden" name="sort" value={activeSort} />}
+              {query && <input type="hidden" name="q" value={query} />}
               <label>
                 Max £
                 <input type="number" name="max" min="0" step="50" defaultValue={max ?? ""} placeholder="any" />
@@ -103,7 +125,10 @@ export default async function ComparePage({
 
           {rows.length === 0 ? (
             <p className={styles.empty}>
-              No priced services in this category yet. Browse the full <Link href="/directory">directory</Link> to send an enquiry.
+              {query
+                ? `No priced services match “${query}” yet. `
+                : "No priced services in this category yet. "}
+              Browse the full <Link href="/directory">directory</Link> to send an enquiry.
             </p>
           ) : (
             <div className={styles.tableWrap}>

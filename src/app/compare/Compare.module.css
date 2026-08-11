@@ -64,3 +64,31 @@
   border: 1px solid var(--p-line); border-radius: 8px;
 }
 .clearMax { font-size: 0.85rem; color: var(--p-muted); }
+
+/* Service search on the compare page. */
+.searchForm {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+.searchForm input[type="search"] {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--p-line, rgba(20, 20, 23, 0.14));
+  border-radius: 10px;
+  font-size: 1rem;
+  background: var(--p-bg, #fff);
+  color: var(--p-ink, #141417);
+}
+.searchForm input[type="search"]:focus-visible {
+  outline: 2px solid var(--p-azure, #1faae9);
+  outline-offset: 1px;
+}
+.resultNote {
+  margin: 0 0 1rem;
+  color: var(--p-muted, #5d6b71);
+  font-size: 0.92rem;
+}
