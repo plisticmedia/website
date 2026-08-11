@@ -20,6 +20,46 @@ export async function moderateService(id: string, status: ServiceStatus) {
   revalidatePath("/directory");
 }
 
+const ADMIN_LOGO_MAX_BYTES = 15 * 1024 * 1024; // 15 MB
+const ADMIN_LOGO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
+
+/**
+ * Admin: set (or replace) the logo on ANY listing — including unclaimed ones the
+ * admin is curating on a business's behalf. Uploaded to the public service-media
+ * bucket via the service-role client (bypasses RLS). Returns a result instead of
+ * throwing, so the admin UI can show an inline message.
+ */
+export async function adminSetLogo(
+  serviceId: string,
+  formData: FormData,
+): Promise<{ ok: boolean; error: string | null }> {
+  await requireAdmin();
+
+  const file = formData.get("logo");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Please choose an image." };
+  if (file.size > ADMIN_LOGO_MAX_BYTES) return { ok: false, error: "Image must be 15 MB or smaller." };
+  if (!ADMIN_LOGO_TYPES.includes(file.type)) {
+    return { ok: false, error: "Please upload a JPG, PNG, WebP, AVIF or GIF image." };
+  }
+
+  const supabase = createSupabaseServiceRoleClient();
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  const path = `admin/${serviceId}/logo-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("service-media")
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (uploadError) return { ok: false, error: uploadError.message };
+
+  const { data: pub } = supabase.storage.from("service-media").getPublicUrl(path);
+  const { error } = await supabase.from("services").update({ logo_url: pub.publicUrl }).eq("id", serviceId);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/admin");
+  revalidatePath("/directory");
+  return { ok: true, error: null };
+}
+
 /**
  * Admin override: grant or revoke "Trusted partner" (featured) status for free.
  * Granting sets is_featured + a 1-year expiry; revoking clears both.

@@ -12,6 +12,7 @@ import {
   setVerified,
 } from "./actions";
 import { ActionButton } from "@/components/ActionButton";
+import { AdminLogoUpload } from "./AdminLogoUpload";
 import styles from "./Admin.module.css";
 
 export type AdminListing = {
@@ -25,6 +26,7 @@ export type AdminListing = {
   created_at: string;
   seller_id: string | null;
   source: string | null;
+  logo_url: string | null;
   claim_token: string | null;
   google_place_id: string | null;
   google_rating: number | null;
@@ -175,6 +177,7 @@ export function ListingsManager({ listings, siteUrl }: { listings: AdminListing[
                         No claim token yet — run the backfill SQL
                       </span>
                     )}
+                    <AdminLogoUpload serviceId={s.id} logoUrl={s.logo_url} />
                   </div>
                 </td>
                 <td>{s.profiles?.display_name ?? "—"}</td>
