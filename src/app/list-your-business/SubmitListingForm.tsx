@@ -159,6 +159,14 @@ export function SubmitListingForm({
         </span>
       </label>
 
+      <label className={styles.check} style={{ alignItems: "flex-start" }}>
+        <input type="checkbox" name="beta" style={{ marginTop: "0.2rem" }} />
+        <span>
+          I&apos;d like to be a <strong>beta tester</strong> — get early access to customise my page and help shape the
+          directory. We&apos;ll email you the access password and how to give feedback.
+        </span>
+      </label>
+
       {status === "error" && (
         <p className={`${styles.status} ${styles.error}`} aria-live="polite">
           <AlertCircle aria-hidden="true" size={18} /> {message}

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ArrowUpRight, CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, CalendarDays, Compass, Store } from "lucide-react";
 import { brand, calendlyBookingUrl } from "@/data/site";
+import { BetaSignupForm } from "./BetaSignupForm";
 
 type ComingSoonPageProps = {
   searchParams?: Promise<{
@@ -65,18 +67,31 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
             </span>
           </h1>
           <p className="coming-soon-copy">
-            Plistic is almost ready. We&apos;re polishing the new home for podcasts, video, documentary,
-            ads, music videos, and strategy.
+            <strong>Scotland&apos;s Media Directory</strong> is almost here — a place to find and hire the country&apos;s
+            creative and media businesses (film &amp; TV, music, games, design, PR, photography and more), compare
+            them by service and price, and enquire or book directly. It&apos;s free to be listed.
           </p>
           <div className="coming-soon-actions">
-            <a className="button button-primary" href={calendlyBookingUrl}>
-              <CalendarDays aria-hidden="true" size={18} />
+            <Link className="button button-primary" href="/list-your-business">
+              <Store aria-hidden="true" size={18} />
+              List your business
+            </Link>
+            <a className="button button-secondary dark" href={calendlyBookingUrl}>
+              <CalendarDays aria-hidden="true" size={17} />
               {brand.bookingLabel}
             </a>
-            <a className="button button-secondary dark" href={`mailto:${brand.email}`}>
-              Email us
-              <ArrowUpRight aria-hidden="true" size={17} />
-            </a>
+          </div>
+
+          <div className="coming-soon-beta">
+            <p className="coming-soon-beta-kicker">
+              <Compass aria-hidden="true" size={16} /> Want early access?
+            </p>
+            <h2>Become a beta tester</h2>
+            <p className="coming-soon-beta-copy">
+              Get in before everyone else, claim and customise your page, and help shape the directory. We&apos;ll
+              email you the access password and how to share feedback.
+            </p>
+            <BetaSignupForm />
           </div>
         </div>
       </section>

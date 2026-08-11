@@ -4,6 +4,7 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { getSessionProfile } from "@/lib/auth";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 import { toEmbedUrl } from "@/lib/images";
+import { registerBetaTester } from "@/lib/beta";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -152,6 +153,12 @@ export async function POST(request: Request) {
   // A valid YouTube/Vimeo showreel becomes an embedded portfolio item.
   if (showreel && toEmbedUrl(showreel)) {
     await supabase.from("service_media").insert({ service_id: inserted.id, url: showreel, kind: "embed", sort_order: 0 });
+  }
+
+  // Beta-tester opt-in: register them + send the welcome email with the access
+  // password. Best-effort; never blocks the response. Needs an email to reach them.
+  if (clean(form.get("beta"), 10) && email) {
+    registerBetaTester({ email, businessName: title, source: "list-your-business" }).catch(() => {});
   }
 
   // Best-effort admin notification (never blocks the response).

@@ -2544,3 +2544,72 @@ textarea {
     border-color: #2a313a;
   }
 }
+
+/* Beta-tester sign-up on the directory coming-soon gate. */
+.coming-soon-beta {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: left;
+}
+.coming-soon-beta-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--p-azure, #1faae9);
+  margin: 0 0 0.4rem;
+}
+.coming-soon-beta h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.3rem;
+  color: #fff;
+}
+.coming-soon-beta-copy {
+  margin: 0 0 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 46ch;
+}
+.coming-soon-beta-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+.coming-soon-beta-form input:not([aria-hidden="true"]) {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.95rem;
+}
+.coming-soon-beta-form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.coming-soon-beta-form input:focus-visible {
+  outline: 2px solid var(--p-azure, #1faae9);
+  outline-offset: 1px;
+}
+.coming-soon-beta-form .button {
+  flex: 0 0 auto;
+}
+.coming-soon-beta-done {
+  margin-top: 1rem;
+  color: #7be3a6;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.coming-soon-beta-error {
+  width: 100%;
+  margin: 0.3rem 0 0;
+  color: #ff9b8a;
+  font-size: 0.85rem;
+}
