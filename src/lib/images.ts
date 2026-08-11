@@ -10,7 +10,8 @@
  */
 export function toDisplayImage(value: string | null | undefined, width = 1000): string | null {
   if (!value) return null;
-  const first = value.split(/[,\s]+/).find((v) => /^https?:\/\//i.test(v));
+  // Accept absolute http(s) URLs and site-relative paths (e.g. /assets/…).
+  const first = value.split(/[,\s]+/).find((v) => /^(https?:\/\/|\/)/i.test(v));
   if (!first) return null;
 
   if (/drive\.google\.|docs\.google\.|googleusercontent\.com/i.test(first)) {
