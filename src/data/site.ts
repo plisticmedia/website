@@ -25,7 +25,7 @@ export const legalEntity = {
 // brand.email (the real inbox) via reply_to. An env var can override this.
 export const fromEmail = "Plistic <hello@updates.plisticmedia.com>";
 
-export const calendlyBookingUrl = "https://calendly.com/kayla-megan-burns/30min";
+export const calendlyBookingUrl = "https://calendly.com/hello-plisticmedia/30min";
 const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
 export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;
 export const bookingPagePath = "/book";
