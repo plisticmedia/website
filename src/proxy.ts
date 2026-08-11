@@ -6,6 +6,7 @@ import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
 const publicPaths = new Set([
   "/coming-soon",
   "/api/site-access",
+  "/api/beta-signup",
   "/favicon.ico",
   "/robots.txt",
   "/sitemap.xml",
@@ -30,17 +31,37 @@ function hasSiteAccess(request: NextRequest) {
   return request.cookies.get(SITE_ACCESS_COOKIE)?.value === SITE_ACCESS_COOKIE_VALUE;
 }
 
-// Launch switch. While unset (or anything other than "true") the whole site
-// stays behind the coming-soon password. Set SITE_LIVE=true in the hosting
-// environment to go public — no code change or redeploy of logic needed.
+// The Media Directory + price comparison sit behind the coming-soon/beta gate.
+function isDirectoryPath(pathname: string) {
+  return (
+    pathname === "/directory" ||
+    pathname.startsWith("/directory/") ||
+    pathname === "/compare" ||
+    pathname.startsWith("/compare/")
+  );
+}
+
+// Two launch switches, both default OFF:
+//  - SITE_LIVE=true      → the whole site is public (lifts the pre-launch gate).
+//  - DIRECTORY_LIVE=true → the directory + compare are public too.
+// So the intended live-but-directory-still-in-beta state is SITE_LIVE=true with
+// DIRECTORY_LIVE unset: everything public except the directory, which stays
+// behind the beta password until the directory itself is ready.
 const SITE_LIVE = process.env.SITE_LIVE === "true";
+const DIRECTORY_LIVE = process.env.DIRECTORY_LIVE === "true";
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // 1) Coming-soon gate: until launch, hold the whole site behind the password.
-  //    Setting SITE_LIVE=true lifts it for everyone (public launch).
-  if (!SITE_LIVE && !isPublicPath(pathname) && !hasSiteAccess(request)) {
+  // 1) Coming-soon / beta gate. Gate a page when it isn't public, the visitor
+  //    hasn't entered the password, AND either the whole site is pre-launch OR
+  //    it's a directory page and the directory isn't live yet.
+  const gated =
+    !isPublicPath(pathname) &&
+    !hasSiteAccess(request) &&
+    (!SITE_LIVE || (!DIRECTORY_LIVE && isDirectoryPath(pathname)));
+
+  if (gated) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/coming-soon";
     redirectUrl.search = "";
