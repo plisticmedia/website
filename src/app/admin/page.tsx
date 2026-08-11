@@ -36,7 +36,7 @@ export default async function AdminPage() {
   // Admin RLS policies grant full read access across these tables.
   const [services, enquiries, referrals, partnerships, leads, quotes, bookings, sponsorships, claims, disputes, missingGeo] =
     await Promise.all([
-      supabase.from("services").select("id, title, slug, status, is_featured, verified, founding, created_at, seller_id, source, claim_token, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
+      supabase.from("services").select("id, title, slug, status, is_featured, verified, founding, created_at, seller_id, source, logo_url, claim_token, google_place_id, google_rating, google_rating_count, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("enquiries").select("id, buyer_name, buyer_email, status, created_at, services(title)").order("created_at", { ascending: false }),
       supabase.from("referrals").select("id, referrer_name, referrer_email, referred_name, status, created_at").order("created_at", { ascending: false }),
       supabase.from("partnerships").select("id, partner_name, partner_email, partner_discipline, status, created_at").order("created_at", { ascending: false }),
@@ -53,7 +53,7 @@ export default async function AdminPage() {
   const peerFeedback = await getPeerFeedbackForAdmin();
   const peerDisputes = await getDisputedPeerConfidence();
 
-  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
+  const svc = (services.data ?? []) as unknown as Array<{ id: string; title: string; slug: string; status: string; is_featured: boolean; verified: boolean; founding: boolean; created_at: string; seller_id: string | null; source: string | null; logo_url: string | null; claim_token: string | null; google_place_id: string | null; google_rating: number | null; google_rating_count: number | null; profiles: { display_name: string | null } | null }>;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.plisticmedia.com").replace(/\/$/, "");
   const enq = (enquiries.data ?? []) as unknown as Array<{ id: string; buyer_name: string; buyer_email: string; status: string; created_at: string; services: { title: string } | null }>;
   const refs = (referrals.data ?? []) as Array<Record<string, string>>;
