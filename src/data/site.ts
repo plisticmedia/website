@@ -147,14 +147,14 @@ export const trustedLogos: TrustedLogo[] = [
 export const services = [
   {
     title: "Podcasting",
-    summary: "Full-service podcast production, strategy, research, and on-air coaching - from first concept to a launch that actually lands.",
+    summary: "Full-service podcast production - from first concept to a launch that lands.",
     image: "/assets/photos/site/ross-anderson.jpg",
     href: "/services/podcasting",
     bullets: ["Podcast launches", "Editing-only packages", "Research and show strategy"],
   },
   {
     title: "Video production",
-    summary: "Corporate video, brand films, ads, and music videos - concept, strategy, and on-camera coaching included.",
+    summary: "Brand films, ads and music videos - concept to final cut, coaching included.",
     image: "/assets/photos/site/kokura-luck.jpg",
     href: "/services/video-production",
     bullets: ["Multi-camera filming", "Documentary production", "Event capture"],
@@ -175,7 +175,7 @@ export const services = [
   },
   {
     title: "Coaching",
-    summary: "Presentation and media coaching - feel calm and natural on a mic or camera, whether you're a host, a founder, or a whole team.",
+    summary: "Presentation and media coaching - feel calm and natural on a mic or camera.",
     image: "/assets/photos/podcast-monitor.webp",
     href: "/services/coaching",
     bullets: ["Podcast & host coaching", "On-camera confidence", "Founder media training"],
