@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
+import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE, SPLASH_SEEN_COOKIE } from "@/lib/siteAccess";
 
 // Paths reachable without the coming-soon password.
 const publicPaths = new Set([
   "/coming-soon",
   "/api/site-access",
   "/api/beta-signup",
+  "/api/enter-site",
   "/favicon.ico",
   "/robots.txt",
   "/sitemap.xml",
@@ -69,6 +70,20 @@ export async function proxy(request: NextRequest) {
     redirectUrl.pathname = "/coming-soon";
     redirectUrl.search = "";
     redirectUrl.searchParams.set("next", `${pathname}${search}`);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Front door: the bare homepage shows the coming-soon splash to anyone who
+  // hasn't dismissed it (or been let in). Every other page stays reachable.
+  // The splash has a "continue to our website" button that sets SPLASH_SEEN.
+  if (
+    pathname === "/" &&
+    !hasSiteAccess(request) &&
+    request.cookies.get(SPLASH_SEEN_COOKIE)?.value !== "1"
+  ) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/coming-soon";
+    redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }
 

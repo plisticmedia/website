@@ -82,6 +82,12 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
             </a>
           </div>
 
+          <p className="coming-soon-skip">
+            <a href="/api/enter-site">
+              Continue to our website <ArrowUpRight aria-hidden="true" size={16} />
+            </a>
+          </p>
+
           <div className="coming-soon-beta">
             <p className="coming-soon-beta-kicker">
               <Compass aria-hidden="true" size={16} /> Want early access?

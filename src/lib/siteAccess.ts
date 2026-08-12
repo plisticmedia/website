@@ -1,4 +1,8 @@
 export const SITE_ACCESS_COOKIE = "plistic_site_access";
+
+// Set once a visitor clicks "continue to our website" from the coming-soon
+// splash, so the bare homepage stops redirecting to the splash for them.
+export const SPLASH_SEEN_COOKIE = "plistic_splash_seen";
 export const SITE_ACCESS_COOKIE_VALUE = "fded09ba22fda31a3798426f110580489d2ebb95ebc6b4666465788d4c2d653a";
 
 // Coming-soon / beta access password (SHA-256). Current password: "plisticbeta".
