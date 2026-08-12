@@ -2685,3 +2685,21 @@ textarea {
   color: var(--azure-dark, #0c6f9e);
   line-height: 1.4;
 }
+
+/* "Continue to our website" link on the coming-soon splash. */
+.coming-soon-skip {
+  margin: 1.1rem 0 0;
+}
+.coming-soon-skip a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.coming-soon-skip a:hover {
+  color: #fff;
+}
