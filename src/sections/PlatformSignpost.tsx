@@ -63,9 +63,14 @@ export async function PlatformSignpost() {
                   <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
                   <h3 className={styles.cardTitle}>{p.title}</h3>
                   <p className={styles.cardText}>{p.text}</p>
-                  <Link href="/coming-soon" className={styles.link}>
-                    Become a beta tester <ArrowRight aria-hidden="true" size={16} />
-                  </Link>
+                  <div className={styles.lockedLinks}>
+                    <Link href="/list-your-business" className={styles.link}>
+                      List your business <ArrowRight aria-hidden="true" size={16} />
+                    </Link>
+                    <Link href="/coming-soon" className={styles.link}>
+                      Become a beta tester <ArrowRight aria-hidden="true" size={16} />
+                    </Link>
+                  </div>
                 </div>
               );
             }

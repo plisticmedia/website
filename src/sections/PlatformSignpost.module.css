@@ -145,3 +145,14 @@
   padding: 0.28rem 0.6rem;
   border-radius: 999px;
 }
+
+/* Clickable actions inside the locked directory card (kept fully opaque). */
+.lockedLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.cardLocked .lockedLinks .link {
+  opacity: 1;
+}
