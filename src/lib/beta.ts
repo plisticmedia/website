@@ -27,6 +27,10 @@ export async function registerBetaTester(opts: {
     source: opts.source,
   });
 
+  // If they already have an account, grant it directory access now. (New
+  // accounts are handled by the handle_new_user trigger via email match.)
+  await supabase.rpc("grant_beta_access_by_email", { p_email: email });
+
   await sendBetaWelcome(email, opts.name);
 }
 

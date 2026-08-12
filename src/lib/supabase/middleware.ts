@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
 
 /**
  * Refreshes the Supabase auth session on every request and gates the
@@ -57,6 +58,32 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/dashboard";
       url.search = "";
       return NextResponse.redirect(url);
+    }
+  }
+
+  // Grant Media Directory access to signed-in beta testers / admins by setting
+  // the site-access cookie once — cached thereafter, so this extra profile read
+  // runs roughly once per session (only while the cookie is missing).
+  if (user && request.cookies.get(SITE_ACCESS_COOKIE)?.value !== SITE_ACCESS_COOKIE_VALUE) {
+    const { data: access, error } = await supabase
+      .from("profiles")
+      .select("role, beta_access")
+      .eq("id", user.id)
+      .single();
+    // Fall back to role-only if beta_access doesn't exist yet (deploy before the
+    // migration) so admins are never locked out of the directory.
+    let eligible = access?.role === "admin" || access?.beta_access === true;
+    if (error) {
+      const basic = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      eligible = basic.data?.role === "admin";
+    }
+    if (eligible) {
+      response.cookies.set(SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 90,
+      });
     }
   }
 
