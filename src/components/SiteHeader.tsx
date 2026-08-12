@@ -131,7 +131,7 @@ export function SiteHeader() {
                   >
                     {item.highlight && <HighlightIcon aria-hidden="true" size={15} />}
                     <span>{item.label}</span>
-                    {dirLocked && <span className="nav-soon-badge">Soon</span>}
+                    {dirLocked && <span className="nav-soon-badge">Coming soon</span>}
                     <ChevronDown aria-hidden="true" size={13} />
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="nav-drop-panel" forceMount>

@@ -2628,15 +2628,16 @@ textarea {
 
 /* Directory "coming soon" states in the header while the directory is in beta. */
 .nav-soon-badge {
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.24);
   color: #fff;
-  padding: 0.1rem 0.35rem;
+  padding: 0.1rem 0.4rem;
   border-radius: 999px;
-  margin-left: 0.15rem;
+  margin-left: 0.2rem;
 }
 .nav-drop-link.nav-drop-locked {
   cursor: default;
