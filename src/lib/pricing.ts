@@ -1,12 +1,10 @@
 import {
   coachingRateCards,
-  documentaryRateCards,
   eventAddOns,
   eventDayRates,
   eventGimbalRate,
   eventThreeCameraGimbalPackage,
   podcastAddOns,
-  podcastPackages,
   podcastPerEpisodePostProduction,
   podcastPostProduction,
   type MoneyRange,
@@ -37,12 +35,13 @@ export type EventEstimateInput = {
   overviewVideo: boolean;
   socialClipCount: number;
   rawFootage: boolean;
+  budget: "under1500" | "fifteenThree" | "threeSix" | "sixPlus" | "unsure";
   eventDate: string;
   extraNotes: string;
 };
 
 export type DocumentaryEstimateInput = {
-  scale: "short" | "feature" | "complex" | "unsure";
+  length: "under30" | "fortyFiveNinety" | "complex" | "unsure";
   vision: string;
   location: "singleGlasgow" | "singleOutsideGlasgow" | "multiLocation" | "unsure";
   contributors: "oneTwo" | "threeFive" | "sixPlus" | "unsure";
@@ -87,7 +86,9 @@ const episodeCounts: Record<PodcastEstimateInput["episodes"], number> = {
   unsure: 7,
 };
 
-const budgetBands: Record<PodcastEstimateInput["budget"], { min: number; max: number | null } | null> = {
+type Band = { min: number; max: number | null } | null;
+
+const budgetBands: Record<PodcastEstimateInput["budget"], Band> = {
   under3: { min: 0, max: 3000 },
   threeSix: { min: 3000, max: 6000 },
   sixTwelve: { min: 6000, max: 12000 },
@@ -95,6 +96,43 @@ const budgetBands: Record<PodcastEstimateInput["budget"], { min: number; max: nu
   twentyPlus: { min: 20000, max: null },
   unsure: null,
 };
+
+const documentaryBudgetBands: Record<DocumentaryEstimateInput["budget"], Band> = {
+  under12: { min: 0, max: 12000 },
+  twelveTwenty: { min: 12000, max: 20000 },
+  twentyForty: { min: 20000, max: 40000 },
+  fortyPlus: { min: 40000, max: null },
+  unsure: null,
+};
+
+const eventBudgetBands: Record<EventEstimateInput["budget"], Band> = {
+  under1500: { min: 0, max: 1500 },
+  fifteenThree: { min: 1500, max: 3000 },
+  threeSix: { min: 3000, max: 6000 },
+  sixPlus: { min: 6000, max: null },
+  unsure: null,
+};
+
+/** True when the customer's rough budget ceiling sits below the estimate — i.e.
+ *  they can't afford the selected scope, so we scope it on a call instead. */
+function budgetBelowEstimate(band: Band, range: MoneyRange | null): boolean {
+  return !!band && band.max !== null && !!range && range.low > band.max;
+}
+
+/** A "Scoped on call" result (no price shown), used whenever a note forces the
+ *  whole estimate onto a conversation regardless of the other selections. */
+function scopedOnCall(baseLabel: string, reason: string, extraNotes: string[] = []): EstimateResult {
+  return {
+    range: null,
+    baseLabel,
+    includes: [baseLabel],
+    notIncluded: [],
+    flags: [reason],
+    notes: [reason, ...extraNotes],
+    depositEligible: false,
+    primaryCta: "Your project needs a conversation first",
+  };
+}
 
 function addRanges(...ranges: MoneyRange[]): MoneyRange {
   return ranges.reduce(
@@ -113,6 +151,22 @@ function multiplyRange(range: MoneyRange, multiplier: number): MoneyRange {
     high: Math.round((range.high * multiplier) / 50) * 50,
     qualifier: range.qualifier,
   };
+}
+
+// Full-production podcast pricing as an exact grid: episode band × length band.
+// (Post-production only, add-ons, budget/launch and 60+ min are layered on
+// separately.) 60+ min and 9-11/12+ episodes are scoped on a call.
+const PODCAST_FULL_GRID = {
+  single: { under20: { low: 1200, high: 2000 }, twentyForty: { low: 1700, high: 2750 }, fortySixty: { low: 2000, high: 3250 } },
+  threeFive: { under20: { low: 3500, high: 5000 }, twentyForty: { low: 5500, high: 7000 }, fortySixty: { low: 6500, high: 8000 } },
+  sixEight: { under20: { low: 6000, high: 8000 }, twentyForty: { low: 8500, high: 11000 }, fortySixty: { low: 10000, high: 13000 } },
+} as const;
+
+function podcastEpisodeBand(episodes: PodcastEstimateInput["episodes"]): "single" | "threeFive" | "sixEight" | "scale" {
+  if (episodes === "ongoing") return "single";
+  if (episodes === "threeFive") return "threeFive";
+  if (episodes === "sixEight" || episodes === "unsure") return "sixEight";
+  return "scale"; // nineEleven, twelvePlus → scaled up from the 6-8 band
 }
 
 function estimatePodcastBase(input: PodcastEstimateInput): {
@@ -168,55 +222,25 @@ function estimatePodcastBase(input: PodcastEstimateInput): {
     };
   }
 
-  if (input.episodes === "ongoing") {
-    return {
-      range: podcastPackages.ongoing,
-      label: podcastPackages.ongoing.label,
-      note: podcastPackages.ongoing.note,
-      complexFlags: flags,
-    };
-  }
+  // Full production: exact bracket ranges by episode band × length band.
+  // (60+ min is mapped here only for completeness — estimatePodcast forces it
+  // onto a call before this range is ever shown.)
+  const lengthKey: "under20" | "twentyForty" | "fortySixty" =
+    input.episodeLength === "under20"
+      ? "under20"
+      : input.episodeLength === "fortySixty" || input.episodeLength === "sixtyPlus"
+        ? "fortySixty"
+        : "twentyForty";
+  const epBand = podcastEpisodeBand(input.episodes);
+  const gridRange =
+    epBand === "scale"
+      ? multiplyRange({ ...PODCAST_FULL_GRID.sixEight[lengthKey] }, count / 7)
+      : { ...PODCAST_FULL_GRID[epBand][lengthKey] };
 
-  if (input.episodes === "threeFive") {
-    const multiplier = count / 3;
-    return {
-      range: multiplyRange(podcastPackages.pilot, multiplier),
-      label: podcastPackages.pilot.label,
-      note: `${podcastPackages.pilot.note} Scaled from the 3-episode workbook rate for the 3-5 episode band.`,
-      complexFlags: flags,
-    };
-  }
-
-  const canUseOutsidePackage =
-    input.location === "outsideGlasgow" &&
-    count <= 10 &&
-    input.episodeLength !== "under20" &&
-    input.episodeLength !== "twentyForty";
-
-  if (canUseOutsidePackage) {
-    const multiplier = count / 6;
-    return {
-      range: multiplyRange(podcastPackages.outsideGlasgow, multiplier),
-      label: podcastPackages.outsideGlasgow.label,
-      note: count === 6 ? podcastPackages.outsideGlasgow.note : `${podcastPackages.outsideGlasgow.note} Scaled from the 6-episode workbook rate.`,
-      complexFlags: flags,
-    };
-  }
-
-  let packageRate = podcastPackages.standardCadence;
-  if (input.cadence === "batch" && (input.episodeLength === "under20" || input.episodeLength === "twentyForty")) {
-    packageRate = podcastPackages.starterBatch;
-  }
-
-  if (input.episodeLength === "fortySixty" || input.episodeLength === "sixtyPlus") {
-    packageRate = podcastPackages.extended;
-  }
-
-  const multiplier = count / 6;
   return {
-    range: count === 6 ? packageRate : multiplyRange(packageRate, multiplier),
-    label: packageRate.label,
-    note: count === 6 ? packageRate.note : `${packageRate.note} Scaled from the 6-episode workbook rate.`,
+    range: gridRange,
+    label: "Full production",
+    note: "Full production (recording and edit) for the selected number and length of episodes.",
     complexFlags: flags,
   };
 }
@@ -261,32 +285,30 @@ function estimatePodcastAddOns(input: PodcastEstimateInput): {
   };
 }
 
-function budgetNote(input: PodcastEstimateInput, range: MoneyRange): string | null {
-  const band = budgetBands[input.budget];
-  if (!band) return null;
-
-  if (band.max !== null && range.low > band.max) {
-    return "Your rough budget sits below this estimate, so the call should cover scope options.";
-  }
-
-  if (range.high < band.min) {
-    return "Your rough budget appears to have headroom for the selected scope.";
-  }
-
-  return "Your rough budget overlaps this estimate.";
-}
-
 export function estimatePodcast(input: PodcastEstimateInput): EstimateResult {
   const base = estimatePodcastBase(input);
   const addOns = estimatePodcastAddOns(input);
   const range = addRanges(base.range, addOns.range);
-  const notes = [base.note];
-  const budget = budgetNote(input, range);
-  if (budget) notes.push(budget);
 
-  if (input.timeline === "withinTwo") {
-    notes.push("Within 2 months is a fast launch window and should be checked on the call.");
+  // Note 3: cover art + marketing/launch are scoped separately, not in the price.
+  const extrasSelected = input.addOns.some((id) => id === "coverArt" || id === "marketing");
+  const extrasNote = extrasSelected
+    ? "Cover art and marketing/launch are add-on extras, scoped separately on a call — the price shown doesn't include them."
+    : null;
+  const extra = extrasNote ? [extrasNote] : [];
+
+  // Notes 5, 2, 1 — force "Scoped on call" regardless of everything else.
+  if (input.episodeLength === "sixtyPlus") {
+    return scopedOnCall(base.label, "60+ minute episodes are complex, so this is scoped on a call.", extra);
   }
+  if (input.timeline === "withinTwo") {
+    return scopedOnCall(base.label, "A launch within 2 months is a fast window, so this is scoped on a call.", extra);
+  }
+  if (budgetBelowEstimate(budgetBands[input.budget], range)) {
+    return scopedOnCall(base.label, "Your rough budget sits below this scope, so it's best scoped on a call.", extra);
+  }
+
+  const notes = [base.note, ...extra];
 
   if (input.location === "outsideGlasgow") {
     notes.push("Outside Glasgow travel is charged at 60p/mile plus £30-£40/hr travel time.");
@@ -300,7 +322,6 @@ export function estimatePodcast(input: PodcastEstimateInput): EstimateResult {
   const depositEligible =
     !requiresCall &&
     count < 10 &&
-    input.episodeLength !== "sixtyPlus" &&
     (input.need === "post" || input.location === "glasgowOffice" || input.location === "glasgowClient");
 
   return {
@@ -400,10 +421,16 @@ export function estimateEvent(input: EventEstimateInput): EstimateResult {
 
   const range = ranges.length > 0 ? addRanges(...ranges) : null;
   const requiresCall = flags.length > 0;
+  const eventLabel = input.cameras === "unsure" ? "Event filming" : eventDayRates[input.cameras]?.label ?? "Event filming";
+
+  // Note 1: budget below the estimate → scope on call, regardless of the rest.
+  if (budgetBelowEstimate(eventBudgetBands[input.budget], range)) {
+    return scopedOnCall(eventLabel, "Your rough budget sits below this scope, so it's best scoped on a call.");
+  }
 
   return {
     range,
-    baseLabel: input.cameras === "unsure" ? "Event filming" : eventDayRates[input.cameras]?.label ?? "Event filming",
+    baseLabel: eventLabel,
     includes,
     notIncluded: input.location === "glasgow" ? [] : ["Travel costs confirmed before the kick-off call."],
     flags,
@@ -413,52 +440,56 @@ export function estimateEvent(input: EventEstimateInput): EstimateResult {
   };
 }
 
-export function estimateDocumentary(input: DocumentaryEstimateInput): EstimateResult {
-  const selectedRate =
-    input.scale === "unsure"
-      ? documentaryRateCards[0]
-      : documentaryRateCards.find((rate) => rate.id === input.scale) ?? documentaryRateCards[0];
-  const flags = ["Documentary production is always quoted individually after a production conversation."];
-  const notes = [selectedRate.note];
-  const includes = [selectedRate.label];
-  const notIncluded: string[] = [];
+// Documentary base range as a grid: length × location. Complex / multi-location
+// (either box) is always £40,000+.
+const DOCUMENTARY_GRID = {
+  singleGlasgow: { under30: { low: 12000, high: 20000 }, fortyFiveNinety: { low: 20000, high: 30000 } },
+  singleOutsideGlasgow: { under30: { low: 20000, high: 30000 }, fortyFiveNinety: { low: 30000, high: 40000 } },
+} as const;
 
-  if (input.location === "multiLocation") {
-    flags.push("Multi-location production can move this beyond the starting range.");
-  }
+export function estimateDocumentary(input: DocumentaryEstimateInput): EstimateResult {
+  const baseLabel = "Documentary production";
+  const flags = ["Documentary production is always quoted individually after a production conversation."];
+  const notes: string[] = [];
+  const includes = [baseLabel];
+  const notIncluded: string[] = [];
 
   if (input.location === "singleOutsideGlasgow") {
     notIncluded.push("Travel and location costs are confirmed on the call.");
   }
-
   if (input.contributors === "sixPlus") {
     flags.push("Six or more contributors usually needs extra research, scheduling, and release planning.");
   }
-
-  if (input.budget === "under12") {
-    flags.push("The workbook minimum for documentary work starts at £12,000.");
-  }
-
-  if (input.timeline === "withinTwo") {
-    notes.push("Within 2 months is a fast documentary window and should be checked on the call.");
-  }
-
   if (input.vision.trim()) {
     notes.push("Your vision note will go into the documentary brief.");
   }
 
-  const range =
-    input.scale === "unsure"
-      ? { low: 12000, high: 12000, qualifier: "minimum starting point" }
-      : {
-          low: selectedRate.low,
-          high: selectedRate.high,
-          qualifier: selectedRate.qualifier,
-        };
+  // £40,000+ whenever the length box is "complex / multi-location", or the
+  // production spans multiple locations — regardless of everything else.
+  let range: MoneyRange;
+  if (input.length === "complex" || input.location === "multiLocation") {
+    range = { low: 40000, high: 40000, qualifier: "and up" };
+  } else if (input.length === "unsure" || input.location === "unsure") {
+    range = { low: 12000, high: 20000, qualifier: "starting point" };
+    notes.push("A couple of details are still open, so this is a starting range.");
+  } else {
+    // input.length is now narrowed to "under30" | "fortyFiveNinety".
+    const loc = input.location === "singleOutsideGlasgow" ? "singleOutsideGlasgow" : "singleGlasgow";
+    range = { ...DOCUMENTARY_GRID[loc][input.length] };
+  }
+
+  // Note 6: within 2 months → scope on call, regardless of everything else.
+  if (input.timeline === "withinTwo") {
+    return scopedOnCall(baseLabel, "A documentary within 2 months is a fast window, so this is scoped on a call.");
+  }
+  // Note 1: budget below the estimate → scope on call.
+  if (budgetBelowEstimate(documentaryBudgetBands[input.budget], range)) {
+    return scopedOnCall(baseLabel, "Your rough budget sits below this scope, so it's best scoped on a call.");
+  }
 
   return {
     range,
-    baseLabel: selectedRate.label,
+    baseLabel,
     includes,
     notIncluded,
     flags,

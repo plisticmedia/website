@@ -60,12 +60,13 @@ const eventDefaults: EventEstimateInput = {
   overviewVideo: false,
   socialClipCount: 0,
   rawFootage: false,
+  budget: "unsure",
   eventDate: "",
   extraNotes: "",
 };
 
 const documentaryDefaults: DocumentaryEstimateInput = {
-  scale: "short",
+  length: "under30",
   vision: "",
   location: "singleGlasgow",
   contributors: "threeFive",
@@ -168,11 +169,19 @@ const cameraLabels: Record<EventEstimateInput["cameras"], string> = {
   unsure: "To confirm",
 };
 
-const documentaryScaleLabels: Record<DocumentaryEstimateInput["scale"], string> = {
-  short: "Short documentary",
-  feature: "Feature documentary",
+const documentaryLengthLabels: Record<DocumentaryEstimateInput["length"], string> = {
+  under30: "Under 30 mins",
+  fortyFiveNinety: "45-90 mins",
   complex: "Complex / multi-location",
   unsure: "To confirm",
+};
+
+const eventBudgetLabels: Record<EventEstimateInput["budget"], string> = {
+  under1500: "Under £1,500",
+  fifteenThree: "£1,500-£3,000",
+  threeSix: "£3,000-£6,000",
+  sixPlus: "£6,000+",
+  unsure: "Not sure yet",
 };
 
 const documentaryLocationLabels: Record<DocumentaryEstimateInput["location"], string> = {
@@ -658,6 +667,7 @@ function getActiveSlate(
         { label: "Duration", value: eventDurationLabels[event.duration] },
         { label: "Camera", value: cameraLabels[event.cameras] },
         { label: "Location", value: eventLocationLabels[event.location] },
+        { label: "Budget", value: eventBudgetLabels[event.budget] },
         { label: "Social clips", value: String(event.socialClipCount) },
       ],
     };
@@ -688,7 +698,7 @@ function getActiveSlate(
       intro: "Confirmed on a production call once the shape is clearer.",
       briefOnly: true,
       rows: [
-        { label: "Length", value: documentaryScaleLabels[documentary.scale] },
+        { label: "Length", value: documentaryLengthLabels[documentary.length] },
         { label: "Location", value: documentaryLocationLabels[documentary.location] },
         { label: "Contributors", value: contributorLabels[documentary.contributors] },
         { label: "Budget", value: documentaryBudgetLabels[documentary.budget] },
@@ -1012,6 +1022,24 @@ function EventIntake({
           </select>
         </Field>
 
+        <Field label="Rough budget">
+          <select
+            value={event.budget}
+            onChange={(eventChange) =>
+              setEvent((current) => ({
+                ...current,
+                budget: eventChange.target.value as EventEstimateInput["budget"],
+              }))
+            }
+          >
+            <option value="under1500">Under £1,500</option>
+            <option value="fifteenThree">£1,500-£3,000</option>
+            <option value="threeSix">£3,000-£6,000</option>
+            <option value="sixPlus">£6,000+</option>
+            <option value="unsure">Not sure yet</option>
+          </select>
+        </Field>
+
         <Field label="Cameras">
           <select
             value={event.cameras}
@@ -1214,16 +1242,16 @@ function DocumentaryIntake({
       <div className={styles.fields}>
         <Field label="Finished length">
           <select
-            value={documentary.scale}
+            value={documentary.length}
             onChange={(eventChange) =>
               setDocumentary((current) => ({
                 ...current,
-                scale: eventChange.target.value as DocumentaryEstimateInput["scale"],
+                length: eventChange.target.value as DocumentaryEstimateInput["length"],
               }))
             }
           >
-            <option value="short">Under 30 mins</option>
-            <option value="feature">45-90 mins</option>
+            <option value="under30">Under 30 mins</option>
+            <option value="fortyFiveNinety">45-90 mins</option>
             <option value="complex">Complex / multi-location</option>
             <option value="unsure">Not sure yet</option>
           </select>
