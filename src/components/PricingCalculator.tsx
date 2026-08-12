@@ -297,12 +297,15 @@ function PriceRange({ result }: { result: EstimateResult }) {
     return <div className={styles.slateCallout}>Scoped on call</div>;
   }
 
-  const { low, high, qualifier } = result.range;
+  const { low, high, qualifier, plus } = result.range;
 
   if (low === high) {
     return (
       <div className={styles.slateRange}>
-        <span className={styles.priceLine}>{currency.format(low)}</span>
+        <span className={styles.priceLine}>
+          {currency.format(low)}
+          {plus ? "+" : null}
+        </span>
         {qualifier ? <small>{qualifier}</small> : null}
       </div>
     );
@@ -524,8 +527,11 @@ function getRangeText(result?: EstimateResult) {
     return "Scoped on call";
   }
 
-  const { low, high, qualifier } = result.range;
-  const base = low === high ? currency.format(low) : `${currency.format(low)} - ${currency.format(high)}`;
+  const { low, high, qualifier, plus } = result.range;
+  const base =
+    low === high
+      ? `${currency.format(low)}${plus ? "+" : ""}`
+      : `${currency.format(low)} - ${currency.format(high)}`;
 
   return qualifier ? `${base} ${qualifier}` : base;
 }

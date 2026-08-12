@@ -2,6 +2,8 @@ export type MoneyRange = {
   low: number;
   high: number;
   qualifier?: string;
+  // Open-ended "from" price — renders as e.g. "£40,000+".
+  plus?: boolean;
 };
 
 export type RateItem = {
