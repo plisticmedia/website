@@ -468,7 +468,7 @@ export function estimateDocumentary(input: DocumentaryEstimateInput): EstimateRe
   // production spans multiple locations — regardless of everything else.
   let range: MoneyRange;
   if (input.length === "complex" || input.location === "multiLocation") {
-    range = { low: 40000, high: 40000, qualifier: "and up" };
+    range = { low: 40000, high: 40000, plus: true };
   } else if (input.length === "unsure" || input.location === "unsure") {
     range = { low: 12000, high: 20000, qualifier: "starting point" };
     notes.push("A couple of details are still open, so this is a starting range.");
