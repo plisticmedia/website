@@ -66,6 +66,10 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
               <span>ready to</span> <span>launch</span>
             </span>
           </h1>
+          <a className="coming-soon-enter" href="/api/enter-site">
+            Continue to our website
+            <ArrowUpRight aria-hidden="true" size={20} />
+          </a>
           <p className="coming-soon-copy">
             <strong>Scotland&apos;s Media Directory</strong> is almost here — a place to find and hire the country&apos;s
             creative and media businesses (film &amp; TV, music, games, design, PR, photography and more), compare
@@ -81,12 +85,6 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
               {brand.bookingLabel}
             </a>
           </div>
-
-          <p className="coming-soon-skip">
-            <a href="/api/enter-site">
-              Continue to our website <ArrowUpRight aria-hidden="true" size={16} />
-            </a>
-          </p>
 
           <div className="coming-soon-beta">
             <p className="coming-soon-beta-kicker">

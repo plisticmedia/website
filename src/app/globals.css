@@ -2686,20 +2686,27 @@ textarea {
   line-height: 1.4;
 }
 
-/* "Continue to our website" link on the coming-soon splash. */
-.coming-soon-skip {
-  margin: 1.1rem 0 0;
-}
-.coming-soon-skip a {
+/* "Continue to our website" — prominent button near the top of the splash. */
+.coming-soon-enter {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  color: rgba(255, 255, 255, 0.82);
-  font-weight: 600;
-  font-size: 0.92rem;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.coming-soon-skip a:hover {
+  gap: 0.55rem;
+  margin: 1.6rem 0 0.4rem;
+  padding: 0.95rem 1.7rem;
+  border-radius: 999px;
+  background: var(--p-azure, #1faae9);
   color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 30px rgba(31, 170, 233, 0.4);
+  transition: background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.coming-soon-enter:hover,
+.coming-soon-enter:focus-visible {
+  background: #fff;
+  color: var(--p-azure-deep, #0c6f9e);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 36px rgba(255, 255, 255, 0.28);
+  outline: none;
 }
