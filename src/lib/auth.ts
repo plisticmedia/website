@@ -39,6 +39,8 @@ export type SessionProfile = {
   /** How the account presents: a member of the public hiring, or a listed business. */
   accountType: AccountType;
   displayName: string | null;
+  /** Beta tester with early access to the (still-gated) Media Directory. */
+  betaAccess: boolean;
 };
 
 /** Returns the signed-in user's profile, or null if logged out. */
@@ -53,10 +55,10 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   // Try with account_type; fall back to the pre-migration shape so a deploy that
   // lands before migration 0018 doesn't null the whole profile (which would drop
   // admin role and lock admins out). Everyone is treated as 'business' until then.
-  let profile: { role?: string; account_type?: string; display_name?: string | null } | null = null;
+  let profile: { role?: string; account_type?: string; display_name?: string | null; beta_access?: boolean } | null = null;
   const withType = await supabase
     .from("profiles")
-    .select("role, account_type, display_name")
+    .select("role, account_type, display_name, beta_access")
     .eq("id", user.id)
     .single();
   if (withType.error) {
@@ -69,6 +71,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   return {
     id: user.id,
     email: user.email ?? null,
+    betaAccess: profile?.beta_access === true || (profile?.role as UserRole) === "admin",
     role: (profile?.role as UserRole) ?? "seller",
     accountType: (profile?.account_type as AccountType) ?? "business",
     displayName: profile?.display_name ?? null,

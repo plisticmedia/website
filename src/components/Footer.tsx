@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { brand, legalEntity, services } from "@/data/site";
+import { directoryPublic } from "@/lib/directory";
+import { getSessionProfile } from "@/lib/auth";
 
 // Explicit footer list (not derived from the header nav, so restructuring the
 // header dropdowns never silently drops footer links).
@@ -18,7 +20,11 @@ const legalLinks = [
   { label: "Privacy", href: "/privacy" },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const viewer = await getSessionProfile();
+  const directoryLocked = !directoryPublic() && !viewer?.betaAccess;
+  const isDirectoryLink = (href: string) => href === "/directory" || href === "/compare";
+
   return (
     <footer className="site-footer">
       <div className="footer-shell">
@@ -47,11 +53,17 @@ export function Footer() {
 
           <nav className="footer-column" aria-labelledby="footer-company-title">
             <h2 id="footer-company-title">Company</h2>
-            {companyLinks.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
+            {companyLinks.map((item) =>
+              directoryLocked && isDirectoryLink(item.href) ? (
+                <span key={item.href} className="footer-soon" aria-disabled="true">
+                  {item.label} <em>· coming soon</em>
+                </span>
+              ) : (
+                <Link key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
 

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Clapperboard, Compass, Sparkles } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
+import { directoryPublic } from "@/lib/directory";
+import { getSessionProfile } from "@/lib/auth";
 import styles from "./PlatformSignpost.module.css";
 
 /**
@@ -32,7 +34,10 @@ const pillars = [
   },
 ];
 
-export function PlatformSignpost() {
+export async function PlatformSignpost() {
+  const viewer = await getSessionProfile();
+  const directoryLocked = !directoryPublic() && !viewer?.betaAccess;
+
   return (
     <section className={`p-section ${styles.section}`} aria-labelledby="platform-title">
       <div className="p-container">
@@ -48,17 +53,34 @@ export function PlatformSignpost() {
         </div>
 
         <div className={styles.grid}>
-          {pillars.map((p) => (
-            <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
-              <span className="p-vfc" aria-hidden="true" />
-              <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
-              <h3 className={styles.cardTitle}>{p.title}</h3>
-              <p className={styles.cardText}>{p.text}</p>
-              <span className={styles.link}>
-                {p.cta} <ArrowRight aria-hidden="true" size={16} />
-              </span>
-            </Link>
-          ))}
+          {pillars.map((p) => {
+            const locked = p.href === "/directory" && directoryLocked;
+            if (locked) {
+              return (
+                <div className={`${styles.card} p-vf ${styles.cardLocked}`} key={p.title} aria-disabled="true">
+                  <span className="p-vfc" aria-hidden="true" />
+                  <span className={styles.comingSoon}>Coming soon</span>
+                  <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
+                  <h3 className={styles.cardTitle}>{p.title}</h3>
+                  <p className={styles.cardText}>{p.text}</p>
+                  <Link href="/coming-soon" className={styles.link}>
+                    Become a beta tester <ArrowRight aria-hidden="true" size={16} />
+                  </Link>
+                </div>
+              );
+            }
+            return (
+              <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
+                <span className="p-vfc" aria-hidden="true" />
+                <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
+                <h3 className={styles.cardTitle}>{p.title}</h3>
+                <p className={styles.cardText}>{p.text}</p>
+                <span className={styles.link}>
+                  {p.cta} <ArrowRight aria-hidden="true" size={16} />
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         <div className={styles.helper}>

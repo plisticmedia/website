@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Compass, LayoutDashboard, LogIn, Menu, Sparkles, Store, X } from "lucide-react";
 import { bookingPagePath, brand, navItems } from "@/data/site";
+import { directoryPublic } from "@/lib/directory";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   NavigationMenu,
@@ -21,7 +22,11 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   // null = still checking; used to avoid a sign-in/dashboard flash.
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [directoryAccess, setDirectoryAccess] = useState(false);
   const pathname = usePathname();
+  // The directory + compare links show "Coming soon" until the directory is
+  // public — unless the viewer is a beta tester / admin.
+  const directoryLocked = !directoryPublic() && !directoryAccess;
 
   // Close the mobile drawer whenever the route changes. This is the reliable
   // close signal — closing only in each link's onClick can unmount the tapped
@@ -33,11 +38,27 @@ export function SiteHeader() {
   useEffect(() => {
     let active = true;
     const supabase = createSupabaseBrowserClient();
+
+    async function loadAccess(userId: string | undefined) {
+      if (!userId) {
+        if (active) setDirectoryAccess(false);
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, beta_access")
+        .eq("id", userId)
+        .maybeSingle();
+      if (active) setDirectoryAccess(profile?.role === "admin" || profile?.beta_access === true);
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       if (active) setSignedIn(!!data.user);
+      loadAccess(data.user?.id);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (active) setSignedIn(!!session?.user);
+      loadAccess(session?.user?.id);
     });
     return () => {
       active = false;
@@ -84,6 +105,8 @@ export function SiteHeader() {
             // Grouped item → dropdown menu.
             if (item.children && item.children.length > 0) {
               const menuKey = item.href;
+              const dirLocked = directoryLocked && item.href === "/directory";
+              const isDirChild = (href: string) => href === "/directory" || href === "/compare";
               return (
                 <NavigationMenuItem
                   className="nav-mega"
@@ -108,17 +131,35 @@ export function SiteHeader() {
                   >
                     {item.highlight && <HighlightIcon aria-hidden="true" size={15} />}
                     <span>{item.label}</span>
+                    {dirLocked && <span className="nav-soon-badge">Soon</span>}
                     <ChevronDown aria-hidden="true" size={13} />
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="nav-drop-panel" forceMount>
-                    {item.children.map((child) => (
-                      <NavigationMenuLink asChild key={child.href}>
-                        <Link className="nav-drop-link" href={child.href}>
-                          <strong>{child.label}</strong>
+                    {item.children.map((child) =>
+                      dirLocked && isDirChild(child.href) ? (
+                        <span className="nav-drop-link nav-drop-locked" key={child.href} aria-disabled="true">
+                          <strong>
+                            {child.label} <span className="nav-soon-inline">Coming soon</span>
+                          </strong>
                           {child.description && <span>{child.description}</span>}
+                        </span>
+                      ) : (
+                        <NavigationMenuLink asChild key={child.href}>
+                          <Link className="nav-drop-link" href={child.href}>
+                            <strong>{child.label}</strong>
+                            {child.description && <span>{child.description}</span>}
+                          </Link>
+                        </NavigationMenuLink>
+                      ),
+                    )}
+                    {dirLocked && (
+                      <NavigationMenuLink asChild>
+                        <Link className="nav-drop-link nav-drop-beta" href="/coming-soon">
+                          <strong>Become a beta tester →</strong>
+                          <span>Early access to Scotland&apos;s leading media directory</span>
                         </Link>
                       </NavigationMenuLink>
-                    ))}
+                    )}
                   </NavigationMenuContent>
                 </NavigationMenuItem>
               );
@@ -177,25 +218,42 @@ export function SiteHeader() {
             <ul className="mobile-menu-list">
               {navItems.map((item) => {
                 const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
+                const itemLocked = directoryLocked && item.href === "/directory";
+                const isDirChild = (href: string) => href === "/directory" || href === "/compare";
                 return (
                   <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={item.highlight ? "mobile-nav-directory" : undefined}
-                    >
-                      {item.highlight && <HighlightIcon aria-hidden="true" size={18} />}
-                      {item.label}
-                    </Link>
+                    {itemLocked ? (
+                      <span className="mobile-nav-directory mobile-nav-soon" aria-disabled="true">
+                        <HighlightIcon aria-hidden="true" size={18} />
+                        {item.label} <em>· coming soon</em>
+                      </span>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={item.highlight ? "mobile-nav-directory" : undefined}
+                      >
+                        {item.highlight && <HighlightIcon aria-hidden="true" size={18} />}
+                        {item.label}
+                      </Link>
+                    )}
                     {item.children && item.children.length > 0 && (
                       <ul className="mobile-submenu">
-                        {item.children.map((child) => (
-                          <li key={child.href}>
-                            <Link href={child.href} onClick={() => setMobileOpen(false)}>
-                              {child.label}
-                            </Link>
-                          </li>
-                        ))}
+                        {item.children.map((child) =>
+                          directoryLocked && isDirChild(child.href) ? (
+                            <li key={child.href}>
+                              <span className="mobile-nav-soon" aria-disabled="true">
+                                {child.label} <em>· coming soon</em>
+                              </span>
+                            </li>
+                          ) : (
+                            <li key={child.href}>
+                              <Link href={child.href} onClick={() => setMobileOpen(false)}>
+                                {child.label}
+                              </Link>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     )}
                   </li>
@@ -205,6 +263,9 @@ export function SiteHeader() {
             <div className="mobile-menu-foot">
               <Link href="/list-your-business" className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
                 <Store aria-hidden="true" size={18} /> List your business
+              </Link>
+              <Link href="/coming-soon" className="mobile-beta-cta" onClick={() => setMobileOpen(false)}>
+                Become a beta tester for Scotland&apos;s leading media directory
               </Link>
               <Link href={accountHref} className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
                 <AccountIcon aria-hidden="true" size={18} /> {accountLabel}

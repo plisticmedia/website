@@ -121,3 +121,27 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Directory card while the directory is still in beta. */
+.cardLocked {
+  position: relative;
+  opacity: 0.9;
+}
+.cardLocked .cardTitle,
+.cardLocked .cardText {
+  opacity: 0.6;
+}
+.comingSoon {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--p-ink, #141417);
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+}

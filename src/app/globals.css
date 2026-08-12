@@ -2613,3 +2613,74 @@ textarea {
   color: #ff9b8a;
   font-size: 0.85rem;
 }
+
+/* Directory footer links while the directory is in beta. */
+.footer-soon {
+  color: var(--muted, #5d6b71);
+  opacity: 0.7;
+  cursor: default;
+}
+.footer-soon em {
+  font-style: normal;
+  font-size: 0.82em;
+  opacity: 0.8;
+}
+
+/* Directory "coming soon" states in the header while the directory is in beta. */
+.nav-soon-badge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  margin-left: 0.15rem;
+}
+.nav-drop-link.nav-drop-locked {
+  cursor: default;
+  opacity: 0.72;
+}
+.nav-drop-link.nav-drop-locked strong {
+  color: var(--ink-strong, #141417);
+}
+.nav-soon-inline {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--azure-dark, #0c6f9e);
+  background: rgba(31, 170, 233, 0.12);
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  margin-left: 0.3rem;
+}
+.nav-drop-link.nav-drop-beta {
+  border-top: 1px solid rgba(20, 20, 23, 0.1);
+  margin-top: 0.25rem;
+  padding-top: 0.6rem;
+}
+.nav-drop-link.nav-drop-beta strong {
+  color: var(--azure-dark, #0c6f9e);
+}
+.mobile-nav-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted, #5d6b71);
+  opacity: 0.75;
+}
+.mobile-nav-soon em {
+  font-style: normal;
+  font-size: 0.82em;
+  font-weight: 700;
+}
+.mobile-beta-cta {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--azure-dark, #0c6f9e);
+  line-height: 1.4;
+}

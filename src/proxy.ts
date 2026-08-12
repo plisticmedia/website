@@ -48,7 +48,10 @@ function isDirectoryPath(pathname: string) {
 // DIRECTORY_LIVE unset: everything public except the directory, which stays
 // behind the beta password until the directory itself is ready.
 const SITE_LIVE = process.env.SITE_LIVE === "true";
-const DIRECTORY_LIVE = process.env.DIRECTORY_LIVE === "true";
+// NEXT_PUBLIC_ so the same flag drives the client-side "Coming soon" button
+// states as well as this gate. Beta testers / admins are let through by the
+// site-access cookie, which updateSession sets for them once they're signed in.
+const DIRECTORY_LIVE = process.env.NEXT_PUBLIC_DIRECTORY_LIVE === "true";
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
