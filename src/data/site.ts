@@ -73,6 +73,7 @@ export const navItems: NavItem[] = [
     children: [
       { label: "Browse businesses", href: "/directory", description: "Search Scotland's media companies & freelancers" },
       { label: "Compare prices & services", href: "/compare", description: "Search by service — see who offers it & what they charge" },
+      { label: "Marketplace", href: "/marketplace", description: "Buy items & services from Scotland's creatives" },
       { label: "List your business", href: "/list-your-business", description: "Add yourself to the directory — it's free" },
     ],
   },
