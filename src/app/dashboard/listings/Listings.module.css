@@ -158,6 +158,23 @@
   color: #946200;
 }
 
+.status_active {
+  background: #e7f7ef;
+  border-color: #bfe8d4;
+  color: #0f7a52;
+}
+
+.status_sold {
+  background: #f3e7fb;
+  border-color: #e0c6f2;
+  color: #6b2f9e;
+}
+
+.status_removed {
+  background: #f0f3f5;
+  color: var(--p-muted);
+}
+
 .status_paused {
   background: #f0f3f5;
   color: var(--p-muted);
