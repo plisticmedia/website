@@ -12,7 +12,7 @@
 -- 1) The listing.
 insert into services (
   slug, title, listing_type, summary, description,
-  category_id, location_id, website_url, logo_url, cover_image_url,
+  category_id, location_id, website_url, booking_url, logo_url, cover_image_url,
   social_links, credits, availability, status,
   is_featured, verified, founding, seller_id, source
 )
@@ -29,6 +29,7 @@ select
   ),
   (select id from locations where lower(name) like '%glasgow%' limit 1),
   'https://www.plisticmedia.com',
+  'https://cal.com/plistic-media/30min',
   '/assets/brand/plistic-media.png',
   '/assets/photos/studio-window.webp',
   '{}'::jsonb,
