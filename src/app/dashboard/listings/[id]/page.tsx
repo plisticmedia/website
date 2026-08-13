@@ -192,7 +192,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
             </label>
             <label className={styles.field}>
               <span>Booking link (optional)</span>
-              <input name="booking_url" type="text" maxLength={300} defaultValue={service.booking_url ?? ""} placeholder="Cal.com or Calendly link — adds a “Book a call” button" />
+              <input name="booking_url" type="text" maxLength={300} defaultValue={service.booking_url ?? ""} placeholder="Your booking link (Cal.com, etc.) — adds a “Book a call” button" />
             </label>
             <div className={styles.packageFields}>
               <label className={styles.field}>

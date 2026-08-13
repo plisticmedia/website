@@ -25,9 +25,10 @@ export const legalEntity = {
 // brand.email (the real inbox) via reply_to. An env var can override this.
 export const fromEmail = "Plistic <hello@updates.plisticmedia.com>";
 
-export const calendlyBookingUrl = "https://calendly.com/hello-plisticmedia/30min";
-const calendlyEmbedSeparator = calendlyBookingUrl.includes("?") ? "&" : "?";
-export const calendlyEmbedUrl = `${calendlyBookingUrl}${calendlyEmbedSeparator}embed_domain=plistic.media&embed_type=Inline`;
+// Cal.com booking. The public booking page embeds directly in an iframe.
+export const bookingUrl = "https://cal.com/plistic-media/30min";
+const bookingEmbedSeparator = bookingUrl.includes("?") ? "&" : "?";
+export const bookingEmbedUrl = `${bookingUrl}${bookingEmbedSeparator}embed=true`;
 export const bookingPagePath = "/book";
 
 export const launchOfferExpiresAt = "2026-08-31T23:59:59+01:00";
