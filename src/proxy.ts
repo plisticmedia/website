@@ -32,13 +32,16 @@ function hasSiteAccess(request: NextRequest) {
   return request.cookies.get(SITE_ACCESS_COOKIE)?.value === SITE_ACCESS_COOKIE_VALUE;
 }
 
-// The Media Directory + price comparison sit behind the coming-soon/beta gate.
+// The Media Directory + price comparison + marketplace all sit behind the
+// coming-soon/beta gate.
 function isDirectoryPath(pathname: string) {
   return (
     pathname === "/directory" ||
     pathname.startsWith("/directory/") ||
     pathname === "/compare" ||
-    pathname.startsWith("/compare/")
+    pathname.startsWith("/compare/") ||
+    pathname === "/marketplace" ||
+    pathname.startsWith("/marketplace/")
   );
 }
 

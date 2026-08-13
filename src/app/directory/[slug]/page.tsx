@@ -10,6 +10,7 @@ import { toDisplayImage, toEmbedUrl } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug, getServiceReviews } from "@/lib/services";
 import { getConfirmedCollaborators, getPublicPeerConfidence } from "@/lib/peers";
+import { getItemsForService } from "@/lib/marketplace";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
@@ -70,6 +71,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
 
   const viewer = await getSessionProfile();
   const peerConf = await getPublicPeerConfidence(service.id, !!viewer);
+  const forSale = await getItemsForService(service.id);
 
   // Count a public view AFTER the page has been sent, so it never adds to load
   // time. Best-effort; skip the owner and admins.
@@ -356,6 +358,36 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
+            {forSale.length > 0 && (
+              <div className={styles.forSale} id="for-sale">
+                <h2>For sale</h2>
+                <p className={styles.forSaleNote}>Items and services you can buy from {service.title}.</p>
+                <div className={styles.forSaleGrid}>
+                  {forSale.map((item) => {
+                    const cover = item.images[0];
+                    const priceLabel =
+                      item.price_gbp != null ? gbp(item.price_gbp) : "Price on enquiry";
+                    return (
+                      <Link key={item.id} href={`/marketplace/${item.id}`} className={styles.forSaleCard}>
+                        <div className={styles.forSaleThumb}>
+                          {cover ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={cover} alt={item.title} loading="lazy" />
+                          ) : (
+                            <span className={styles.forSaleInitial} aria-hidden="true">{item.title.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className={styles.forSaleBody}>
+                          <span className={styles.forSaleTitle}>{item.title}</span>
+                          <span className={styles.forSalePrice}>{priceLabel}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {reviewCount > 0 && (
               <div className={styles.reviews}>
                 <h2>
@@ -436,7 +468,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           </div>
 
           <aside className={styles.sidebar}>
-            <div className={styles.enquiryCard}>
+            <div className={styles.enquiryCard} id="enquire">
               <h2>Enquire</h2>
               <p>Send a message to {seller?.display_name ?? "this partner"}. They&apos;ll reply to you directly.</p>
               {service.booking_url && (
