@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, CalendarDays, Compass, Store } from "lucide-react";
-import { brand, calendlyBookingUrl } from "@/data/site";
+import { brand, bookingUrl } from "@/data/site";
 import { BetaSignupForm } from "./BetaSignupForm";
 
 type ComingSoonPageProps = {
@@ -80,7 +80,7 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
               <Store aria-hidden="true" size={18} />
               List your business
             </Link>
-            <a className="button button-secondary dark" href={calendlyBookingUrl}>
+            <a className="button button-secondary dark" href={bookingUrl}>
               <CalendarDays aria-hidden="true" size={17} />
               {brand.bookingLabel}
             </a>

@@ -16,10 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en-GB">
       <head>
-        <link rel="dns-prefetch" href="https://calendly.com" />
-        <link rel="dns-prefetch" href="https://assets.calendly.com" />
-        <link rel="preconnect" href="https://calendly.com" />
-        <link rel="preconnect" href="https://assets.calendly.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://cal.com" />
+        <link rel="dns-prefetch" href="https://app.cal.com" />
+        <link rel="preconnect" href="https://cal.com" />
+        <link rel="preconnect" href="https://app.cal.com" crossOrigin="" />
       </head>
       <body>
         {children}

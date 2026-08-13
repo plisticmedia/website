@@ -471,7 +471,7 @@ export const privacyDocument: LegalDocumentData = {
         {
           title: "2.3 Booking a Call",
           paragraphs: [
-            "Our discovery calls are booked through Calendly. When you book a call, Calendly collects your name, email address, and any information you provide in the booking form on our behalf. Calendly processes this data as a processor acting on our instructions - see Section 6 for more on third parties we work with.",
+            "Our discovery calls are booked through Cal.com. When you book a call, Cal.com collects your name, email address, and any information you provide in the booking form on our behalf. Cal.com processes this data as a processor acting on our instructions - see Section 6 for more on third parties we work with.",
           ],
         },
         {
@@ -548,7 +548,7 @@ export const privacyDocument: LegalDocumentData = {
         "Your personal data is accessed by people working within Plistic who need it to do their job - for example to respond to your enquiry or deliver your project. We do not sell or rent your personal data to anyone. We share personal data only with the following organisations, where necessary to run our business:",
       ],
       list: [
-        "Calendly - to manage bookings for discovery calls.",
+        "Cal.com - to manage bookings for discovery calls.",
         "Google - for website analytics (Google Analytics).",
         "Mailchimp - to manage our CRM and send email communications to existing contacts.",
         "Supabase - the database, sign-in, and file storage that power the partner directory and our website forms.",
@@ -563,7 +563,7 @@ export const privacyDocument: LegalDocumentData = {
         {
           title: "",
           paragraphs: [
-            "Several of these providers (including Calendly, Google, Mailchimp, Resend, Stripe, and Vercel) are based in or transfer data to the United States, so using them involves transferring some personal data outside the UK. Each safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
+            "Several of these providers (including Cal.com, Google, Mailchimp, Resend, Stripe, and Vercel) are based in or transfer data to the United States, so using them involves transferring some personal data outside the UK. Each safeguards this under recognised UK data protection mechanisms - primarily the UK Extension to the EU-US Data Privacy Framework, backed up by Standard Contractual Clauses with the UK Addendum. These are the standard, legally recognised ways of protecting personal data when it is transferred to the US, and they are the same mechanisms used by the vast majority of UK businesses using these or similar tools.",
           ],
         },
       ],
@@ -601,7 +601,7 @@ export const privacyDocument: LegalDocumentData = {
     {
       title: "9. Keeping Your Information Secure",
       paragraphs: [
-        "We take reasonable technical and organisational steps to protect the personal data we hold, including restricting access to those who need it to do their job and using reputable, secure third-party tools (such as Calendly, Google Analytics, and Mailchimp) for the services described in this policy.",
+        "We take reasonable technical and organisational steps to protect the personal data we hold, including restricting access to those who need it to do their job and using reputable, secure third-party tools (such as Cal.com, Google Analytics, and Mailchimp) for the services described in this policy.",
       ],
     },
     {

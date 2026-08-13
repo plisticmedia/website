@@ -3,7 +3,7 @@ import { Clock3, ShieldCheck } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { LaunchBanner } from "@/components/LaunchBanner";
 import { SiteHeader } from "@/components/SiteHeader";
-import { calendlyEmbedUrl } from "@/data/site";
+import { bookingEmbedUrl } from "@/data/site";
 import styles from "./BookPage.module.css";
 
 export const metadata: Metadata = {
@@ -40,11 +40,11 @@ export default function BookPage() {
               </div>
             </div>
 
-            <div className={`${styles.schedulerFrame} p-vf`} aria-label="Calendly booking calendar">
+            <div className={`${styles.schedulerFrame} p-vf`} aria-label="Booking calendar">
               <span className="p-vfc" aria-hidden="true" />
               <iframe
-                title="Book a Plistic call on Calendly"
-                src={calendlyEmbedUrl}
+                title="Book a Plistic call"
+                src={bookingEmbedUrl}
                 loading="eager"
                 allow="fullscreen"
               />
