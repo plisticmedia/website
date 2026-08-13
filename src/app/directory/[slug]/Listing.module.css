@@ -599,3 +599,47 @@
   color: var(--p-azure-deep); background: rgba(31, 170, 233, 0.12);
   padding: 0.2rem 0.5rem; border-radius: 6px; vertical-align: middle;
 }
+
+/* Inline "Book a meeting" calendar embed on a listing profile. */
+.bookingSection {
+  margin-top: 2.4rem;
+}
+.bookingSection h2 {
+  margin: 0 0 0.3rem;
+}
+.bookingHint {
+  margin: 0 0 1rem;
+  color: var(--p-muted);
+  font-size: 0.95rem;
+}
+.bookingEmbed {
+  position: relative;
+  width: 100%;
+  min-height: 640px;
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+.bookingEmbed iframe {
+  width: 100%;
+  min-height: 640px;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.bookingFallback {
+  margin: 0.7rem 0 0;
+  font-size: 0.85rem;
+  color: var(--p-muted);
+}
+.bookingFallback a {
+  color: var(--p-azure-deep);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .bookingEmbed,
+  .bookingEmbed iframe {
+    min-height: 560px;
+  }
+}
