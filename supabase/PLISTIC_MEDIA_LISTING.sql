@@ -31,7 +31,7 @@ select
   'https://www.plisticmedia.com',
   'https://cal.com/plistic-media/30min',
   '/assets/brand/plistic-media.png',
-  '/assets/photos/studio-window.webp',
+  null,
   '{}'::jsonb,
   'Strathclyde Inspire (#1 in niche on Apple Podcasts) · Tiny Changes · Connect-Ed Network · Unfiltered (UKRI ESRC documentary)',
   'Booking new projects now — Glasgow and across Scotland.',
