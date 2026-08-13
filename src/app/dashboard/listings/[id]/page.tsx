@@ -17,6 +17,7 @@ import {
   setPackageBookable,
   updateListing,
 } from "../actions";
+import { createProduct } from "../products-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PhotoUploader } from "./PhotoUploader";
 import { LogoUploader } from "./LogoUploader";
@@ -68,6 +69,21 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   const supabase = await createSupabaseServerClient();
   const { data: prof } = await supabase.from("profiles").select("payouts_enabled").eq("id", profile.id).maybeSingle();
   const payoutsReady = !!prof?.payouts_enabled;
+
+  // Marketplace items for sale (Phase 1).
+  const { data: productRows } = await supabase
+    .from("products")
+    .select("id, title, price_gbp, status, product_type, product_media(url, sort_order)")
+    .eq("service_id", service.id)
+    .order("sort_order", { ascending: true });
+  const products = (productRows ?? []) as Array<{
+    id: string;
+    title: string;
+    price_gbp: number | null;
+    status: string;
+    product_type: string;
+    product_media: Array<{ url: string; sort_order: number }>;
+  }>;
 
   return (
     <>
@@ -356,6 +372,67 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 </label>
               )}
               <button type="submit" className="p-btn p-btn--ghost">Add package</button>
+            </form>
+          </div>
+
+          {/* Items for sale (marketplace) */}
+          <div className={styles.block}>
+            <h2 className={styles.sectionTitle}>Items for sale</h2>
+            <p className={styles.sub}>
+              Sell products or services in the marketplace — crafts, prints, handmade goods, or a fixed service — each
+              with its own photos and price. Buyers will be able to find them on your profile and across the marketplace.
+              {" "}<em style={{ color: "var(--p-muted)" }}>The marketplace is being built now; items you add stay hidden until it opens.</em>
+            </p>
+            {products.length > 0 && (
+              <ul className={styles.list}>
+                {products.map((p) => {
+                  const thumb = [...p.product_media].sort((a, b) => a.sort_order - b.sort_order)[0]?.url;
+                  return (
+                    <li key={p.id}>
+                      <Link href={`/dashboard/listings/${service.id}/products/${p.id}`} className={styles.row}>
+                        <div className={styles.rowThumb}>
+                          {thumb ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={thumb} alt="" />
+                          ) : (
+                            <span aria-hidden="true" />
+                          )}
+                        </div>
+                        <div className={styles.rowMain}>
+                          <strong>{p.title}</strong>
+                          <span className={styles.rowMeta}>
+                            {p.product_type === "service" ? "Service" : "Physical item"} ·{" "}
+                            {p.price_gbp != null ? gbp(p.price_gbp) : "Price on enquiry"}
+                          </span>
+                        </div>
+                        <span className={`${styles.status} ${styles[`status_${p.status}`] ?? ""}`}>
+                          {p.status === "active" ? "Active" : p.status === "sold" ? "Sold" : p.status === "removed" ? "Removed" : "Draft"}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <form action={createProduct.bind(null, service.id)} className={styles.form}>
+              <div className={styles.packageFields}>
+                <label className={styles.field}>
+                  <span>Item name *</span>
+                  <input name="title" type="text" required maxLength={160} placeholder="e.g. Hand-printed A2 poster" />
+                </label>
+                <label className={styles.field}>
+                  <span>Price (GBP)</span>
+                  <input name="price_gbp" type="number" min="0" step="0.01" placeholder="Optional" />
+                </label>
+                <label className={styles.field}>
+                  <span>Type</span>
+                  <select name="product_type" defaultValue="physical">
+                    <option value="physical">Physical item</option>
+                    <option value="service">Service</option>
+                  </select>
+                </label>
+              </div>
+              <button type="submit" className="p-btn p-btn--ghost">Add item &amp; edit details</button>
             </form>
           </div>
 
