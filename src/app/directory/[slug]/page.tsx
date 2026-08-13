@@ -297,6 +297,28 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
+            {service.booking_url && (
+              <div className={styles.bookingSection} id="book">
+                <h2>Book a meeting with {seller?.display_name ?? service.title}</h2>
+                <p className={styles.bookingHint}>Pick a time that suits — you&apos;ll book directly with them.</p>
+                <div className={styles.bookingEmbed}>
+                  <iframe
+                    src={service.booking_url}
+                    title={`Book a meeting with ${service.title}`}
+                    loading="lazy"
+                    allow="fullscreen"
+                  />
+                </div>
+                <p className={styles.bookingFallback}>
+                  Calendar not loading?{" "}
+                  <a href={service.booking_url} target="_blank" rel="noopener noreferrer nofollow">
+                    Open the booking page in a new tab
+                  </a>
+                  .
+                </p>
+              </div>
+            )}
+
             {packages.length > 0 && (
               <div className={styles.packages}>
                 <h2>Packages</h2>
@@ -418,13 +440,8 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               <h2>Enquire</h2>
               <p>Send a message to {seller?.display_name ?? "this partner"}. They&apos;ll reply to you directly.</p>
               {service.booking_url && (
-                <a
-                  className={`p-btn ${styles.bookCallBtn}`}
-                  href={service.booking_url}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                >
-                  <CalendarClock aria-hidden="true" size={18} /> Book a call
+                <a className={`p-btn ${styles.bookCallBtn}`} href="#book">
+                  <CalendarClock aria-hidden="true" size={18} /> Book a meeting
                 </a>
               )}
               <EnquiryForm serviceId={service.id} serviceTitle={service.title} />

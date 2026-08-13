@@ -191,8 +191,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
               <input name="website_url" type="text" maxLength={300} defaultValue={service.website_url ?? ""} placeholder="yourstudio.com" />
             </label>
             <label className={styles.field}>
-              <span>Booking link (optional)</span>
-              <input name="booking_url" type="text" maxLength={300} defaultValue={service.booking_url ?? ""} placeholder="Your booking link (Cal.com, etc.) — adds a “Book a call” button" />
+              <span>Connect your booking calendar (optional)</span>
+              <input name="booking_url" type="text" maxLength={300} defaultValue={service.booking_url ?? ""} placeholder="Your booking link — e.g. cal.com/you or calendly.com/you" />
+              <small style={{ color: "var(--p-muted)", fontWeight: 400 }}>
+                Paste your Cal.com, Calendly (or similar) link and your live calendar appears right on your profile, so visitors can book a meeting with you without leaving the directory.
+              </small>
             </label>
             <div className={styles.packageFields}>
               <label className={styles.field}>
