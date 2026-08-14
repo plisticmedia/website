@@ -325,9 +325,16 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               <div className={styles.packages}>
                 <h2>Packages</h2>
                 <p className={styles.packagesNote}>
-                  {packages.some((p) => p.is_bookable && p.price_gbp != null && p.price_gbp > 0 && !!seller?.payouts_enabled)
-                    ? "Book securely through Plistic — your payment is held safely and released once the work is delivered."
-                    : "Indicative pricing — confirm details directly with the seller."}
+                  {(() => {
+                    const bookable = packages.filter(
+                      (p) => p.is_bookable && p.price_gbp != null && p.price_gbp > 0 && !!seller?.payouts_enabled,
+                    );
+                    if (bookable.length === 0) return "Indicative pricing — confirm details directly with the seller.";
+                    const anyStaged = bookable.some((p) => p.milestones && p.milestones.length > 0);
+                    return anyStaged
+                      ? "Book securely through Plistic — you pay the full amount up front, held safely, and it's released to the seller in milestones as you approve each stage of the work."
+                      : "Book securely through Plistic — you pay up front and your payment is held safely, then released to the seller once the work is delivered.";
+                  })()}
                 </p>
                 <div className={styles.packageGrid}>
                   {packages.map((p) => {
