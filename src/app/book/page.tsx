@@ -25,8 +25,8 @@ export default function BookPage() {
                 Talk through the <span>project</span>.
               </h1>
               <p className={styles.lead}>
-                Choose a time that works and we will use the call to understand the scope, confirm the right next step,
-                and answer any questions before production begins.
+                Choose a time that works and we will use the call to understand the scope of the project, confirm the
+                right next step, and answer any questions before production begins.
               </p>
               <div className={styles.points} aria-label="Call details">
                 <span>

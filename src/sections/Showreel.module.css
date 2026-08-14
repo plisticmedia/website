@@ -34,6 +34,32 @@
   height: 100%;
   object-fit: cover;
   background: #0d1117;
+  cursor: pointer;
+}
+
+/* Play button shown when the reel is paused (click the video to toggle) */
+.playOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  padding-left: 4px; /* optically centre the triangle */
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.playOverlay:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 /* Mute / unmute toggle (the reel autoplays muted on scroll) */
