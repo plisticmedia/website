@@ -18,13 +18,14 @@ export type MarketplaceItem = {
     business: string;
     location: string | null;
     logo_url: string | null;
+    payouts_enabled: boolean;
   };
 };
 
 const ITEM_SELECT = `
   id, title, description, price_gbp, product_type, stock, fulfilment, delivery_info, status,
   product_media ( url, sort_order ),
-  services!inner ( id, slug, title, status, logo_url, locations!location_id ( name ) )
+  services!inner ( id, slug, title, status, logo_url, locations!location_id ( name ), profiles ( payouts_enabled ) )
 `;
 
 type Row = {
@@ -45,6 +46,7 @@ type Row = {
     status: string;
     logo_url: string | null;
     locations: { name: string } | null;
+    profiles: { payouts_enabled: boolean | null } | null;
   } | null;
 };
 
@@ -69,6 +71,7 @@ function toItem(row: Row): MarketplaceItem | null {
       business: s.title,
       location: s.locations?.name ?? null,
       logo_url: s.logo_url,
+      payouts_enabled: !!s.profiles?.payouts_enabled,
     },
   };
 }
