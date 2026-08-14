@@ -298,6 +298,14 @@
   color: var(--p-muted-dark, #4a4f57);
 }
 
+/* Each row keeps its label, icon and any link on one shared baseline/centre so
+   the seller link doesn't ride higher than the text beside it. */
+.itemMeta span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .itemMeta strong {
   color: var(--p-ink);
 }
