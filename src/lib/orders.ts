@@ -131,6 +131,152 @@ export async function sweepAutoReleases(): Promise<{ released: number; failed: n
   return { released, failed };
 }
 
+/**
+ * Release a single approved milestone's funds to the seller (partial escrow
+ * release). The buyer's original charge covers every milestone, so each release
+ * is a transfer tied to that charge via `source_transaction`. Completes the
+ * parent order once all its milestones are released.
+ *
+ * SECURITY-SENSITIVE (moves money). Only acts on a `delivered` milestone whose
+ * parent order isn't disputed. The unique `milestone_id` on `payouts` and the
+ * per-milestone idempotency key are the backstops against a double transfer.
+ */
+export async function releaseMilestone(milestoneId: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data: ms } = await supabase
+    .from("order_milestones")
+    .select("id, order_id, amount_gbp, commission_gbp, status, stripe_transfer_id")
+    .eq("id", milestoneId)
+    .maybeSingle();
+  if (!ms) return { ok: false, error: "Milestone not found." };
+  if (ms.status !== "delivered" || ms.stripe_transfer_id) {
+    return { ok: false, error: "This stage isn't awaiting release." };
+  }
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, status, seller_id, service_id, currency, transfer_group, stripe_payment_intent_id")
+    .eq("id", ms.order_id)
+    .maybeSingle();
+  if (!order) return { ok: false, error: "Order not found." };
+  if (order.status === "disputed") return { ok: false, error: "Order is under dispute." };
+
+  // Backstop against a duplicate payout for this milestone.
+  const { data: existingPayout } = await supabase
+    .from("payouts")
+    .select("id")
+    .eq("milestone_id", milestoneId)
+    .maybeSingle();
+  if (existingPayout) return { ok: false, error: "Already paid out." };
+
+  const { data: seller } = await supabase
+    .from("profiles")
+    .select("stripe_connect_account_id, payouts_enabled")
+    .eq("id", order.seller_id)
+    .maybeSingle();
+  if (!seller?.stripe_connect_account_id || !seller.payouts_enabled) {
+    return { ok: false, error: "Seller can't receive payouts." };
+  }
+
+  const payoutGbp = Math.round((Number(ms.amount_gbp) - Number(ms.commission_gbp)) * 100) / 100;
+  const amountPence = Math.round(payoutGbp * 100);
+
+  let sourceTransaction: string | undefined;
+  if (order.stripe_payment_intent_id) {
+    try {
+      const pi = await getStripe().paymentIntents.retrieve(order.stripe_payment_intent_id as string);
+      sourceTransaction = typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? undefined;
+    } catch (err) {
+      console.error("[orders] could not resolve charge for milestone transfer", milestoneId, err);
+    }
+  }
+
+  let transferId: string;
+  try {
+    const transfer = await getStripe().transfers.create(
+      {
+        amount: amountPence,
+        currency: (order.currency as string) || "gbp",
+        destination: seller.stripe_connect_account_id as string,
+        transfer_group: (order.transfer_group as string) || `order_${order.id}`,
+        ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
+        metadata: { order_id: order.id, milestone_id: milestoneId },
+      },
+      { idempotencyKey: `milestone_release_${milestoneId}` },
+    );
+    transferId = transfer.id;
+  } catch (err) {
+    console.error("[orders] milestone transfer failed", milestoneId, err);
+    return { ok: false, error: err instanceof Error ? err.message : "Transfer failed." };
+  }
+
+  await supabase
+    .from("order_milestones")
+    .update({ status: "released", released_at: new Date().toISOString(), stripe_transfer_id: transferId })
+    .eq("id", milestoneId)
+    .eq("status", "delivered");
+
+  await supabase.from("payouts").insert({
+    order_id: order.id,
+    milestone_id: milestoneId,
+    seller_id: order.seller_id,
+    stripe_transfer_id: transferId,
+    amount_gbp: payoutGbp,
+    status: "paid",
+  });
+
+  await supabase.from("order_events").insert({
+    order_id: order.id,
+    type: "milestone_released",
+    data: { milestone_id: milestoneId, stripe_transfer_id: transferId, amount_gbp: payoutGbp },
+  });
+
+  // Complete the order once every milestone is released.
+  const { data: remaining } = await supabase
+    .from("order_milestones")
+    .select("id")
+    .eq("order_id", order.id)
+    .neq("status", "released")
+    .limit(1);
+  if (!remaining || remaining.length === 0) {
+    await supabase
+      .from("orders")
+      .update({ status: "completed", released_at: new Date().toISOString() })
+      .eq("id", order.id)
+      .neq("status", "completed");
+    await supabase.from("order_events").insert({ order_id: order.id, type: "released", data: { via: "milestones" } });
+  }
+
+  await notifySellerPaid(supabase, order.seller_id as string, order.service_id as string, payoutGbp);
+  return { ok: true };
+}
+
+/**
+ * Auto-release milestones the buyer left approved-by-inaction: delivered, past
+ * their window, on a non-disputed order. Called from the daily cron.
+ */
+export async function sweepMilestoneAutoReleases(): Promise<{ released: number; failed: number }> {
+  const supabase = createSupabaseServiceRoleClient();
+  const now = new Date().toISOString();
+  const { data } = await supabase
+    .from("order_milestones")
+    .select("id, orders!inner ( status )")
+    .eq("status", "delivered")
+    .lte("auto_release_at", now)
+    .neq("orders.status", "disputed")
+    .limit(100);
+
+  let released = 0;
+  let failed = 0;
+  for (const row of (data ?? []) as { id: string }[]) {
+    const res = await releaseMilestone(row.id);
+    if (res.ok) released += 1;
+    else failed += 1;
+  }
+  return { released, failed };
+}
+
 async function notifySellerPaid(supabase: Supabase, sellerId: string, serviceId: string, payoutGbp: number) {
   try {
     const { data: svc } = await supabase.from("services").select("title").eq("id", serviceId).maybeSingle();

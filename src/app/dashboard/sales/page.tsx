@@ -4,8 +4,9 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { markDelivered } from "../orders/actions";
+import { markDelivered, deliverMilestone } from "../orders/actions";
 import { sendCustomOffer, cancelCustomOffer } from "../orders/offer-actions";
+import { CustomOfferForm } from "./CustomOfferForm";
 import styles from "../orders/Orders.module.css";
 
 export const metadata: Metadata = { title: "Sales | Plistic" };
@@ -66,6 +67,22 @@ const OFFER_LABEL: Record<string, string> = {
   expired: "Expired",
 };
 
+type MilestoneRow = {
+  id: string;
+  order_id: string;
+  title: string;
+  amount_gbp: number;
+  status: string;
+  sort_order: number;
+};
+
+const MSTONE_LABEL: Record<string, string> = {
+  pending: "To deliver",
+  delivered: "Awaiting approval",
+  released: "Paid out",
+  disputed: "Issue raised",
+};
+
 function formatAddress(ship: ShipTo): string | null {
   if (!ship) return null;
   const a = ship.address ?? {};
@@ -122,6 +139,21 @@ export default async function SalesPage({
       const list = offersByOrder.get(o.parent_order_id) ?? [];
       list.push(o);
       offersByOrder.set(o.parent_order_id, list);
+    }
+  }
+
+  // Milestones for any staged orders this seller has, grouped by order.
+  const milestonesByOrder = new Map<string, MilestoneRow[]>();
+  if (orderIds.length > 0) {
+    const { data: msRows } = await supabase
+      .from("order_milestones")
+      .select("id, order_id, title, amount_gbp, status, sort_order")
+      .in("order_id", orderIds)
+      .order("sort_order", { ascending: true });
+    for (const m of (msRows ?? []) as MilestoneRow[]) {
+      const list = milestonesByOrder.get(m.order_id) ?? [];
+      list.push(m);
+      milestonesByOrder.set(m.order_id, list);
     }
   }
 
@@ -217,21 +249,30 @@ export default async function SalesPage({
 
                     <details className={styles.dispute}>
                       <summary>Send this buyer a custom offer</summary>
-                      <form action={sendCustomOffer.bind(null, s.id)} className={styles.offerForm}>
-                        <p className={styles.offerHint}>
-                          A one-off priced offer just for this buyer — e.g. extra revisions or an add-on. They accept
-                          and pay it from their orders page, held in escrow like any order.
-                        </p>
-                        <input name="title" type="text" required maxLength={160} placeholder="Title — e.g. 2 extra revisions" />
-                        <textarea name="description" rows={2} maxLength={4000} placeholder="What's included (optional)" />
-                        <div className={styles.offerRow}>
-                          <input name="price_gbp" type="number" min="0.5" step="0.01" required placeholder="Price £" />
-                          <input name="revision_limit" type="number" min="0" step="1" placeholder="Revisions (optional)" />
-                          <input name="delivery_days" type="number" min="0" step="1" placeholder="Days (optional)" />
-                        </div>
-                        <button type="submit" className="p-btn p-btn--ghost">Send offer</button>
-                      </form>
+                      <CustomOfferForm action={sendCustomOffer.bind(null, s.id)} />
                     </details>
+
+                    {milestonesByOrder.has(s.id) && (
+                      <ul className={styles.stageList}>
+                        {(milestonesByOrder.get(s.id) ?? []).map((m) => (
+                          <li key={m.id} className={styles.stageItem}>
+                            <span>
+                              <strong>{m.title}</strong> · {gbp(m.amount_gbp)}
+                            </span>
+                            <span className={styles.stageSide}>
+                              <span className={`${styles.status} ${styles[`mstatus_${m.status}`] ?? ""}`}>
+                                {MSTONE_LABEL[m.status] ?? m.status}
+                              </span>
+                              {m.status === "pending" && (
+                                <form action={deliverMilestone.bind(null, m.id)}>
+                                  <button type="submit" className="p-btn">Mark stage delivered</button>
+                                </form>
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 );
               })}

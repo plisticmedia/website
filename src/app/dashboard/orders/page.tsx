@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmReceipt, leaveReview, raiseDispute, requestChanges } from "./actions";
 import { declineCustomOffer } from "./offer-actions";
+import { approveMilestone } from "./actions";
 import { OfferPayButton } from "./OfferPayButton";
 import styles from "./Orders.module.css";
 
@@ -20,7 +21,24 @@ type OfferRow = {
   price_gbp: number;
   revision_limit: number | null;
   delivery_days: number | null;
+  milestones: Array<{ title: string; amount_gbp: number }> | null;
   services: { title: string | null; slug: string | null } | null;
+};
+
+type MilestoneRow = {
+  id: string;
+  order_id: string;
+  title: string;
+  amount_gbp: number;
+  status: string;
+  sort_order: number;
+};
+
+const MSTONE_LABEL: Record<string, string> = {
+  pending: "In progress",
+  delivered: "Ready to approve",
+  released: "Approved & paid",
+  disputed: "Issue raised",
 };
 
 export const metadata: Metadata = { title: "My orders | Plistic" };
@@ -91,11 +109,26 @@ export default async function OrdersPage({
   // Custom offers the buyer has been sent and not yet acted on.
   const { data: offerData } = await supabase
     .from("custom_offers")
-    .select("id, title, description, price_gbp, revision_limit, delivery_days, services ( title, slug )")
+    .select("id, title, description, price_gbp, revision_limit, delivery_days, milestones, services ( title, slug )")
     .eq("buyer_id", profile.id)
     .eq("status", "sent")
     .order("created_at", { ascending: false });
   const offers = (offerData ?? []) as unknown as OfferRow[];
+
+  // Milestones for any staged orders the buyer has, grouped by order.
+  const milestonesByOrder = new Map<string, MilestoneRow[]>();
+  if (orderIds.length > 0) {
+    const { data: msRows } = await supabase
+      .from("order_milestones")
+      .select("id, order_id, title, amount_gbp, status, sort_order")
+      .in("order_id", orderIds)
+      .order("sort_order", { ascending: true });
+    for (const m of (msRows ?? []) as MilestoneRow[]) {
+      const list = milestonesByOrder.get(m.order_id) ?? [];
+      list.push(m);
+      milestonesByOrder.set(m.order_id, list);
+    }
+  }
 
   return (
     <>
@@ -144,6 +177,22 @@ export default async function OrdersPage({
                         </p>
                       ) : null}
                       {of.description && <p className={styles.offerDesc}>{of.description}</p>}
+                      {of.milestones && of.milestones.length > 0 && (
+                        <div className={styles.offerStages}>
+                          <p className={styles.offerStagesTitle}>Paid in {of.milestones.length} stages:</p>
+                          <ul>
+                            {of.milestones.map((m, i) => (
+                              <li key={i}>
+                                <span>{m.title}</span>
+                                <span>{gbpOffer(m.amount_gbp)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <p className={styles.offerStagesNote}>
+                            You pay the total up front; each stage is released to the seller only as you approve it.
+                          </p>
+                        </div>
+                      )}
                       <p className={styles.orderMeta}>
                         {of.revision_limit != null
                           ? `Includes ${of.revision_limit} revision${of.revision_limit === 1 ? "" : "s"}`
@@ -192,12 +241,33 @@ export default async function OrdersPage({
                     <span className={`${styles.status} ${styles[`status_${o.status}`] ?? ""}`}>
                       {LABEL[o.status] ?? o.status}
                     </span>
-                    {o.status === "delivered" && (
+                    {o.status === "delivered" && !milestonesByOrder.has(o.id) && (
                       <form action={confirmReceipt.bind(null, o.id)}>
                         <button type="submit" className="p-btn">Confirm received</button>
                       </form>
                     )}
                   </div>
+                  {milestonesByOrder.has(o.id) && (
+                    <ul className={styles.stageList}>
+                      {(milestonesByOrder.get(o.id) ?? []).map((m) => (
+                        <li key={m.id} className={styles.stageItem}>
+                          <span>
+                            <strong>{m.title}</strong> · {gbp(m.amount_gbp)}
+                          </span>
+                          <span className={styles.stageSide}>
+                            <span className={`${styles.status} ${styles[`mstatus_${m.status}`] ?? ""}`}>
+                              {MSTONE_LABEL[m.status] ?? m.status}
+                            </span>
+                            {m.status === "delivered" && (
+                              <form action={approveMilestone.bind(null, m.id)}>
+                                <button type="submit" className="p-btn">Approve &amp; release</button>
+                              </form>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {o.status === "in_progress" && changeNotes.has(o.id) && (
                     <p className={styles.changeHint}>
                       Changes requested — the seller is updating your order and will re-deliver it.

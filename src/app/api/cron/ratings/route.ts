@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { refreshRatings } from "@/lib/ratings";
-import { sweepAutoReleases } from "@/lib/orders";
+import { sweepAutoReleases, sweepMilestoneAutoReleases } from "@/lib/orders";
 import { sendPricingFollowUps } from "@/lib/pricingLeads";
 import { runBackup } from "@/lib/backup";
 
@@ -37,6 +37,13 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error("[cron] auto-release sweep failed", err);
   }
+  // Same for milestone (staged) auto-releases.
+  let milestoneReleases = { released: 0, failed: 0 };
+  try {
+    milestoneReleases = await sweepMilestoneAutoReleases();
+  } catch (err) {
+    console.error("[cron] milestone auto-release sweep failed", err);
+  }
   // Follow up on unconverted calculator estimates (best-effort).
   const followUps = await sendPricingFollowUps(40);
 
@@ -52,5 +59,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, ...result, releases, followUps, backup });
+  return NextResponse.json({ ok: true, ...result, releases, milestoneReleases, followUps, backup });
 }
