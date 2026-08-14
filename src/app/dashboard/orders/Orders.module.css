@@ -223,6 +223,113 @@
   resize: vertical;
 }
 
+/* Custom offers */
+.offersBlock {
+  margin: 0 0 1.8rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #bcdcf6;
+  background: #f2f8fd;
+  border-radius: 14px;
+}
+
+.offersTitle {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.offersLead {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.88rem;
+  color: var(--p-muted-dark, #4a4f57);
+}
+
+.offerDesc {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--p-ink);
+  white-space: pre-wrap;
+}
+
+.offerHistory {
+  flex-basis: 100%;
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.offerHistory li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--p-muted-dark, #4a4f57);
+  background: var(--p-paper);
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+}
+
+.offerHistory strong {
+  color: var(--p-ink);
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--p-azure-deep, #0c6f9e);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+.offerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.offerHint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--p-muted);
+}
+
+.offerForm input,
+.offerForm textarea {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+}
+
+.offerForm textarea {
+  resize: vertical;
+}
+
+.offerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.offerRow input {
+  flex: 1;
+  min-width: 110px;
+}
+
 .empty {
   padding: 3rem 0;
   text-align: center;

@@ -5,7 +5,23 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmReceipt, leaveReview, raiseDispute, requestChanges } from "./actions";
+import { declineCustomOffer } from "./offer-actions";
+import { OfferPayButton } from "./OfferPayButton";
 import styles from "./Orders.module.css";
+
+function gbpOffer(v: number | null | undefined) {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(v ?? 0));
+}
+
+type OfferRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  price_gbp: number;
+  revision_limit: number | null;
+  delivery_days: number | null;
+  services: { title: string | null; slug: string | null } | null;
+};
 
 export const metadata: Metadata = { title: "My orders | Plistic" };
 export const dynamic = "force-dynamic";
@@ -72,6 +88,15 @@ export default async function OrdersPage({
     }
   }
 
+  // Custom offers the buyer has been sent and not yet acted on.
+  const { data: offerData } = await supabase
+    .from("custom_offers")
+    .select("id, title, description, price_gbp, revision_limit, delivery_days, services ( title, slug )")
+    .eq("buyer_id", profile.id)
+    .eq("status", "sent")
+    .order("created_at", { ascending: false });
+  const offers = (offerData ?? []) as unknown as OfferRow[];
+
   return (
     <>
       <SiteHeader />
@@ -99,6 +124,45 @@ export default async function OrdersPage({
           )}
           {err && (
             <p className={styles.bannerErr} role="alert">{err}</p>
+          )}
+
+          {offers.length > 0 && (
+            <div className={styles.offersBlock}>
+              <h2 className={styles.offersTitle}>Custom offers for you</h2>
+              <p className={styles.offersLead}>
+                A seller has sent you a one-off offer. Accept and pay to start it — your payment is held securely and
+                only released once it&apos;s delivered.
+              </p>
+              <ul className={styles.list}>
+                {offers.map((of) => (
+                  <li key={of.id} className={styles.order}>
+                    <div className={styles.orderMain}>
+                      <h2>{of.title}</h2>
+                      {of.services?.slug ? (
+                        <p className={styles.orderMeta}>
+                          from <Link href={`/directory/${of.services.slug}`}>{of.services.title ?? "the seller"}</Link>
+                        </p>
+                      ) : null}
+                      {of.description && <p className={styles.offerDesc}>{of.description}</p>}
+                      <p className={styles.orderMeta}>
+                        {of.revision_limit != null
+                          ? `Includes ${of.revision_limit} revision${of.revision_limit === 1 ? "" : "s"}`
+                          : ""}
+                        {of.revision_limit != null && of.delivery_days != null ? " · " : ""}
+                        {of.delivery_days != null ? `${of.delivery_days} day delivery` : ""}
+                      </p>
+                    </div>
+                    <div className={styles.orderSide}>
+                      <span className={styles.amount}>{gbpOffer(of.price_gbp)}</span>
+                      <OfferPayButton offerId={of.id} priceLabel={gbpOffer(of.price_gbp)} />
+                      <form action={declineCustomOffer.bind(null, of.id)}>
+                        <button type="submit" className={styles.linkBtn}>Decline</button>
+                      </form>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {orders.length === 0 ? (

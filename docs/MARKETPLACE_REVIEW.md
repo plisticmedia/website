@@ -69,6 +69,10 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
 - `src/app/api/stripe/marketplace/checkout/route.ts` — marketplace **item**
   checkout (the Phase 3 addition). Mirrors the package route; adds quantity,
   stock cap, and GB shipping-address collection for physical goods.
+- `src/app/api/stripe/offers/checkout/route.ts` — **custom offer** checkout. A
+  seller sends a specific buyer a one-off priced offer; only that buyer can
+  accept it (`offer.buyer_id === session user`). Same escrow model. The created
+  order carries `custom_offer_id`, and the webhook marks the offer `accepted`.
 
 **Webhook (the only writer of "paid")**
 - `src/app/api/webhooks/stripe/route.ts`
@@ -92,6 +96,9 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   clients (RLS); every transition is a server action with an explicit party
   check. `requestChanges` enforces the seller's included-revisions cap by
   counting `changes_requested` events against `orders.revision_limit`.
+- `src/app/dashboard/orders/offer-actions.ts` — `sendCustomOffer` (seller,
+  tied to an existing order → derives buyer/listing), `cancelCustomOffer`
+  (seller), `declineCustomOffer` (buyer). Service-role writes with party checks.
 
 **Seller onboarding**
 - `src/app/api/stripe/connect/onboard/route.ts` — Stripe Connect Express
@@ -113,6 +120,8 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   `quantity`, `ship_to`, `fulfilment`.
 - `supabase/migrations/0032_product_revisions.sql` — `products.revision_limit`
   and the snapshotted `orders.revision_limit`.
+- `supabase/migrations/0033_custom_offers.sql` — `custom_offers` table (+ RLS)
+  and `orders.custom_offer_id`.
 
 ---
 
@@ -146,12 +155,21 @@ record.
 - [ ] Order minted **before** the Session so `order_id` tags the charge
       (`transfer_group`, `payment_intent_data.metadata.order_id`).
 
+**Custom offer checkout — `offers/checkout/route.ts`**
+- [ ] Same signed-in / rate-limit / 503 guards as the item checkout.
+- [ ] Offer must be `status = 'sent'`; **only `offer.buyer_id` may accept**
+      (403 otherwise) — a different signed-in user cannot pay someone's offer.
+- [ ] Seller/payouts/commission checks identical to the item route; price read
+      from the offer, `revision_limit` snapshotted onto the order.
+
 **Webhook — `webhooks/stripe/route.ts`**
 - [ ] Signature verified with `STRIPE_WEBHOOK_SECRET`; bad signature → 400.
 - [ ] `markOrderPaid` only acts on a **still-`pending`** order (idempotent
       against duplicate webhook deliveries).
 - [ ] `decrementStock` floors at 0 and marks `sold`; no-op for made-to-order
       (null stock).
+- [ ] Custom-offer link: marks the offer `accepted` + records `order_id` only
+      while it's still `sent`.
 
 **Revision loop — `orders.ts requestChanges` (no money moves, but affects payout timing)**
 - [ ] Buyer-only; acts only on a `delivered` order.
@@ -185,6 +203,10 @@ record.
       (webhook), not at checkout creation, so two simultaneous buyers of the
       last unit can both pay. Judged acceptable at current volume; a reviewer
       may prefer a reserve-at-checkout or a DB-level atomic decrement.
+- [ ] **Double-accept window (custom offers):** the offer flips to `accepted`
+      on payment (webhook), not at checkout creation, so a buyer opening two
+      tabs could pay the same offer twice → two orders. Same race class as the
+      stock oversell; acceptable at current volume, flagged for the risk call.
 - [ ] **Shipping capture:** `ship_to` reads `shipping_details` /
       `collected_information.shipping_details` from the completed Session (dual
       fallback across API versions). If Stripe omits it, `ship_to` is null and
