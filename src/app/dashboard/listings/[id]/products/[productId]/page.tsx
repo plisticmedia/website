@@ -120,6 +120,21 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               />
             </label>
             <label className={styles.field}>
+              <span>Revisions included (optional)</span>
+              <input
+                name="revision_limit"
+                type="number"
+                min="0"
+                step="1"
+                defaultValue={product.revision_limit ?? ""}
+                placeholder="Blank = unlimited"
+              />
+              <small style={{ color: "var(--p-muted)", fontWeight: 400 }}>
+                How many rounds of changes a buyer can request for free. After that, further changes are arranged
+                and paid for with you directly. Mostly useful for services.
+              </small>
+            </label>
+            <label className={styles.field}>
               <span>Status</span>
               <select name="status" defaultValue={product.status === "active" ? "active" : "draft"}>
                 <option value="draft">Draft (hidden)</option>

@@ -10,6 +10,7 @@ export type MarketplaceItem = {
   stock: number | null;
   fulfilment: "shipping" | "collection" | "both" | null;
   delivery_info: string | null;
+  revision_limit: number | null;
   status: string;
   images: string[];
   seller: {
@@ -23,7 +24,7 @@ export type MarketplaceItem = {
 };
 
 const ITEM_SELECT = `
-  id, title, description, price_gbp, product_type, stock, fulfilment, delivery_info, status,
+  id, title, description, price_gbp, product_type, stock, fulfilment, delivery_info, revision_limit, status,
   product_media ( url, sort_order ),
   services!inner ( id, slug, title, status, logo_url, locations!location_id ( name ), profiles ( payouts_enabled ) )
 `;
@@ -37,6 +38,7 @@ type Row = {
   stock: number | null;
   fulfilment: "shipping" | "collection" | "both" | null;
   delivery_info: string | null;
+  revision_limit: number | null;
   status: string;
   product_media: Array<{ url: string; sort_order: number }> | null;
   services: {
@@ -63,6 +65,7 @@ function toItem(row: Row): MarketplaceItem | null {
     stock: row.stock,
     fulfilment: row.fulfilment,
     delivery_info: row.delivery_info,
+    revision_limit: row.revision_limit,
     status: row.status,
     images,
     seller: {

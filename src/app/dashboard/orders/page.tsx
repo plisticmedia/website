@@ -30,6 +30,7 @@ type OrderRow = {
   amount_gbp: number;
   created_at: string;
   quantity: number | null;
+  revision_limit: number | null;
   services: { title: string | null; slug: string | null } | null;
   products: { title: string | null } | null;
 };
@@ -44,7 +45,7 @@ export default async function OrdersPage({
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("orders")
-    .select("id, status, amount_gbp, created_at, quantity, services ( title, slug ), products ( title )")
+    .select("id, status, amount_gbp, created_at, quantity, revision_limit, services ( title, slug ), products ( title )")
     .eq("buyer_id", profile.id)
     .order("created_at", { ascending: false });
   const orders = (data ?? []) as unknown as OrderRow[];
@@ -57,6 +58,7 @@ export default async function OrdersPage({
   // the buyer asked for. RLS lets a buyer read their own orders' events.
   const orderIds = orders.map((o) => o.id);
   const changeNotes = new Map<string, string>();
+  const revisionsUsed = new Map<string, number>();
   if (orderIds.length > 0) {
     const { data: eventRows } = await supabase
       .from("order_events")
@@ -66,6 +68,7 @@ export default async function OrdersPage({
       .order("created_at", { ascending: false });
     for (const e of (eventRows ?? []) as { order_id: string; data: { notes?: string } }[]) {
       if (!changeNotes.has(e.order_id) && e.data?.notes) changeNotes.set(e.order_id, e.data.notes);
+      revisionsUsed.set(e.order_id, (revisionsUsed.get(e.order_id) ?? 0) + 1);
     }
   }
 
@@ -136,21 +139,45 @@ export default async function OrdersPage({
                       Changes requested — the seller is updating your order and will re-deliver it.
                     </p>
                   )}
-                  {o.status === "delivered" && (
-                    <details className={styles.dispute}>
-                      <summary>Not quite right? Request changes</summary>
-                      <form action={requestChanges.bind(null, o.id)} className={styles.disputeForm}>
-                        <textarea
-                          name="notes"
-                          rows={2}
-                          maxLength={2000}
-                          placeholder="Describe the changes you'd like — this goes back to the seller to put right."
-                          required
-                        />
-                        <button type="submit" className="p-btn p-btn--ghost">Send back for changes</button>
-                      </form>
-                    </details>
-                  )}
+                  {o.status === "delivered" &&
+                    (() => {
+                      const limit = o.revision_limit;
+                      const used = revisionsUsed.get(o.id) ?? 0;
+                      const capReached = limit != null && used >= limit;
+                      if (capReached) {
+                        return (
+                          <p className={styles.changeHint}>
+                            {limit === 0
+                              ? "This order doesn't include revisions."
+                              : `You've used all ${limit} included revision${limit === 1 ? "" : "s"}.`}{" "}
+                            {o.services?.slug ? (
+                              <Link href={`/directory/${o.services.slug}#enquire`}>Message the seller</Link>
+                            ) : (
+                              "Message the seller"
+                            )}{" "}
+                            to arrange any further changes.
+                          </p>
+                        );
+                      }
+                      return (
+                        <details className={styles.dispute}>
+                          <summary>
+                            Not quite right? Request changes
+                            {limit != null ? ` (${limit - used} of ${limit} left)` : ""}
+                          </summary>
+                          <form action={requestChanges.bind(null, o.id)} className={styles.disputeForm}>
+                            <textarea
+                              name="notes"
+                              rows={2}
+                              maxLength={2000}
+                              placeholder="Describe the changes you'd like — this goes back to the seller to put right."
+                              required
+                            />
+                            <button type="submit" className="p-btn p-btn--ghost">Send back for changes</button>
+                          </form>
+                        </details>
+                      );
+                    })()}
                   {(o.status === "in_progress" || o.status === "delivered") && (
                     <details className={styles.dispute}>
                       <summary>Something seriously wrong? Report a problem</summary>

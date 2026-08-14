@@ -21,6 +21,12 @@ function num(form: FormData, key: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+/** A non-negative whole number, or null when blank. */
+function intOrNull(form: FormData, key: string): number | null {
+  const n = num(form, key);
+  return n == null ? null : Math.floor(n);
+}
+
 type DB = SupabaseClient;
 
 /** True if the seller owns the listing this product hangs off. */
@@ -104,6 +110,7 @@ export async function updateProduct(serviceId: string, productId: string, formDa
       stock: num(formData, "stock"),
       fulfilment: fulfilment(formData),
       delivery_info: str(formData, "delivery_info", 600) || null,
+      revision_limit: intOrNull(formData, "revision_limit"),
       status: status(formData),
     })
     .eq("id", productId);
