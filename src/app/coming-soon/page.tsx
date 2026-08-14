@@ -71,7 +71,7 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
             <ArrowUpRight aria-hidden="true" size={20} />
           </a>
           <p className="coming-soon-copy">
-            <strong>Scotland&apos;s Media Directory</strong> is almost here — a place to find and hire the country&apos;s
+            <strong>Scotland&apos;s Media Directory</strong>{" "}is almost here — a place to find and hire the country&apos;s
             creative and media businesses (film &amp; TV, music, games, design, PR, photography and more), compare
             them by service and price, and enquire or book directly. It&apos;s free to be listed.
           </p>
