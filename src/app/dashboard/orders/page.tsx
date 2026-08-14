@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { confirmReceipt, leaveReview, raiseDispute } from "./actions";
+import { confirmReceipt, leaveReview, raiseDispute, requestChanges } from "./actions";
 import styles from "./Orders.module.css";
 
 export const metadata: Metadata = { title: "My orders | Plistic" };
@@ -53,6 +53,22 @@ export default async function OrdersPage({
   const { data: reviewRows } = await supabase.from("reviews").select("order_id").eq("buyer_id", profile.id);
   const reviewed = new Set(((reviewRows ?? []) as { order_id: string }[]).map((r) => r.order_id));
 
+  // Latest "changes requested" note per order, so a reworked order shows what
+  // the buyer asked for. RLS lets a buyer read their own orders' events.
+  const orderIds = orders.map((o) => o.id);
+  const changeNotes = new Map<string, string>();
+  if (orderIds.length > 0) {
+    const { data: eventRows } = await supabase
+      .from("order_events")
+      .select("order_id, data, created_at")
+      .eq("type", "changes_requested")
+      .in("order_id", orderIds)
+      .order("created_at", { ascending: false });
+    for (const e of (eventRows ?? []) as { order_id: string; data: { notes?: string } }[]) {
+      if (!changeNotes.has(e.order_id) && e.data?.notes) changeNotes.set(e.order_id, e.data.notes);
+    }
+  }
+
   return (
     <>
       <SiteHeader />
@@ -65,7 +81,8 @@ export default async function OrdersPage({
             <h1>My orders</h1>
             <p className={styles.lead}>
               Bookings and items you&apos;ve bought. Your payment is held securely and released to the seller once you
-              confirm it&apos;s delivered (or automatically after 14 days).
+              confirm it&apos;s delivered (or automatically after 14 days). If a delivered order isn&apos;t quite right,
+              you can send it back with notes before confirming.
             </p>
           </div>
 
@@ -114,9 +131,29 @@ export default async function OrdersPage({
                       </form>
                     )}
                   </div>
+                  {o.status === "in_progress" && changeNotes.has(o.id) && (
+                    <p className={styles.changeHint}>
+                      Changes requested — the seller is updating your order and will re-deliver it.
+                    </p>
+                  )}
+                  {o.status === "delivered" && (
+                    <details className={styles.dispute}>
+                      <summary>Not quite right? Request changes</summary>
+                      <form action={requestChanges.bind(null, o.id)} className={styles.disputeForm}>
+                        <textarea
+                          name="notes"
+                          rows={2}
+                          maxLength={2000}
+                          placeholder="Describe the changes you'd like — this goes back to the seller to put right."
+                          required
+                        />
+                        <button type="submit" className="p-btn p-btn--ghost">Send back for changes</button>
+                      </form>
+                    </details>
+                  )}
                   {(o.status === "in_progress" || o.status === "delivered") && (
                     <details className={styles.dispute}>
-                      <summary>Something wrong? Report a problem</summary>
+                      <summary>Something seriously wrong? Report a problem</summary>
                       <form action={raiseDispute.bind(null, o.id)} className={styles.disputeForm}>
                         <textarea name="reason" rows={2} maxLength={2000} placeholder="Tell us what went wrong — Plistic will step in to help." required />
                         <button type="submit" className="p-btn p-btn--ghost">Raise issue</button>
