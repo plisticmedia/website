@@ -16,6 +16,19 @@ function back(path: string, kind: "msg" | "err", text: string): never {
   redirect(`${path}?${kind}=${encodeURIComponent(text)}`);
 }
 
+/** A seller's login email lives on the auth user, not on profiles. */
+async function sellerAuthEmail(
+  supabase: ReturnType<typeof createSupabaseServiceRoleClient>,
+  sellerId: string,
+): Promise<string | null> {
+  try {
+    const { data } = await supabase.auth.admin.getUserById(sellerId);
+    return data?.user?.email ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Seller marks an order delivered. Starts the 14-day buyer-confirmation window;
  * if the buyer doesn't confirm or dispute, the cron auto-releases the funds.
@@ -78,6 +91,51 @@ export async function confirmReceipt(orderId: string) {
   revalidatePath("/dashboard/orders");
   revalidatePath("/dashboard/sales");
   back("/dashboard/orders", "msg", "Thanks — payment released to the supplier. You can now leave a review.");
+}
+
+/**
+ * Buyer sends the order back for adjustments — a revision request, not a
+ * dispute. Moves a `delivered` order back to `in_progress` with the buyer's
+ * notes, and clears the auto-release timer so it can't auto-release while the
+ * seller is reworking it. The seller re-delivers when the changes are done.
+ */
+export async function requestChanges(orderId: string, formData: FormData) {
+  const profile = await requireUser("/dashboard/orders");
+  const supabase = createSupabaseServiceRoleClient();
+
+  const notesRaw = formData.get("notes");
+  const notes = typeof notesRaw === "string" ? notesRaw.trim().slice(0, 2000) : "";
+  if (!notes) back("/dashboard/orders", "err", "Please add a note describing the changes you'd like.");
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, status, buyer_id, seller_id, service_id")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order || order.buyer_id !== profile.id) back("/dashboard/orders", "err", "Order not found.");
+  if (order!.status !== "delivered") back("/dashboard/orders", "err", "You can request changes once it's marked delivered.");
+
+  await supabase
+    .from("orders")
+    .update({ status: "in_progress", delivered_at: null, auto_release_at: null })
+    .eq("id", orderId)
+    .eq("status", "delivered");
+
+  await supabase.from("order_events").insert({ order_id: orderId, type: "changes_requested", data: { notes } });
+
+  const { data: svc } = await supabase.from("services").select("title").eq("id", order!.service_id).maybeSingle();
+  const sellerEmail = await sellerAuthEmail(supabase, order!.seller_id as string);
+  if (sellerEmail) {
+    void sendEmail({
+      to: sellerEmail,
+      subject: `Changes requested — ${(svc?.title as string) ?? "your order"}`,
+      text: `The buyer has asked for some changes before confirming:\n\n"${notes}"\n\nMake the changes, then mark it delivered again from your sales page: ${siteUrl()}/dashboard/sales`,
+    }).catch(() => {});
+  }
+
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/sales");
+  back("/dashboard/orders", "msg", "Thanks — we've sent your notes to the seller to make the changes.");
 }
 
 /**

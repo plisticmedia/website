@@ -87,6 +87,27 @@
   color: var(--p-ink);
 }
 
+.changeNote {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--p-ink);
+  background: #fff6e2;
+  border: 1px solid #f3e2b4;
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+}
+
+.changeNote strong {
+  color: #946200;
+}
+
+.changeHint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--p-muted);
+}
+
 .orderSide {
   display: flex;
   align-items: center;

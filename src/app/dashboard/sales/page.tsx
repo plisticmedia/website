@@ -74,6 +74,22 @@ export default async function SalesPage({
     .order("created_at", { ascending: false });
   const sales = (data ?? []) as unknown as SaleRow[];
 
+  // Latest "changes requested" note per order, so a reworked order shows the
+  // seller exactly what the buyer asked to be adjusted.
+  const orderIds = sales.map((s) => s.id);
+  const changeNotes = new Map<string, string>();
+  if (orderIds.length > 0) {
+    const { data: eventRows } = await supabase
+      .from("order_events")
+      .select("order_id, data, created_at")
+      .eq("type", "changes_requested")
+      .in("order_id", orderIds)
+      .order("created_at", { ascending: false });
+    for (const e of (eventRows ?? []) as { order_id: string; data: { notes?: string } }[]) {
+      if (!changeNotes.has(e.order_id) && e.data?.notes) changeNotes.set(e.order_id, e.data.notes);
+    }
+  }
+
   return (
     <>
       <SiteHeader />
@@ -127,6 +143,11 @@ export default async function SalesPage({
                       {address && (s.status === "in_progress" || s.status === "delivered") && (
                         <p className={styles.shipTo}>
                           <strong>Ship to:</strong> {address}
+                        </p>
+                      )}
+                      {s.status === "in_progress" && changeNotes.has(s.id) && (
+                        <p className={styles.changeNote}>
+                          <strong>Changes requested:</strong> {changeNotes.get(s.id)}
                         </p>
                       )}
                     </div>
