@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     const { data: offer } = await supabase
       .from("custom_offers")
-      .select("id, service_id, seller_id, buyer_id, title, price_gbp, revision_limit, status")
+      .select("id, service_id, seller_id, buyer_id, title, price_gbp, revision_limit, milestones, status")
       .eq("id", offerId)
       .maybeSingle();
     if (!offer || offer.status !== "sent") {
@@ -80,6 +80,24 @@ export async function POST(request: Request) {
     const amountGbp = Number(offer.price_gbp);
     const commissionGbp = Math.round(amountGbp * commissionRate * 100) / 100;
 
+    // Validate the milestone template (if any) against the offer total.
+    const rawMilestones = Array.isArray(offer.milestones)
+      ? (offer.milestones as Array<{ title?: unknown; amount_gbp?: unknown }>)
+      : [];
+    const milestones = rawMilestones
+      .map((m) => ({
+        title: typeof m.title === "string" ? m.title.slice(0, 160) : "",
+        amount_gbp: Number(m.amount_gbp),
+      }))
+      .filter((m) => m.title && Number.isFinite(m.amount_gbp) && m.amount_gbp > 0);
+    const hasMilestones = milestones.length > 0;
+    if (hasMilestones) {
+      const sum = Math.round(milestones.reduce((s, m) => s + m.amount_gbp, 0) * 100) / 100;
+      if (Math.abs(sum - amountGbp) > 0.01) {
+        return NextResponse.json({ error: "This offer's milestones don't add up. Ask the seller to resend it." }, { status: 400 });
+      }
+    }
+
     const { data: order, error: orderErr } = await supabase
       .from("orders")
       .insert({
@@ -94,6 +112,7 @@ export async function POST(request: Request) {
         status: "pending",
         revision_limit: offer.revision_limit ?? null,
         custom_offer_id: offer.id,
+        has_milestones: hasMilestones,
         transfer_group: null,
       })
       .select("id")
@@ -101,6 +120,34 @@ export async function POST(request: Request) {
     if (orderErr || !order) {
       console.error("[offer-checkout] insert failed", orderErr);
       return NextResponse.json({ error: "Couldn't start the order." }, { status: 500 });
+    }
+
+    // Snapshot the milestones onto the order, splitting commission across stages
+    // so the slices sum exactly to the order commission (remainder on the last).
+    if (hasMilestones) {
+      let commissionLeft = commissionGbp;
+      const rows = milestones.map((m, i) => {
+        const isLast = i === milestones.length - 1;
+        const slice = isLast ? commissionLeft : Math.round(m.amount_gbp * commissionRate * 100) / 100;
+        commissionLeft = Math.round((commissionLeft - slice) * 100) / 100;
+        return {
+          order_id: order.id,
+          title: m.title,
+          amount_gbp: m.amount_gbp,
+          commission_gbp: slice,
+          sort_order: i,
+          status: "pending",
+        };
+      });
+      const { error: msErr } = await supabase.from("order_milestones").insert(rows);
+      if (msErr) {
+        // Never let a milestone order exist without its stages — the buyer's
+        // payment would be unreleasable. Roll back the pending order (no payment
+        // has happened yet) and abort.
+        console.error("[offer-checkout] milestone insert failed", msErr);
+        await supabase.from("orders").delete().eq("id", order.id);
+        return NextResponse.json({ error: "Couldn't set up the milestones. Please try again." }, { status: 500 });
+      }
     }
 
     const transferGroup = `order_${order.id}`;

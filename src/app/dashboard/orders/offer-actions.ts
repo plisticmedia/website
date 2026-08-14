@@ -44,9 +44,39 @@ export async function sendCustomOffer(parentOrderId: string, formData: FormData)
 
   const title = str(formData, "title", 160);
   if (!title) back("/dashboard/sales", "err", "Give the offer a short title.");
-  const priceRaw = formData.get("price_gbp");
-  const price = typeof priceRaw === "string" ? Number(priceRaw) : NaN;
-  if (!Number.isFinite(price) || price <= 0) back("/dashboard/sales", "err", "Set a price above £0 for the offer.");
+
+  // The seller chooses: one payment on final approval, or staged milestones.
+  // Milestones arrive as a JSON array of { title, amount_gbp } — fully custom,
+  // any number of stages. When present, the offer total is their sum.
+  const milestones: Array<{ title: string; amount_gbp: number }> = [];
+  const milestonesJson = str(formData, "milestones_json", 20000);
+  if (milestonesJson) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(milestonesJson);
+    } catch {
+      back("/dashboard/sales", "err", "Couldn't read the milestones. Please try again.");
+    }
+    if (!Array.isArray(parsed)) back("/dashboard/sales", "err", "Couldn't read the milestones. Please try again.");
+    for (const raw of (parsed as Array<{ title?: unknown; amount_gbp?: unknown }>).slice(0, 12)) {
+      const mTitle = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
+      const mAmount = Number(raw.amount_gbp);
+      if (!mTitle || !Number.isFinite(mAmount) || mAmount <= 0) {
+        back("/dashboard/sales", "err", "Each milestone needs a name and a price above £0.");
+      }
+      milestones.push({ title: mTitle, amount_gbp: Math.round(mAmount * 100) / 100 });
+    }
+    if (milestones.length < 1) back("/dashboard/sales", "err", "Add at least one milestone, or switch to a single payment.");
+  }
+
+  let price: number;
+  if (milestones.length > 0) {
+    price = Math.round(milestones.reduce((sum, m) => sum + m.amount_gbp, 0) * 100) / 100;
+  } else {
+    const priceRaw = formData.get("price_gbp");
+    price = typeof priceRaw === "string" ? Number(priceRaw) : NaN;
+    if (!Number.isFinite(price) || price <= 0) back("/dashboard/sales", "err", "Set a price above £0 for the offer.");
+  }
 
   const { error } = await supabase.from("custom_offers").insert({
     service_id: order!.service_id,
@@ -58,6 +88,7 @@ export async function sendCustomOffer(parentOrderId: string, formData: FormData)
     price_gbp: Math.round(price * 100) / 100,
     delivery_days: intOrNull(formData, "delivery_days"),
     revision_limit: intOrNull(formData, "revision_limit"),
+    milestones: milestones.length > 0 ? milestones : null,
     status: "sent",
   });
   if (error) back("/dashboard/sales", "err", `Couldn't send the offer: ${error.message}`);

@@ -330,6 +330,164 @@
   min-width: 110px;
 }
 
+/* Milestone builder (seller offer form) */
+.offerToggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.86rem;
+  color: var(--p-ink);
+}
+
+.offerToggle input {
+  margin-top: 0.15rem;
+}
+
+.stageBuilder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  border: 1px dashed var(--p-line);
+  border-radius: 10px;
+}
+
+.stageRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.stageRow input[type="text"] {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.stageRow input[type="number"] {
+  width: 90px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.stageRemove {
+  background: none;
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  padding: 0.35rem;
+  color: var(--p-muted);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.stageRemove:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.stageTotal {
+  margin: 0.1rem 0 0;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+/* Milestone list (both dashboards) */
+.stageList {
+  flex-basis: 100%;
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.stageItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  color: var(--p-ink);
+  background: var(--p-paper);
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+.stageSide {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mstatus_pending {
+  background: #fff6e2;
+  border-color: #f3e2b4;
+  color: #946200;
+}
+
+.mstatus_delivered {
+  background: #e7f1fb;
+  border-color: #bcdcf6;
+  color: var(--p-azure-deep, #0c6f9e);
+}
+
+.mstatus_released {
+  background: #e7f7ef;
+  border-color: #bfe8d4;
+  color: #0f7a52;
+}
+
+.mstatus_disputed {
+  background: #fdecea;
+  border-color: #f5c6c2;
+  color: #b4231f;
+}
+
+/* Milestone breakdown on the buyer's offer card */
+.offerStages {
+  margin: 0.5rem 0 0;
+}
+
+.offerStagesTitle {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--p-ink);
+}
+
+.offerStages ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.offerStages li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  font-size: 0.88rem;
+  color: var(--p-ink);
+  border-bottom: 1px dotted var(--p-line);
+  padding-bottom: 0.2rem;
+}
+
+.offerStagesNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--p-muted);
+}
+
 .empty {
   padding: 3rem 0;
   text-align: center;

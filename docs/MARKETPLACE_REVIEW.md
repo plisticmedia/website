@@ -56,6 +56,16 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   `in_progress` with notes (an `order_events` `changes_requested` row) and
   **clears `auto_release_at`** so nothing auto-pays mid-rework. Capped by the
   order's snapshotted `revision_limit` (null = unlimited). No money moves here.
+- **Milestone orders (`orders.has_milestones = true`):** the buyer pays the full
+  amount up front (held in escrow, same as any order). The single deliver/confirm
+  path is **blocked**; instead each `order_milestones` stage is
+  `pending → delivered` (`deliverMilestone`, seller) → `released`
+  (`approveMilestone` buyer, or the 14-day milestone auto-release cron). Each
+  release is a **partial transfer** of that stage's `amount − commission` against
+  the original charge. The order flips to `completed` once every stage is
+  released. The first stage is the "deposit" — but it only releases after the
+  buyer approves that stage, so the platform never fronts a seller cash and
+  carries no chargeback exposure.
 
 ---
 
@@ -122,6 +132,10 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   and the snapshotted `orders.revision_limit`.
 - `supabase/migrations/0033_custom_offers.sql` — `custom_offers` table (+ RLS)
   and `orders.custom_offer_id`.
+- `supabase/migrations/0034_order_milestones.sql` — `order_milestones` table
+  (+ RLS), `custom_offers.milestones`, `orders.has_milestones`, and
+  `payouts.milestone_id` (relaxing the one-payout-per-order rule to
+  one-per-non-milestone-order + one-per-milestone).
 
 ---
 
@@ -189,6 +203,20 @@ record.
       succeeds against settling funds; in live mode settlement takes days).
 - [ ] Seller share = `amount_gbp − commission_gbp`; verify the arithmetic and
       that commission is the **snapshot** on the order, not a live lookup.
+
+**Milestone release — `orders.ts releaseMilestone`**
+- [ ] Acts only on a `delivered` milestone whose parent order isn't `disputed`.
+- [ ] Duplicate guard: `payouts.milestone_id` unique index +
+      `idempotencyKey: milestone_release_${milestoneId}`.
+- [ ] Each partial transfer uses `source_transaction` (the one up-front charge);
+      the sum of every stage's `amount − commission` equals the whole-order net,
+      and total transfers never exceed the charge.
+- [ ] Milestone `commission_gbp` slices are the purchase-time snapshot and sum
+      exactly to the order's `commission_gbp` (remainder assigned to last stage).
+- [ ] Order flips to `completed` only when **no** milestone is left un-released.
+- [ ] `deliverMilestone`/`approveMilestone` are party-checked; `markDelivered`
+      and `confirmReceipt` are **blocked** on `has_milestones` orders (so the
+      whole escrow can't be released at once).
 
 **RLS / authorization**
 - [ ] `orders` / `order_events`: buyers and sellers can only **read** their own;

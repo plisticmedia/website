@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { sendEmail, siteUrl, adminEmail } from "@/lib/email";
-import { releaseOrder } from "@/lib/orders";
+import { releaseOrder, releaseMilestone } from "@/lib/orders";
 
 // Orders are read-only for clients (RLS), so every state change goes through the
 // service-role client with an explicit party check here. Actions redirect back
@@ -39,10 +39,11 @@ export async function markDelivered(orderId: string) {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, seller_id, buyer_email, service_id")
+    .select("id, status, seller_id, buyer_email, service_id, has_milestones")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.seller_id !== profile.id) back("/dashboard/sales", "err", "Order not found.");
+  if (order!.has_milestones) back("/dashboard/sales", "err", "This order uses milestones — mark each stage delivered instead.");
   if (order!.status !== "in_progress") back("/dashboard/sales", "err", "This order can't be marked delivered.");
 
   const autoReleaseAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
@@ -79,10 +80,11 @@ export async function confirmReceipt(orderId: string) {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, buyer_id")
+    .select("id, status, buyer_id, has_milestones")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.buyer_id !== profile.id) back("/dashboard/orders", "err", "Order not found.");
+  if (order!.has_milestones) back("/dashboard/orders", "err", "This order uses milestones — approve each stage instead.");
   if (order!.status !== "delivered") back("/dashboard/orders", "err", "This order isn't awaiting confirmation.");
 
   const res = await releaseOrder(orderId);
@@ -156,6 +158,74 @@ export async function requestChanges(orderId: string, formData: FormData) {
   revalidatePath("/dashboard/orders");
   revalidatePath("/dashboard/sales");
   back("/dashboard/orders", "msg", "Thanks — we've sent your notes to the seller to make the changes.");
+}
+
+/**
+ * Seller marks a milestone (stage) delivered. Starts that stage's 14-day
+ * approval window; the buyer approves to release it, or the cron auto-releases.
+ */
+export async function deliverMilestone(milestoneId: string) {
+  const profile = await requireUser("/dashboard/sales");
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data: ms } = await supabase
+    .from("order_milestones")
+    .select("id, status, title, order_id, orders ( seller_id, buyer_email, service_id )")
+    .eq("id", milestoneId)
+    .maybeSingle();
+  const order = (ms?.orders ?? null) as { seller_id: string; buyer_email: string | null; service_id: string } | null;
+  if (!ms || !order || order.seller_id !== profile.id) back("/dashboard/sales", "err", "Stage not found.");
+  if (ms!.status !== "pending") back("/dashboard/sales", "err", "This stage can't be marked delivered.");
+
+  const autoReleaseAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  await supabase
+    .from("order_milestones")
+    .update({ status: "delivered", delivered_at: new Date().toISOString(), auto_release_at: autoReleaseAt })
+    .eq("id", milestoneId)
+    .eq("status", "pending");
+
+  await supabase.from("order_events").insert({
+    order_id: ms!.order_id,
+    type: "milestone_delivered",
+    data: { milestone_id: milestoneId },
+  });
+
+  if (order!.buyer_email) {
+    void sendEmail({
+      to: order!.buyer_email,
+      subject: `A stage is ready to approve — ${ms!.title}`,
+      text: `The seller has delivered a stage of your order: "${ms!.title}". Approve it to release that stage's payment: ${siteUrl()}/dashboard/orders\n\nIf you do nothing, it auto-releases after 14 days.`,
+    }).catch(() => {});
+  }
+
+  revalidatePath("/dashboard/sales");
+  revalidatePath("/dashboard/orders");
+  back("/dashboard/sales", "msg", "Stage marked delivered — the buyer has been asked to approve it.");
+}
+
+/**
+ * Buyer approves a delivered milestone, releasing that stage's funds to the
+ * seller. Completes the order once every stage is released.
+ */
+export async function approveMilestone(milestoneId: string) {
+  const profile = await requireUser("/dashboard/orders");
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data: ms } = await supabase
+    .from("order_milestones")
+    .select("id, status, orders ( buyer_id )")
+    .eq("id", milestoneId)
+    .maybeSingle();
+  const order = (ms?.orders ?? null) as { buyer_id: string } | null;
+  if (!ms || !order || order.buyer_id !== profile.id) back("/dashboard/orders", "err", "Stage not found.");
+  if (ms!.status !== "delivered") back("/dashboard/orders", "err", "This stage isn't awaiting approval.");
+
+  const res = await releaseMilestone(milestoneId);
+  if (!res.ok) back("/dashboard/orders", "err", `Couldn't release payment: ${res.error ?? "please try again shortly."}`);
+
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/sales");
+  back("/dashboard/orders", "msg", "Stage approved — payment released to the seller.");
 }
 
 /**
