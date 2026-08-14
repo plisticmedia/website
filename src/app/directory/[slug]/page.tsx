@@ -6,7 +6,7 @@ import { Clock3, Check, ExternalLink, MapPin, Sparkles, BadgeCheck, Star, Calend
 import { Footer } from "@/components/Footer";
 import { GoogleRating, googleReviewsUrl } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
-import { toDisplayImage, toEmbedUrl } from "@/lib/images";
+import { toDisplayImage } from "@/lib/images";
 import { CoverImage } from "../ListingImage";
 import { getServiceBySlug, getServiceReviews } from "@/lib/services";
 import { getConfirmedCollaborators, getPublicPeerConfidence } from "@/lib/peers";
@@ -15,7 +15,7 @@ import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
 import { BookButton } from "./BookButton";
-import { ProfileShowreel } from "./ProfileShowreel";
+import { ProfileGallery } from "./ProfileGallery";
 import { requestClaim } from "./actions";
 import styles from "./Listing.module.css";
 
@@ -273,31 +273,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
-            {gallery.length > 0 && (
-              <div className={styles.gallery} aria-label="Portfolio samples">
-                {gallery.map((m) => {
-                  const embed = m.kind === "embed" ? toEmbedUrl(m.url) : null;
-                  if (embed) {
-                    return (
-                      <div key={m.id} className={styles.galleryEmbed}>
-                        <iframe
-                          src={embed}
-                          title="Showreel"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    );
-                  }
-                  return m.kind === "video" ? (
-                    <ProfileShowreel key={m.id} src={m.url} />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={m.id} src={m.url} alt="" loading="lazy" className={styles.galleryItem} />
-                  );
-                })}
-              </div>
-            )}
+            {gallery.length > 0 && <ProfileGallery items={gallery} />}
 
             {service.booking_url && (
               <div className={styles.bookingSection} id="book">
@@ -332,7 +308,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     if (bookable.length === 0) return "Indicative pricing — confirm details directly with the seller.";
                     const anyStaged = bookable.some((p) => p.milestones && p.milestones.length > 0);
                     return anyStaged
-                      ? "Book securely through Plistic — you pay the full amount up front, held safely, and it's released to the seller in milestones as you approve each stage of the work."
+                      ? "Book securely through Plistic — you pay the full amount up front, it is held safely with us, and is then released to the seller in milestones as you approve each stage of the work."
                       : "Book securely through Plistic — you pay up front and your payment is held safely, then released to the seller once the work is delivered.";
                   })()}
                 </p>
