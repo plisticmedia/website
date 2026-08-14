@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     // Load the package + its parent listing.
     const { data: pkg } = await supabase
       .from("service_packages")
-      .select("id, name, price_gbp, is_bookable, service_id")
+      .select("id, name, price_gbp, is_bookable, milestones, service_id")
       .eq("id", packageId)
       .maybeSingle();
     if (!pkg || !pkg.is_bookable) {
@@ -84,6 +84,24 @@ export async function POST(request: Request) {
     const amountGbp = Number(pkg.price_gbp);
     const commissionGbp = Math.round(amountGbp * commissionRate * 100) / 100;
 
+    // A staged (milestone) package releases in stages instead of all at once.
+    const rawMilestones = Array.isArray(pkg.milestones)
+      ? (pkg.milestones as Array<{ title?: unknown; amount_gbp?: unknown }>)
+      : [];
+    const milestones = rawMilestones
+      .map((m) => ({
+        title: typeof m.title === "string" ? m.title.slice(0, 160) : "",
+        amount_gbp: Number(m.amount_gbp),
+      }))
+      .filter((m) => m.title && Number.isFinite(m.amount_gbp) && m.amount_gbp > 0);
+    const hasMilestones = milestones.length > 0;
+    if (hasMilestones) {
+      const sum = Math.round(milestones.reduce((s, m) => s + m.amount_gbp, 0) * 100) / 100;
+      if (Math.abs(sum - amountGbp) > 0.01) {
+        return NextResponse.json({ error: "This package's stages don't add up. Ask the seller to fix it." }, { status: 400 });
+      }
+    }
+
     // Mint the order first so its id can tag the charge (transfer_group).
     const { data: order, error: orderErr } = await supabase
       .from("orders")
@@ -98,6 +116,7 @@ export async function POST(request: Request) {
         commission_gbp: commissionGbp,
         currency: "gbp",
         status: "pending",
+        has_milestones: hasMilestones,
         transfer_group: null,
       })
       .select("id")
@@ -105,6 +124,32 @@ export async function POST(request: Request) {
     if (orderErr || !order) {
       console.error("[order-checkout] insert failed", orderErr);
       return NextResponse.json({ error: "Couldn't start the order." }, { status: 500 });
+    }
+
+    // Snapshot the milestones onto the order (commission split across stages,
+    // remainder on the last). Roll back and abort if they can't be saved — a
+    // milestone order with no stages would leave the payment unreleasable.
+    if (hasMilestones) {
+      let commissionLeft = commissionGbp;
+      const rows = milestones.map((m, i) => {
+        const isLast = i === milestones.length - 1;
+        const slice = isLast ? commissionLeft : Math.round(m.amount_gbp * commissionRate * 100) / 100;
+        commissionLeft = Math.round((commissionLeft - slice) * 100) / 100;
+        return {
+          order_id: order.id,
+          title: m.title,
+          amount_gbp: m.amount_gbp,
+          commission_gbp: slice,
+          sort_order: i,
+          status: "pending",
+        };
+      });
+      const { error: msErr } = await supabase.from("order_milestones").insert(rows);
+      if (msErr) {
+        console.error("[order-checkout] milestone insert failed", msErr);
+        await supabase.from("orders").delete().eq("id", order.id);
+        return NextResponse.json({ error: "Couldn't set up the stages. Please try again." }, { status: 500 });
+      }
     }
 
     const transferGroup = `order_${order.id}`;

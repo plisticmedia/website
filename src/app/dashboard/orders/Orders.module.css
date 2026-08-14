@@ -328,6 +328,11 @@
 .offerRow input {
   flex: 1;
   min-width: 110px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
 }
 
 /* Milestone builder (seller offer form) */

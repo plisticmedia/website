@@ -350,6 +350,22 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                             ))}
                           </ul>
                         )}
+                        {p.milestones && p.milestones.length > 0 && (
+                          <div className={styles.packageStages}>
+                            <p className={styles.packageStagesTitle}>Paid in {p.milestones.length} stages:</p>
+                            <ul className={styles.packageStagesList}>
+                              {p.milestones.map((m, i) => (
+                                <li key={i}>
+                                  <span>{m.title}</span>
+                                  <span>{gbp(m.amount_gbp)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <p className={styles.packageStagesNote}>
+                              Pay the total up front; each stage is released to {service.title} only as you approve it.
+                            </p>
+                          </div>
+                        )}
                         {bookable && <BookButton packageId={p.id} priceLabel={gbp(p.price_gbp) ?? ""} />}
                       </article>
                     );

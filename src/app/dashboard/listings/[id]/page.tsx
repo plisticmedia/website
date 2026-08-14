@@ -22,6 +22,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PhotoUploader } from "./PhotoUploader";
 import { LogoUploader } from "./LogoUploader";
 import { VideoEmbedForm } from "./VideoEmbedForm";
+import { PackageForm } from "./PackageForm";
 import styles from "../Listings.module.css";
 
 export const metadata: Metadata = { title: "Edit listing | Plistic" };
@@ -347,32 +348,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                 ))}
               </ul>
             )}
-            <form action={addPackage.bind(null, service.id)} className={styles.form}>
-              <div className={styles.packageFields}>
-                <label className={styles.field}>
-                  <span>Name *</span>
-                  <input name="name" type="text" required maxLength={120} placeholder="Standard" />
-                </label>
-                <label className={styles.field}>
-                  <span>Price (GBP)</span>
-                  <input name="price_gbp" type="number" min="0" step="1" placeholder="750" />
-                </label>
-                <label className={styles.field}>
-                  <span>Delivery (days)</span>
-                  <input name="delivery_days" type="number" min="0" step="1" placeholder="14" />
-                </label>
-              </div>
-              <label className={styles.field}>
-                <span>Features (one per line)</span>
-                <textarea name="features" rows={3} placeholder={"2 cameras\nEdited highlight reel\nSocial cut-downs"} />
-              </label>
-              {payoutsReady && (
-                <label className={styles.checkItem}>
-                  <input type="checkbox" name="bookable" /> Make this bookable online (accept secure payment through Plistic)
-                </label>
-              )}
-              <button type="submit" className="p-btn p-btn--ghost">Add package</button>
-            </form>
+            <PackageForm action={addPackage.bind(null, service.id)} payoutsReady={payoutsReady} />
           </div>
 
           {/* Items for sale (marketplace) */}
