@@ -106,7 +106,8 @@ export function SiteHeader() {
             if (item.children && item.children.length > 0) {
               const menuKey = item.href;
               const dirLocked = directoryLocked && item.href === "/directory";
-              const isDirChild = (href: string) => href === "/directory" || href === "/compare";
+              const isDirChild = (href: string) =>
+                href === "/directory" || href === "/compare" || href === "/marketplace";
               return (
                 <NavigationMenuItem
                   className="nav-mega"
@@ -137,12 +138,14 @@ export function SiteHeader() {
                   <NavigationMenuContent className="nav-drop-panel" forceMount>
                     {item.children.map((child) =>
                       dirLocked && isDirChild(child.href) ? (
-                        <span className="nav-drop-link nav-drop-locked" key={child.href} aria-disabled="true">
-                          <strong>
-                            {child.label} <span className="nav-soon-inline">Coming soon</span>
-                          </strong>
-                          {child.description && <span>{child.description}</span>}
-                        </span>
+                        <NavigationMenuLink asChild key={child.href}>
+                          <Link className="nav-drop-link nav-drop-locked" href="/coming-soon">
+                            <strong>
+                              {child.label} <span className="nav-soon-inline">Coming soon</span>
+                            </strong>
+                            {child.description && <span>{child.description}</span>}
+                          </Link>
+                        </NavigationMenuLink>
                       ) : (
                         <NavigationMenuLink asChild key={child.href}>
                           <Link className="nav-drop-link" href={child.href}>
@@ -219,14 +222,19 @@ export function SiteHeader() {
               {navItems.map((item) => {
                 const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
                 const itemLocked = directoryLocked && item.href === "/directory";
-                const isDirChild = (href: string) => href === "/directory" || href === "/compare";
+                const isDirChild = (href: string) =>
+                  href === "/directory" || href === "/compare" || href === "/marketplace";
                 return (
                   <li key={item.href}>
                     {itemLocked ? (
-                      <span className="mobile-nav-directory mobile-nav-soon" aria-disabled="true">
+                      <Link
+                        href="/coming-soon"
+                        onClick={() => setMobileOpen(false)}
+                        className="mobile-nav-directory mobile-nav-soon"
+                      >
                         <HighlightIcon aria-hidden="true" size={18} />
                         {item.label} <em>· coming soon</em>
-                      </span>
+                      </Link>
                     ) : (
                       <Link
                         href={item.href}
@@ -242,9 +250,13 @@ export function SiteHeader() {
                         {item.children.map((child) =>
                           directoryLocked && isDirChild(child.href) ? (
                             <li key={child.href}>
-                              <span className="mobile-nav-soon" aria-disabled="true">
+                              <Link
+                                href="/coming-soon"
+                                onClick={() => setMobileOpen(false)}
+                                className="mobile-nav-soon"
+                              >
                                 {child.label} <em>· coming soon</em>
-                              </span>
+                              </Link>
                             </li>
                           ) : (
                             <li key={child.href}>

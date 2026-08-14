@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE, SPLASH_SEEN_COOKIE } from "@/lib/siteAccess";
+import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
 
 // Paths reachable without the coming-soon password.
 const publicPaths = new Set([
@@ -76,19 +76,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Front door: the bare homepage shows the coming-soon splash to anyone who
-  // hasn't dismissed it (or been let in). Every other page stays reachable.
-  // The splash has a "continue to our website" button that sets SPLASH_SEEN.
-  if (
-    pathname === "/" &&
-    !hasSiteAccess(request) &&
-    request.cookies.get(SPLASH_SEEN_COOKIE)?.value !== "1"
-  ) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/coming-soon";
-    redirectUrl.search = "";
-    return NextResponse.redirect(redirectUrl);
-  }
+  // The web address lands on the homepage. (The coming-soon page is still
+  // reachable at /coming-soon and from the links that point to it; it's just no
+  // longer forced in front of the homepage.)
 
   // 2) Refresh the Supabase session and gate /dashboard and /admin.
   return updateSession(request);

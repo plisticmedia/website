@@ -55,9 +55,9 @@ export async function Footer() {
             <h2 id="footer-company-title">Company</h2>
             {companyLinks.map((item) =>
               directoryLocked && isDirectoryLink(item.href) ? (
-                <span key={item.href} className="footer-soon" aria-disabled="true">
+                <Link key={item.href} href="/coming-soon" className="footer-soon">
                   {item.label} <em>· coming soon</em>
-                </span>
+                </Link>
               ) : (
                 <Link key={item.href} href={item.href}>
                   {item.label}
