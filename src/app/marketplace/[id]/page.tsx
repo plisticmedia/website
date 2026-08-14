@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getMarketplaceItem } from "@/lib/marketplace";
 import { gbp } from "../ItemCard";
+import { BuyItemButton } from "./BuyItemButton";
 import styles from "../Marketplace.module.css";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,10 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
   const rest = item.images.slice(1);
   const ful = item.fulfilment ? FULFILMENT_LABEL[item.fulfilment] : null;
   const FulIcon = ful?.icon;
+  // Buyable when the item has a real price, isn't sold out, and the seller can
+  // actually receive payouts. Otherwise buyers enquire directly.
+  const outOfStock = typeof item.stock === "number" && item.stock <= 0;
+  const buyable = item.price_gbp != null && item.price_gbp > 0 && item.seller.payouts_enabled && !outOfStock;
 
   return (
     <>
@@ -109,13 +114,37 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
               {item.description && <div className={styles.desc}>{item.description}</div>}
 
               <div className={styles.buyBox}>
-                <Link href={`/directory/${item.seller.slug}#enquire`} className="p-btn" style={{ width: "100%", justifyContent: "center" }}>
-                  Enquire about this item
-                </Link>
-                <p className={styles.buyNote}>
-                  Message {item.seller.business} directly to arrange this. Secure checkout on the marketplace is coming
-                  soon.
-                </p>
+                {buyable ? (
+                  <>
+                    <BuyItemButton
+                      productId={item.id}
+                      priceLabel={price ?? ""}
+                      maxQty={typeof item.stock === "number" ? item.stock : null}
+                    />
+                    <p className={styles.buyNote}>
+                      Your payment is held securely by Plistic and only released to {item.seller.business} once your
+                      order is confirmed delivered.
+                    </p>
+                    <p className={styles.buyOr}>
+                      or <Link href={`/directory/${item.seller.slug}#enquire`}>message the seller</Link> with a question
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={`/directory/${item.seller.slug}#enquire`}
+                      className="p-btn"
+                      style={{ width: "100%", justifyContent: "center" }}
+                    >
+                      Enquire about this item
+                    </Link>
+                    <p className={styles.buyNote}>
+                      {outOfStock
+                        ? `This item is currently sold out — message ${item.seller.business} to ask about more.`
+                        : `Message ${item.seller.business} directly to arrange this.`}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>

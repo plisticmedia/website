@@ -125,16 +125,29 @@ async function markOrderPaid(supabase: Supabase, session: Stripe.Checkout.Sessio
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, seller_id, buyer_email, amount_gbp, service_id")
+    .select("id, status, seller_id, buyer_email, amount_gbp, service_id, product_id, quantity")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.status !== "pending") return; // already handled or gone
 
+  // For a physical-goods order, capture the shipping address the buyer entered
+  // at checkout so the seller knows where to post it.
+  const shipTo =
+    (session as unknown as { shipping_details?: unknown }).shipping_details ??
+    (session.collected_information as unknown as { shipping_details?: unknown } | undefined)?.shipping_details ??
+    null;
+
   await supabase
     .from("orders")
-    .update({ status: "in_progress", stripe_payment_intent_id: paymentIntentId })
+    .update({ status: "in_progress", stripe_payment_intent_id: paymentIntentId, ship_to: shipTo })
     .eq("id", orderId)
     .eq("status", "pending");
+
+  // Decrement stock and mark the item sold if it's now gone. Marketplace items
+  // with a tracked stock count only; made-to-order (null stock) is untouched.
+  if (order.product_id) {
+    await decrementStock(supabase, order.product_id as string, Number(order.quantity) || 1);
+  }
 
   await supabase.from("order_events").insert({
     order_id: orderId,
@@ -170,6 +183,29 @@ async function markOrderPaid(supabase: Supabase, session: Stripe.Checkout.Sessio
     subject: `New marketplace order — ${title}`,
     text: `Order ${orderId} paid (£${Number(order.amount_gbp).toFixed(2)}).`,
   }).catch(() => {});
+}
+
+/**
+ * Reduce a purchased item's stock by the quantity bought, and mark it `sold`
+ * once it hits zero so it drops off the marketplace. No-op for made-to-order
+ * items (null stock). Best-effort; a failure here never fails the webhook.
+ */
+async function decrementStock(supabase: Supabase, productId: string, quantity: number) {
+  try {
+    const { data: product } = await supabase
+      .from("products")
+      .select("stock")
+      .eq("id", productId)
+      .maybeSingle();
+    if (!product || product.stock == null) return; // untracked / made to order
+    const remaining = Math.max(0, Number(product.stock) - quantity);
+    await supabase
+      .from("products")
+      .update({ stock: remaining, ...(remaining <= 0 ? { status: "sold" } : {}) })
+      .eq("id", productId);
+  } catch (err) {
+    console.error("[stripe] stock decrement failed", productId, err);
+  }
 }
 
 /** Look up a seller's login email (lives on the auth user, not profiles). */

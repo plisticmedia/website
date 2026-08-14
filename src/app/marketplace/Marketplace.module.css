@@ -323,6 +323,36 @@
   color: var(--p-muted);
 }
 
+.qtyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.qtyRow select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  background: var(--p-white);
+  font-size: 0.95rem;
+}
+
+.buyOr {
+  margin: 0.7rem 0 0;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--p-muted);
+}
+
+.buyOr a {
+  color: var(--p-azure-deep, #0c6f9e);
+  font-weight: 700;
+}
+
 .sellerLink {
   color: var(--p-azure-deep, #0c6f9e);
   font-weight: 700;

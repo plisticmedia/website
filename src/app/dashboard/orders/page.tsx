@@ -29,7 +29,9 @@ type OrderRow = {
   status: string;
   amount_gbp: number;
   created_at: string;
+  quantity: number | null;
   services: { title: string | null; slug: string | null } | null;
+  products: { title: string | null } | null;
 };
 
 export default async function OrdersPage({
@@ -42,7 +44,7 @@ export default async function OrdersPage({
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("orders")
-    .select("id, status, amount_gbp, created_at, services ( title, slug )")
+    .select("id, status, amount_gbp, created_at, quantity, services ( title, slug ), products ( title )")
     .eq("buyer_id", profile.id)
     .order("created_at", { ascending: false });
   const orders = (data ?? []) as unknown as OrderRow[];
@@ -62,8 +64,8 @@ export default async function OrdersPage({
           <div className={styles.head}>
             <h1>My orders</h1>
             <p className={styles.lead}>
-              Services you&apos;ve booked. Your payment is held securely and released to the supplier once you
-              confirm the work is done (or automatically after 14 days).
+              Bookings and items you&apos;ve bought. Your payment is held securely and released to the seller once you
+              confirm it&apos;s delivered (or automatically after 14 days).
             </p>
           </div>
 
@@ -93,6 +95,12 @@ export default async function OrdersPage({
                         o.services?.title ?? "Listing"
                       )}
                     </h2>
+                    {o.products?.title && (
+                      <p className={styles.orderItem}>
+                        {o.products.title}
+                        {Number(o.quantity) > 1 ? ` × ${Number(o.quantity)}` : ""}
+                      </p>
+                    )}
                     <p className={styles.orderMeta}>{new Date(o.created_at).toLocaleDateString("en-GB")}</p>
                   </div>
                   <div className={styles.orderSide}>
