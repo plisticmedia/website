@@ -125,7 +125,7 @@ async function markOrderPaid(supabase: Supabase, session: Stripe.Checkout.Sessio
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, seller_id, buyer_email, amount_gbp, service_id, product_id, quantity")
+    .select("id, status, seller_id, buyer_email, amount_gbp, service_id, product_id, quantity, custom_offer_id")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.status !== "pending") return; // already handled or gone
@@ -147,6 +147,15 @@ async function markOrderPaid(supabase: Supabase, session: Stripe.Checkout.Sessio
   // with a tracked stock count only; made-to-order (null stock) is untouched.
   if (order.product_id) {
     await decrementStock(supabase, order.product_id as string, Number(order.quantity) || 1);
+  }
+
+  // If this order came from a custom offer, mark that offer accepted and link it.
+  if (order.custom_offer_id) {
+    await supabase
+      .from("custom_offers")
+      .update({ status: "accepted", order_id: orderId })
+      .eq("id", order.custom_offer_id as string)
+      .eq("status", "sent");
   }
 
   await supabase.from("order_events").insert({

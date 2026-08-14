@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { requireUser } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { markDelivered } from "../orders/actions";
+import { sendCustomOffer, cancelCustomOffer } from "../orders/offer-actions";
 import styles from "../orders/Orders.module.css";
 
 export const metadata: Metadata = { title: "Sales | Plistic" };
@@ -48,6 +49,23 @@ type SaleRow = {
   products: { title: string | null } | null;
 };
 
+type OfferRow = {
+  id: string;
+  parent_order_id: string | null;
+  title: string;
+  price_gbp: number;
+  status: string;
+  created_at: string;
+};
+
+const OFFER_LABEL: Record<string, string> = {
+  sent: "Sent — awaiting buyer",
+  accepted: "Accepted & paid",
+  declined: "Declined",
+  cancelled: "Withdrawn",
+  expired: "Expired",
+};
+
 function formatAddress(ship: ShipTo): string | null {
   if (!ship) return null;
   const a = ship.address ?? {};
@@ -87,6 +105,23 @@ export default async function SalesPage({
       .order("created_at", { ascending: false });
     for (const e of (eventRows ?? []) as { order_id: string; data: { notes?: string } }[]) {
       if (!changeNotes.has(e.order_id) && e.data?.notes) changeNotes.set(e.order_id, e.data.notes);
+    }
+  }
+
+  // Custom offers this seller has sent, grouped by the order they relate to, so
+  // each order can show its offer history and status.
+  const offersByOrder = new Map<string, OfferRow[]>();
+  {
+    const { data: offerRows } = await supabase
+      .from("custom_offers")
+      .select("id, parent_order_id, title, price_gbp, status, created_at")
+      .eq("seller_id", profile.id)
+      .order("created_at", { ascending: false });
+    for (const o of (offerRows ?? []) as OfferRow[]) {
+      if (!o.parent_order_id) continue;
+      const list = offersByOrder.get(o.parent_order_id) ?? [];
+      list.push(o);
+      offersByOrder.set(o.parent_order_id, list);
     }
   }
 
@@ -162,6 +197,41 @@ export default async function SalesPage({
                         </form>
                       )}
                     </div>
+
+                    {(offersByOrder.get(s.id) ?? []).length > 0 && (
+                      <ul className={styles.offerHistory}>
+                        {(offersByOrder.get(s.id) ?? []).map((o) => (
+                          <li key={o.id}>
+                            <span>
+                              <strong>{o.title}</strong> · {gbp(o.price_gbp)} · {OFFER_LABEL[o.status] ?? o.status}
+                            </span>
+                            {o.status === "sent" && (
+                              <form action={cancelCustomOffer.bind(null, o.id)}>
+                                <button type="submit" className={styles.linkBtn}>Withdraw</button>
+                              </form>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <details className={styles.dispute}>
+                      <summary>Send this buyer a custom offer</summary>
+                      <form action={sendCustomOffer.bind(null, s.id)} className={styles.offerForm}>
+                        <p className={styles.offerHint}>
+                          A one-off priced offer just for this buyer — e.g. extra revisions or an add-on. They accept
+                          and pay it from their orders page, held in escrow like any order.
+                        </p>
+                        <input name="title" type="text" required maxLength={160} placeholder="Title — e.g. 2 extra revisions" />
+                        <textarea name="description" rows={2} maxLength={4000} placeholder="What's included (optional)" />
+                        <div className={styles.offerRow}>
+                          <input name="price_gbp" type="number" min="0.5" step="0.01" required placeholder="Price £" />
+                          <input name="revision_limit" type="number" min="0" step="1" placeholder="Revisions (optional)" />
+                          <input name="delivery_days" type="number" min="0" step="1" placeholder="Days (optional)" />
+                        </div>
+                        <button type="submit" className="p-btn p-btn--ghost">Send offer</button>
+                      </form>
+                    </details>
                   </li>
                 );
               })}
