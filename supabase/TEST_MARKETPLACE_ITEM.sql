@@ -9,7 +9,7 @@
 -- safe behaviour. Nothing here touches money.
 
 -- 1) The item itself.
-insert into products (service_id, title, description, price_gbp, product_type, stock, fulfilment, delivery_info, status, sort_order)
+insert into products (service_id, title, description, price_gbp, product_type, stock, fulfilment, delivery_info, revision_limit, status, sort_order)
 select
   s.id,
   'Test item — Plistic tote bag',
@@ -19,6 +19,7 @@ select
   10,
   'both',
   'UK shipping £3.50, or collect from Glasgow.',
+  1,
   'active',
   0
 from services s
