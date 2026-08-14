@@ -353,6 +353,42 @@
   color: var(--p-azure-deep);
 }
 
+/* Milestone / staged-payment breakdown on a package card */
+.packageStages {
+  margin: 0.6rem 0 0.2rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  background: rgba(31, 170, 233, 0.05);
+}
+.packageStagesTitle {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--p-ink);
+}
+.packageStagesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.packageStagesList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  font-size: 0.85rem;
+  color: var(--p-ink);
+}
+.packageStagesNote {
+  margin: 0.45rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--p-muted);
+}
+
 .bookWrap {
   margin-top: auto;
   padding-top: 0.8rem;

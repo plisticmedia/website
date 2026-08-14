@@ -76,6 +76,8 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
 
 **Checkout (creates the order + Checkout Session)**
 - `src/app/api/stripe/orders/checkout/route.ts` — bookable **package** checkout.
+  A package may carry a `milestones` template; when present the order is
+  milestone-based (same snapshot + validation as the offer route).
 - `src/app/api/stripe/marketplace/checkout/route.ts` — marketplace **item**
   checkout (the Phase 3 addition). Mirrors the package route; adds quantity,
   stock cap, and GB shipping-address collection for physical goods.
@@ -136,6 +138,8 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   (+ RLS), `custom_offers.milestones`, `orders.has_milestones`, and
   `payouts.milestone_id` (relaxing the one-payout-per-order rule to
   one-per-non-milestone-order + one-per-milestone).
+- `supabase/migrations/0035_package_milestones.sql` — `service_packages.milestones`,
+  so a listing package can advertise a staged/deposit plan buyers self-serve.
 
 ---
 

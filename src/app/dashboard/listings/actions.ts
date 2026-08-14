@@ -234,8 +234,36 @@ export async function addPackage(serviceId: string, formData: FormData) {
   const name = str(formData, "name", 120);
   if (!name) throw new Error("Package name is required.");
 
-  const priceRaw = str(formData, "price_gbp", 20);
-  const price = priceRaw ? Number(priceRaw) : null;
+  // Optional milestones (a staged / deposit plan). If present, the package price
+  // is their sum, and the buyer books it in stages from the listing.
+  const milestones: Array<{ title: string; amount_gbp: number }> = [];
+  const milestonesJson = str(formData, "milestones_json", 20000);
+  if (milestonesJson) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(milestonesJson);
+    } catch {
+      throw new Error("Couldn't read the milestones. Please try again.");
+    }
+    if (Array.isArray(parsed)) {
+      for (const raw of (parsed as Array<{ title?: unknown; amount_gbp?: unknown }>).slice(0, 12)) {
+        const mTitle = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
+        const mAmount = Number(raw.amount_gbp);
+        if (mTitle && Number.isFinite(mAmount) && mAmount > 0) {
+          milestones.push({ title: mTitle, amount_gbp: Math.round(mAmount * 100) / 100 });
+        }
+      }
+    }
+  }
+
+  let price: number | null;
+  if (milestones.length > 0) {
+    price = Math.round(milestones.reduce((sum, m) => sum + m.amount_gbp, 0) * 100) / 100;
+  } else {
+    const priceRaw = str(formData, "price_gbp", 20);
+    const parsed = priceRaw ? Number(priceRaw) : null;
+    price = parsed !== null && Number.isFinite(parsed) ? parsed : null;
+  }
   const daysRaw = str(formData, "delivery_days", 10);
   const days = daysRaw ? parseInt(daysRaw, 10) : null;
   const features = str(formData, "features", 1000)
@@ -245,7 +273,8 @@ export async function addPackage(serviceId: string, formData: FormData) {
 
   // "Bookable online" is only honoured once the seller can actually receive
   // payouts — otherwise we'd show a Book button we can't pay out against.
-  const wantsBookable = formData.get("bookable") === "on";
+  // A staged (milestone) package must be bookable to make sense.
+  const wantsBookable = formData.get("bookable") === "on" || milestones.length > 0;
   const bookable = wantsBookable && (await sellerPayoutsEnabled(supabase, profile.id));
 
   const { error } = await supabase.from("service_packages").insert({
@@ -255,6 +284,7 @@ export async function addPackage(serviceId: string, formData: FormData) {
     delivery_days: days !== null && Number.isFinite(days) ? days : null,
     features,
     is_bookable: bookable,
+    milestones: milestones.length > 0 ? milestones : null,
   });
 
   if (error) throw new Error(error.message);

@@ -26,6 +26,7 @@ export type ServicePackage = {
   features: string[];
   sort_order: number;
   is_bookable: boolean;
+  milestones: Array<{ title: string; amount_gbp: number }> | null;
 };
 
 export type ServiceMedia = {
