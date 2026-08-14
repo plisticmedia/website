@@ -44,6 +44,7 @@ pending ──(checkout.session.completed webhook)──▶ in_progress
 in_progress ──(seller: markDelivered)──▶ delivered
 delivered ──(buyer: confirmReceipt)─────▶ completed   ──▶ payout transfer
 delivered ──(cron: 14d auto-release)────▶ completed   ──▶ payout transfer
+delivered ──(buyer: requestChanges)─────▶ in_progress (revision loop; clears auto_release_at)
 in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded from auto-release; admin mediates)
 ```
 
@@ -51,6 +52,10 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
   webhook, never from client code.
 - **Money out:** `delivered → completed` is the only path that creates a Stripe
   transfer, and it is guarded (see §5).
+- **Revision loop:** `requestChanges` sends a delivered order back to
+  `in_progress` with notes (an `order_events` `changes_requested` row) and
+  **clears `auto_release_at`** so nothing auto-pays mid-rework. Capped by the
+  order's snapshotted `revision_limit` (null = unlimited). No money moves here.
 
 ---
 
@@ -83,8 +88,10 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
 
 **Buyer/seller actions (state transitions)**
 - `src/app/dashboard/orders/actions.ts` — `markDelivered`, `confirmReceipt`,
-  `raiseDispute`, `leaveReview`. Orders are read-only to clients (RLS); every
-  transition is a server action with an explicit party check.
+  `requestChanges`, `raiseDispute`, `leaveReview`. Orders are read-only to
+  clients (RLS); every transition is a server action with an explicit party
+  check. `requestChanges` enforces the seller's included-revisions cap by
+  counting `changes_requested` events against `orders.revision_limit`.
 
 **Seller onboarding**
 - `src/app/api/stripe/connect/onboard/route.ts` — Stripe Connect Express
@@ -104,6 +111,8 @@ in_progress|delivered ──(buyer: raiseDispute)──▶ disputed   (excluded 
 - `supabase/migrations/0030_products.sql` — `products`, `product_media`, RLS.
 - `supabase/migrations/0031_marketplace_orders.sql` — `orders.product_id`,
   `quantity`, `ship_to`, `fulfilment`.
+- `supabase/migrations/0032_product_revisions.sql` — `products.revision_limit`
+  and the snapshotted `orders.revision_limit`.
 
 ---
 
@@ -143,6 +152,16 @@ record.
       against duplicate webhook deliveries).
 - [ ] `decrementStock` floors at 0 and marks `sold`; no-op for made-to-order
       (null stock).
+
+**Revision loop — `orders.ts requestChanges` (no money moves, but affects payout timing)**
+- [ ] Buyer-only; acts only on a `delivered` order.
+- [ ] Sets `in_progress` and **clears `auto_release_at`** so a mid-rework order
+      can't auto-release.
+- [ ] Enforces the cap: counts `changes_requested` events vs
+      `orders.revision_limit` (a purchase-time snapshot, not the live product
+      value); `null` = unlimited, `0` = no revisions.
+- [ ] The cap is server-enforced — the UI hint ("2 of 3 left") is cosmetic; a
+      buyer POSTing past the limit is still rejected.
 
 **Release — `orders.ts`**
 - [ ] Acts only on a `delivered` order.
@@ -201,6 +220,11 @@ CLI for local webhooks (`stripe listen --forward-to localhost:3000/api/webhooks/
    releases and doesn't touch disputed/completed orders.
 8. **Dispute path.** On an in-progress order, buyer raises an issue → order
    `disputed`, excluded from auto-release, admin notified.
+9. **Revision loop.** Set an item's *Revisions included* to 1. Buy it, deliver,
+   then as the buyer **Request changes** with notes → order returns to
+   `in_progress`, `auto_release_at` cleared, seller sees the notes. Deliver
+   again; a **second** change request must be **blocked** ("used all 1
+   revision"), and the buyer pointed to message the seller.
 
 Test cards: success `4242 4242 4242 4242`; decline `4000 0000 0000 0002`.
 
@@ -216,6 +240,12 @@ Test cards: success `4242 4242 4242 4242`; decline `4000 0000 0000 0002`.
       `account.updated`, and the `customer.subscription.*` events.
 - [ ] Connect **live** onboarding enabled; platform Connect settings + payout
       schedule reviewed.
+- [ ] **Audit enabled Stripe payment methods / wallet buttons** (Dashboard →
+      Settings → Payment methods). Sandbox shows test-only wallets (e.g. an
+      odd/zoomed "Onelink" button) that shouldn't reach real buyers — enable the
+      ones you actually want (Card + Apple Pay are the usual UK essentials) and
+      turn the rest off. Also set a clean square **brand icon** under Settings →
+      Branding so the checkout header isn't a cropped logo.
 - [ ] Real card, small real purchase, end-to-end incl. payout — then refunded.
 - [ ] Terms / escrow disclosure wording confirmed (Plistic holds funds but is
       not a party to the work).
