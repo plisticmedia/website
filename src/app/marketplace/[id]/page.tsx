@@ -108,6 +108,13 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                   </span>
                 )}
                 {item.delivery_info && <span>{item.delivery_info}</span>}
+                {typeof item.revision_limit === "number" && (
+                  <span>
+                    {item.revision_limit === 0
+                      ? "No revisions included"
+                      : `Includes ${item.revision_limit} revision${item.revision_limit === 1 ? "" : "s"}`}
+                  </span>
+                )}
                 {typeof item.stock === "number" && item.stock > 0 && <span>{item.stock} available</span>}
               </div>
 

@@ -109,11 +109,31 @@ export async function requestChanges(orderId: string, formData: FormData) {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, buyer_id, seller_id, service_id")
+    .select("id, status, buyer_id, seller_id, service_id, revision_limit")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.buyer_id !== profile.id) back("/dashboard/orders", "err", "Order not found.");
   if (order!.status !== "delivered") back("/dashboard/orders", "err", "You can request changes once it's marked delivered.");
+
+  // Enforce the seller's included-revisions cap (null = unlimited). Count the
+  // change-request rounds already used on this order.
+  const limit = order!.revision_limit as number | null;
+  if (limit != null) {
+    const { count } = await supabase
+      .from("order_events")
+      .select("id", { count: "exact", head: true })
+      .eq("order_id", orderId)
+      .eq("type", "changes_requested");
+    if ((count ?? 0) >= limit) {
+      back(
+        "/dashboard/orders",
+        "err",
+        limit === 0
+          ? "This order doesn't include revisions. Message the seller to arrange any changes."
+          : `You've used all ${limit} included revision${limit === 1 ? "" : "s"}. Message the seller to arrange further changes.`,
+      );
+    }
+  }
 
   await supabase
     .from("orders")

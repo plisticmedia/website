@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     // Load the item + its parent listing.
     const { data: product } = await supabase
       .from("products")
-      .select("id, title, price_gbp, product_type, status, stock, fulfilment, service_id")
+      .select("id, title, price_gbp, product_type, status, stock, fulfilment, revision_limit, service_id")
       .eq("id", productId)
       .maybeSingle();
     if (!product || product.status !== "active") {
@@ -113,6 +113,7 @@ export async function POST(request: Request) {
         currency: "gbp",
         status: "pending",
         fulfilment: product.fulfilment ?? null,
+        revision_limit: product.revision_limit ?? null,
         transfer_group: null,
       })
       .select("id")
