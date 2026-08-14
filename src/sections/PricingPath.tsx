@@ -21,7 +21,7 @@ export function PricingPath({ initialService }: { initialService?: ServiceChoice
             <p className={styles.launchNote}>
               <Sparkles aria-hidden="true" size={16} />
               <span>
-                <strong>Launch offer:</strong> {launchOffer.body} Estimates below are before the discount — we&apos;ll apply
+                <strong>Launch offer:</strong> {launchOffer.body}{" "}Estimates below are before the discount — we&apos;ll apply
                 it on your call.
               </span>
             </p>
