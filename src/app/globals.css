@@ -2618,7 +2618,11 @@ textarea {
 .footer-soon {
   color: var(--muted, #5d6b71);
   opacity: 0.7;
-  cursor: default;
+  cursor: pointer;
+}
+.footer-soon:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 .footer-soon em {
   font-style: normal;
@@ -2640,8 +2644,11 @@ textarea {
   margin-left: 0.2rem;
 }
 .nav-drop-link.nav-drop-locked {
-  cursor: default;
-  opacity: 0.72;
+  cursor: pointer;
+  opacity: 0.82;
+}
+.nav-drop-link.nav-drop-locked:hover {
+  opacity: 1;
 }
 .nav-drop-link.nav-drop-locked strong {
   color: var(--ink-strong, #141417);
@@ -2670,7 +2677,8 @@ textarea {
   align-items: center;
   gap: 0.5rem;
   color: var(--muted, #5d6b71);
-  opacity: 0.75;
+  opacity: 0.85;
+  cursor: pointer;
 }
 .mobile-nav-soon em {
   font-style: normal;
