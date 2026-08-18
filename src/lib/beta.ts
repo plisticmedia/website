@@ -50,7 +50,7 @@ async function sendBetaWelcome(email: string, name?: string) {
     "",
     "IMPORTANT — two separate things:",
     `1) The password above (${BETA_PASSWORD}) is a shared key that just unlocks the directory so you can look around during the beta.`,
-    "2) To actually set up your business listing — adding a new one, or claiming an existing one — (and to buy or sell), you'll create your own free account with your own email and password. That's a separate, quick step once you're inside. The shared password on its own does NOT create your listing.",
+    "2) To actually set up your business listing — adding a new one, or claiming an existing one — (and to buy or sell), you'll create your own free account with your own email and password. That's a separate, quick step once you're inside.",
     "",
     `Take a look around: ${siteUrl()}/directory`,
     `Ready to list your business? Start here — it walks you through creating your account: ${siteUrl()}/list-your-business`,
