@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { MapPin, Mail, Sparkles, Search } from "lucide-react";
+import Link from "next/link";
+import { MapPin, Mail, Sparkles, Search, UserPlus, ArrowRight } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations } from "@/lib/services";
+import { getSessionProfile } from "@/lib/auth";
 import { SubmitListingForm } from "./SubmitListingForm";
 import styles from "./Submit.module.css";
 
@@ -13,8 +15,14 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+const NEXT = "/list-your-business";
+
 export default async function ListYourBusinessPage() {
-  const [categories, locations] = await Promise.all([getCategories(), getLocations()]);
+  const [categories, locations, profile] = await Promise.all([
+    getCategories(),
+    getLocations(),
+    getSessionProfile(),
+  ]);
 
   return (
     <>
@@ -70,7 +78,26 @@ export default async function ListYourBusinessPage() {
             </ul>
           </div>
 
-          <SubmitListingForm categories={categories} locations={locations} />
+          {profile ? (
+            <SubmitListingForm categories={categories} locations={locations} />
+          ) : (
+            <div className={styles.accountGate}>
+              <span className={styles.accountGateIcon} aria-hidden="true">
+                <UserPlus size={22} />
+              </span>
+              <h2>First, create your free business account</h2>
+              <p>
+                Your listing lives in your own account, so you can edit it, reply to enquiries and take bookings any
+                time. It takes a minute — then you&apos;ll go straight to building your page.
+              </p>
+              <Link className={styles.accountGateBtn} href={`/login?as=business&signup=1&next=${NEXT}`}>
+                Create a free account <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+              <p className={styles.accountGateAlt}>
+                Already have an account? <Link href={`/login?as=business&next=${NEXT}`}>Sign in to list</Link>
+              </p>
+            </div>
+          )}
         </section>
       </main>
       <Footer />
