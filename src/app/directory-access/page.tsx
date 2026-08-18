@@ -41,11 +41,11 @@ export default async function DirectoryAccessPage({ searchParams }: Props) {
         </p>
         <div className={styles.twoStep}>
           <p>
-            <strong>Just looking?</strong> This shared password is all you need.
+            <strong>Just looking?</strong>{" "}This shared password is all you need.
           </p>
           <p>
-            <strong>Listing your business?</strong> You&apos;ll also make your own free account once you&apos;re in — a
-            separate, quick step. The password alone doesn&apos;t create your listing.
+            <strong>Listing your business?</strong>{" "}You&apos;ll also make your own free account once you&apos;re in
+            — a separate, quick step. The password alone doesn&apos;t create your listing.
           </p>
         </div>
         <form action="/api/site-access" method="post" className={styles.form}>
