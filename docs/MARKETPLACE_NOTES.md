@@ -50,5 +50,5 @@ At send time still needed:
 > Thanks so much,
 > The Plistic team
 >
-> (Your access password is still plisticbeta if you need it — enter it on the
-> directory's "coming soon" screen.)
+> (Your access password is still plisticbeta if you need it — when you open the
+> Media Directory you'll be asked for it, and you'll stay signed in after that.)

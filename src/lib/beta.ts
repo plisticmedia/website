@@ -44,7 +44,7 @@ async function sendBetaWelcome(email: string, name?: string) {
     "As a beta tester you get early access to the Plistic Media Directory before it opens to the public. You can claim your business, customise your page — logo, photos, showreel, packages and prices — and be one of the first businesses listed.",
     "",
     `Your access password: ${BETA_PASSWORD}`,
-    "Enter it on the directory's \"coming soon\" screen to get in.",
+    "When you open the Media Directory you'll be asked for this password — enter it there and you're in. You'll stay signed in after that, so you won't need to type it again.",
     "",
     "TESTING PAYMENTS",
     "The marketplace and bookings are in test mode, so NO real money is taken and no card is ever charged. When you try buying an item, booking a package, or paying an offer, you'll be taken to a Stripe payment screen — pay with this test card:",
