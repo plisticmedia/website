@@ -8,6 +8,7 @@ import { confirmReceipt, leaveReview, raiseDispute, requestChanges } from "./act
 import { declineCustomOffer } from "./offer-actions";
 import { approveMilestone } from "./actions";
 import { OfferPayButton } from "./OfferPayButton";
+import { TestPaymentNote } from "@/components/TestPaymentNote";
 import styles from "./Orders.module.css";
 
 function gbpOffer(v: number | null | undefined) {
@@ -211,6 +212,7 @@ export default async function OrdersPage({
                   </li>
                 ))}
               </ul>
+              <TestPaymentNote />
             </div>
           )}
 
