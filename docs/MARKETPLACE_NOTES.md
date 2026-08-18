@@ -29,17 +29,16 @@ At send time still needed:
 >
 > TWO CLEAR STEPS, NO MORE CONFUSION
 > A few of you (rightly!) found it unclear that the shared password and your own
-> account are two different things. So we've made it plain: the password just lets
-> you look around, and to build your listing you make your own free account. Better
-> still, "List your business" now walks you through creating that account in one go —
-> so your listing is always tied to your account and yours to manage.
+> account are two different things. So we've made it plain. The shared password just
+> lets you look around the beta. To build your own listing, you make your own free
+> account. And "List your business" now walks you through creating that account, so
+> it's all one smooth step — and your listing is always yours to manage.
 >
 > THE MARKETPLACE IS OPEN TO TEST
-> This is the big one. Businesses can now sell items and services, take bookings,
-> send buyers custom one-off offers, and offer staged "milestone" payments — a
-> deposit up front, with the rest released to you as each stage of the work is
-> approved. Buyers can pay all the way through to delivery, and everyone's protected
-> by escrow.
+> This is the big one. Businesses can sell products and services and take bookings.
+> You can send a buyer a one-off custom offer for bespoke work. You can even take
+> payment in stages — a deposit up front, then the rest as you finish each part of
+> the job. And everything's held safely in escrow until the work is delivered.
 >
 > BUYERS GET ACCOUNTS TOO
 > Buyers can now create an account at checkout, just like any normal shop — to pay,
