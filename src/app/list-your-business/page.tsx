@@ -86,9 +86,9 @@ export default async function ListYourBusinessPage() {
                 <UserPlus size={22} />
               </span>
               <h2>First, create your free business account</h2>
-              <p>
+              <p className={styles.accountGateLead}>
                 Your listing lives in your own account, so you can edit it, reply to enquiries and take bookings any
-                time. It takes a minute — then you&apos;ll go straight to building your page.
+                time. It only takes a minute.
               </p>
               <Link className={styles.accountGateBtn} href={`/login?as=business&signup=1&next=${NEXT}`}>
                 Create a free account <ArrowRight aria-hidden="true" size={17} />

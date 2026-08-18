@@ -40,10 +40,13 @@ export default async function DirectoryAccessPage({ searchParams }: Props) {
           The directory is in private beta. Enter the shared access password below to take a look around.
         </p>
         <div className={styles.twoStep}>
-          <strong>Just here to look?</strong> This shared password is all you need.<br />
-          <strong>Want to claim your business and build your listing?</strong> You&apos;ll also make your own free
-          account (your own email &amp; password) once you&apos;re in — that&apos;s a separate step, and this password
-          on its own doesn&apos;t create your listing.
+          <p>
+            <strong>Just looking?</strong> This shared password is all you need.
+          </p>
+          <p>
+            <strong>Listing your business?</strong> You&apos;ll also make your own free account once you&apos;re in — a
+            separate, quick step. The password alone doesn&apos;t create your listing.
+          </p>
         </div>
         <form action="/api/site-access" method="post" className={styles.form}>
           <input type="hidden" name="next" value={nextPath} />
