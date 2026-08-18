@@ -5,13 +5,6 @@ import { ArrowUpRight, CalendarDays, Compass, Store } from "lucide-react";
 import { brand, bookingUrl } from "@/data/site";
 import { BetaSignupForm } from "./BetaSignupForm";
 
-type ComingSoonPageProps = {
-  searchParams?: Promise<{
-    error?: string;
-    next?: string;
-  }>;
-};
-
 export const metadata: Metadata = {
   title: "Coming Soon | Plistic",
   description: "Plistic is getting ready to launch.",
@@ -21,31 +14,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function ComingSoonPage({ searchParams }: ComingSoonPageProps) {
-  const params = await searchParams;
-  const hasError = params?.error === "1";
-  const nextPath = getSafeNextPath(params?.next);
-
+export default function ComingSoonPage() {
   return (
     <main className="coming-soon-page">
-      <details className="coming-soon-login">
-        <summary>Login</summary>
-        <form action="/api/site-access" method="post">
-          <input type="hidden" name="next" value={nextPath} />
-          <label htmlFor="site-access-password">Password</label>
-          <input
-            autoComplete="current-password"
-            id="site-access-password"
-            name="password"
-            placeholder="Enter password"
-            required
-            type="password"
-          />
-          <button type="submit">Enter site</button>
-          {hasError ? <p role="alert">That password did not work.</p> : null}
-        </form>
-      </details>
-
       <section className="coming-soon-hero" aria-labelledby="coming-soon-heading">
         <div className="coming-soon-shell">
           <div className="coming-soon-brand">
@@ -101,12 +72,4 @@ export default async function ComingSoonPage({ searchParams }: ComingSoonPagePro
       </section>
     </main>
   );
-}
-
-function getSafeNextPath(value: string | undefined) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/";
-  }
-
-  return value;
 }

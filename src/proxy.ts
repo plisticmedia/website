@@ -5,6 +5,7 @@ import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
 // Paths reachable without the coming-soon password.
 const publicPaths = new Set([
   "/coming-soon",
+  "/directory-access",
   "/api/site-access",
   "/api/beta-signup",
   "/api/enter-site",
@@ -70,7 +71,10 @@ export async function proxy(request: NextRequest) {
 
   if (gated) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/coming-soon";
+    // When the whole site is pre-launch, show the coming-soon splash. When only
+    // the directory is gated (site live, directory in beta), show the password
+    // prompt so visitors can enter the beta password to get in.
+    redirectUrl.pathname = SITE_LIVE ? "/directory-access" : "/coming-soon";
     redirectUrl.search = "";
     redirectUrl.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(redirectUrl);
