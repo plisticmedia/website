@@ -201,3 +201,56 @@
 @media (max-width: 620px) {
   .row { grid-template-columns: 1fr; }
 }
+
+/* Account-first gate (shown when not signed in) */
+.accountGate {
+  align-self: start;
+  border: 1px solid var(--p-line);
+  border-radius: 16px;
+  background: var(--p-white, #fff);
+  padding: 1.8rem 1.6rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(16, 17, 21, 0.06);
+}
+.accountGateIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(31, 170, 233, 0.12);
+  color: var(--p-azure-deep, #0c6f9e);
+  margin-bottom: 0.9rem;
+}
+.accountGate h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+.accountGate > p {
+  margin: 0 auto 1.2rem;
+  max-width: 42ch;
+  color: var(--p-muted-dark, #4a4f57);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.accountGateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  background: var(--p-azure, #1faae9);
+  color: #06121a;
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+.accountGateBtn:hover { filter: brightness(1.06); }
+.accountGateAlt {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--p-muted, #5d6b71);
+}
+.accountGateAlt a {
+  color: var(--p-azure-deep, #0c6f9e);
+  font-weight: 600;
+}

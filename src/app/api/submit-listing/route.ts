@@ -146,6 +146,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error?.message ?? "Couldn't save your listing." }, { status: 500 });
   }
 
+  // A signed-in submitter now owns a business listing — make sure their account
+  // is marked as a business so their dashboard shows the seller tools.
+  if (owner?.id) {
+    await supabase.from("profiles").update({ account_type: "business" }).eq("id", owner.id);
+  }
+
   await supabase.from("listing_services").insert(catIds.map((cid) => ({ service_id: inserted.id, category_id: cid })));
   if (areaIds.length) {
     await supabase.from("service_areas").insert(areaIds.map((lid) => ({ service_id: inserted.id, location_id: lid })));

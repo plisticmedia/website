@@ -23,10 +23,18 @@ function readError(error: unknown, fallback: string): string {
   return msg || fallback;
 }
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({
+  next,
+  initialSignUp = false,
+  initialAccountType = "buyer",
+}: {
+  next: string;
+  initialSignUp?: boolean;
+  initialAccountType?: "buyer" | "business";
+}) {
   const [mode, setMode] = useState<Mode>("password");
-  const [signUp, setSignUp] = useState(false);
-  const [accountType, setAccountType] = useState<"buyer" | "business">("buyer");
+  const [signUp, setSignUp] = useState(initialSignUp);
+  const [accountType, setAccountType] = useState<"buyer" | "business">(initialAccountType);
   const [showPw, setShowPw] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
