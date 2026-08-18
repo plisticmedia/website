@@ -139,7 +139,10 @@ export function SiteHeader() {
                     {item.children.map((child) =>
                       dirLocked && isDirChild(child.href) ? (
                         <NavigationMenuLink asChild key={child.href}>
-                          <Link className="nav-drop-link nav-drop-locked" href="/coming-soon">
+                          <Link
+                            className="nav-drop-link nav-drop-locked"
+                            href={`/directory-access?next=${encodeURIComponent(child.href)}`}
+                          >
                             <strong>
                               {child.label} <span className="nav-soon-inline">Coming soon</span>
                             </strong>
@@ -228,7 +231,7 @@ export function SiteHeader() {
                   <li key={item.href}>
                     {itemLocked ? (
                       <Link
-                        href="/coming-soon"
+                        href={`/directory-access?next=${encodeURIComponent(item.href)}`}
                         onClick={() => setMobileOpen(false)}
                         className="mobile-nav-directory mobile-nav-soon"
                       >
@@ -251,7 +254,7 @@ export function SiteHeader() {
                           directoryLocked && isDirChild(child.href) ? (
                             <li key={child.href}>
                               <Link
-                                href="/coming-soon"
+                                href={`/directory-access?next=${encodeURIComponent(child.href)}`}
                                 onClick={() => setMobileOpen(false)}
                                 className="mobile-nav-soon"
                               >

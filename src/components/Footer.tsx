@@ -55,7 +55,11 @@ export async function Footer() {
             <h2 id="footer-company-title">Company</h2>
             {companyLinks.map((item) =>
               directoryLocked && isDirectoryLink(item.href) ? (
-                <Link key={item.href} href="/coming-soon" className="footer-soon">
+                <Link
+                  key={item.href}
+                  href={`/directory-access?next=${encodeURIComponent(item.href)}`}
+                  className="footer-soon"
+                >
                   {item.label} <em>· coming soon</em>
                 </Link>
               ) : (
