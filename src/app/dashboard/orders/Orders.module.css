@@ -240,7 +240,7 @@
 .offersLead {
   margin: 0.3rem 0 0.9rem;
   font-size: 0.88rem;
-  color: var(--p-muted-dark, #4a4f57);
+  color: var(--p-muted);
 }
 
 .offerDesc {
@@ -266,7 +266,7 @@
   justify-content: space-between;
   gap: 0.6rem;
   font-size: 0.85rem;
-  color: var(--p-muted-dark, #4a4f57);
+  color: var(--p-muted);
   background: var(--p-paper);
   border: 1px solid var(--p-line);
   border-radius: 8px;

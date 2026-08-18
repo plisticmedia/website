@@ -43,7 +43,7 @@ export default async function ListYourBusinessPage() {
           </div>
         </section>
 
-        <section className={`p-container ${styles.body}`}>
+        <section className={`p-container ${styles.body} ${profile ? "" : styles.bodyGate}`}>
           <div className={styles.benefits}>
             <h2>Why list with Plistic — it&apos;s free</h2>
             <ul>
