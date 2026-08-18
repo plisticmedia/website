@@ -233,7 +233,7 @@
 }
 .accountGateLead {
   margin: 0.5rem 0 1.4rem;
-  color: var(--p-muted-dark, #4a4f57);
+  color: var(--p-muted);
   font-size: 0.94rem;
   line-height: 1.55;
 }
@@ -257,4 +257,27 @@
 .accountGateAlt a {
   color: var(--p-azure-deep, #0c6f9e);
   font-weight: 600;
+}
+
+/* When showing the account gate (not signed in), sit it beside the benefits. */
+.bodyGate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+.bodyGate .benefits {
+  max-width: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.bodyGate .accountGate {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+@media (max-width: 860px) {
+  .bodyGate { grid-template-columns: 1fr; }
+  .bodyGate .accountGate { max-width: 440px; margin: 0 auto; }
 }

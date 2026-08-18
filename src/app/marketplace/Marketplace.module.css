@@ -295,7 +295,7 @@
   flex-direction: column;
   gap: 0.5rem;
   font-size: 0.92rem;
-  color: var(--p-muted-dark, #4a4f57);
+  color: var(--p-muted);
 }
 
 /* Each row keeps its label, icon and any link on one shared baseline/centre so
