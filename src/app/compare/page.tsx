@@ -165,7 +165,13 @@ export default async function ComparePage({
                           </Link>
                         </td>
                         <td>{r.category ? titleCaseName(r.category) : "—"}</td>
-                        <td className={styles.price}>{gbp(r.fromPrice)}</td>
+                        <td className={styles.price}>
+                          {r.fromPrice != null ? (
+                            gbp(r.fromPrice)
+                          ) : (
+                            <span className={styles.onEnquiry}>Price on enquiry</span>
+                          )}
+                        </td>
                         <td>
                           {r.deliveryDays ? (
                             <span className={styles.delivery}>

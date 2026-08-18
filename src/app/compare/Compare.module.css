@@ -42,6 +42,7 @@
 .featured { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--p-azure-deep, #0c6f9e); }
 
 .price { font-weight: 800; font-size: 1.02rem; white-space: nowrap; }
+.onEnquiry { font-weight: 600; font-size: 0.9rem; color: var(--p-muted); white-space: nowrap; }
 .delivery, .rating { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; color: var(--p-muted); }
 .rating small { color: var(--p-muted); }
 
