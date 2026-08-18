@@ -1,5 +1,5 @@
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, siteUrl } from "@/lib/email";
 
 /** The beta / coming-soon access password shared with beta testers. */
 export const BETA_PASSWORD = "plisticbeta";
@@ -43,8 +43,12 @@ async function sendBetaWelcome(email: string, name?: string) {
     "",
     "As a beta tester you get early access to the Plistic Media Directory before it opens to the public. You can claim your business, customise your page — logo, photos, showreel, packages and prices — and be one of the first businesses listed.",
     "",
+    "There's also a brand-new marketplace to try: businesses can sell items and services, take bookings, send custom offers, and offer staged 'milestone' payments (a deposit up front, released to the seller as each stage is approved). Buyers can pay, all the way through to delivery.",
+    "",
     `Your access password: ${BETA_PASSWORD}`,
     "When you open the Media Directory you'll be asked for this password — enter it there and you're in. You'll stay signed in after that, so you won't need to type it again.",
+    "",
+    `Get started: ${siteUrl()}/directory`,
     "",
     "TESTING PAYMENTS",
     "The marketplace and bookings are in test mode, so NO real money is taken and no card is ever charged. When you try buying an item, booking a package, or paying an offer, you'll be taken to a Stripe payment screen — pay with this test card:",
