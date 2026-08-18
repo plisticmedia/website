@@ -37,8 +37,14 @@ export default async function DirectoryAccessPage({ searchParams }: Props) {
         </span>
         <h1 className={styles.title}>Media Directory</h1>
         <p className={styles.lead}>
-          The directory is in private beta. Enter the access password to take a look.
+          The directory is in private beta. Enter the shared access password below to take a look around.
         </p>
+        <div className={styles.twoStep}>
+          <strong>Just here to look?</strong> This shared password is all you need.<br />
+          <strong>Want to claim your business and build your listing?</strong> You&apos;ll also make your own free
+          account (your own email &amp; password) once you&apos;re in — that&apos;s a separate step, and this password
+          on its own doesn&apos;t create your listing.
+        </div>
         <form action="/api/site-access" method="post" className={styles.form}>
           <input type="hidden" name="next" value={nextPath} />
           <input type="hidden" name="from" value="/directory-access" />
