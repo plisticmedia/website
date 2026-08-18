@@ -11,6 +11,7 @@ import { CoverImage } from "../ListingImage";
 import { getServiceBySlug, getServiceReviews } from "@/lib/services";
 import { getConfirmedCollaborators, getPublicPeerConfidence } from "@/lib/peers";
 import { getItemsForService } from "@/lib/marketplace";
+import { TestPaymentNote } from "@/components/TestPaymentNote";
 import { getSessionProfile } from "@/lib/auth";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 import { EnquiryForm } from "./EnquiryForm";
@@ -354,6 +355,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     );
                   })}
                 </div>
+                <TestPaymentNote />
               </div>
             )}
 

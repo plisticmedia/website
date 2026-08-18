@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getMarketplaceItem } from "@/lib/marketplace";
 import { gbp } from "../ItemCard";
 import { BuyItemButton } from "./BuyItemButton";
+import { TestPaymentNote } from "@/components/TestPaymentNote";
 import styles from "../Marketplace.module.css";
 
 export const dynamic = "force-dynamic";
@@ -135,6 +136,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                     <p className={styles.buyOr}>
                       or <Link href={`/directory/${item.seller.slug}#enquire`}>message the seller</Link> with a question
                     </p>
+                    <TestPaymentNote />
                   </>
                 ) : (
                   <>
