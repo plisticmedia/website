@@ -129,7 +129,7 @@ export type CompareRow = {
   categorySlug: string | null;
   rating: number | null;
   ratingCount: number | null;
-  fromPrice: number;
+  fromPrice: number | null; // null = no listed price yet (price on enquiry)
   deliveryDays: number | null;
   isFeatured: boolean;
   bookable: boolean; // cheapest package is bookable AND the seller can take payouts
@@ -174,9 +174,9 @@ export async function getComparableServices(
   for (const r of (data ?? []) as unknown as Row[]) {
     // Any package with a real price counts — display or bookable — so buyers can
     // compare and enquire even before a seller has switched on online booking.
+    // Listings with no priced package still appear, shown as "price on enquiry".
     const priced = r.service_packages.filter((p) => typeof p.price_gbp === "number" && p.price_gbp > 0);
-    if (priced.length === 0) continue;
-    const cheapest = priced.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b));
+    const cheapest = priced.length > 0 ? priced.reduce((a, b) => (a.price_gbp! <= b.price_gbp! ? a : b)) : null;
 
     // Every discipline the listing offers — primary category + the m2m links —
     // so it's findable by any service it provides, not just its main one.
@@ -196,10 +196,10 @@ export async function getComparableServices(
       categorySlug: r.categories?.slug ?? disciplines[0]?.slug ?? null,
       rating: r.google_rating,
       ratingCount: r.google_rating_count,
-      fromPrice: cheapest.price_gbp as number,
-      deliveryDays: cheapest.delivery_days,
+      fromPrice: cheapest ? (cheapest.price_gbp as number) : null,
+      deliveryDays: cheapest?.delivery_days ?? null,
       isFeatured: r.is_featured,
-      bookable: !!cheapest.is_bookable && !!r.profiles?.payouts_enabled,
+      bookable: !!cheapest?.is_bookable && !!r.profiles?.payouts_enabled,
       disciplineSlugs,
       haystack,
     });
@@ -207,15 +207,21 @@ export async function getComparableServices(
 
   let filtered = categorySlug ? rows.filter((r) => r.disciplineSlugs.includes(categorySlug)) : rows;
   if (needles.length > 0) filtered = filtered.filter((r) => needles.every((n) => r.haystack.includes(n)));
-  if (typeof maxPrice === "number" && maxPrice > 0) filtered = filtered.filter((r) => r.fromPrice <= maxPrice);
+  // A max-price filter only makes sense for listings that actually have a price.
+  if (typeof maxPrice === "number" && maxPrice > 0) {
+    filtered = filtered.filter((r) => r.fromPrice != null && r.fromPrice <= maxPrice);
+  }
+
+  // Sort helpers keep "price on enquiry" (null) listings at the end.
+  const priceAsc = (a: Enriched, b: Enriched) => (a.fromPrice ?? Infinity) - (b.fromPrice ?? Infinity);
 
   if (sort === "price_desc") {
-    filtered.sort((a, b) => b.fromPrice - a.fromPrice);
+    filtered.sort((a, b) => (b.fromPrice ?? -Infinity) - (a.fromPrice ?? -Infinity));
   } else if (sort === "rating") {
-    filtered.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1) || a.fromPrice - b.fromPrice);
+    filtered.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1) || priceAsc(a, b));
   } else {
-    // Default: featured first, then cheapest.
-    filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.fromPrice - b.fromPrice);
+    // Default: featured first, then cheapest (enquire-only listings last).
+    filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || priceAsc(a, b));
   }
 
   const categories = [...cats.entries()].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name));
