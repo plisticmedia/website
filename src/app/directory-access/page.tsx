@@ -63,10 +63,10 @@ export default async function DirectoryAccessPage({ searchParams }: Props) {
             </p>
           )}
         </form>
-        <p className={styles.help}>
-          Don&apos;t have the password? <Link href="/coming-soon">Become a beta tester</Link> — it&apos;s free, and
-          we&apos;ll email it to you.
-        </p>
+        <Link href="/coming-soon" className={styles.betaBtn}>
+          Don&apos;t know the password? Sign up to be a beta tester
+        </Link>
+        <p className={styles.help}>It&apos;s free, and we&apos;ll email you the password.</p>
         <Link href="/" className={styles.back}>
           ← Back to homepage
         </Link>
