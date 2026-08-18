@@ -55,6 +55,22 @@
   line-height: 1.5;
 }
 
+.twoStep {
+  margin: 0 0 1.2rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(124, 211, 255, 0.28);
+  border-radius: 10px;
+  background: rgba(31, 170, 233, 0.08);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.twoStep strong {
+  color: #fff;
+}
+
 .form {
   display: flex;
   flex-direction: column;
