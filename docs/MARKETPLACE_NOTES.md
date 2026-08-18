@@ -27,12 +27,11 @@ At send time still needed:
 > The shared beta password is now entered right at the Media Directory (not on a
 > separate screen), and once you're in you stay signed in — no typing it every time.
 >
-> TWO CLEAR STEPS, NO MORE CONFUSION
-> A few of you (rightly!) found it unclear that the shared password and your own
-> account are two different things. So we've made it plain. The shared password just
-> lets you look around the beta. To build your own listing, you make your own free
-> account. And "List your business" now walks you through creating that account, so
-> it's all one smooth step — and your listing is always yours to manage.
+> SETTING UP YOUR LISTING
+> The shared password lets you browse the directory during the beta. To build your
+> own listing, you create your own free account. "List your business" now takes you
+> through creating that account in one step, so your listing is always yours to
+> manage.
 >
 > THE MARKETPLACE IS OPEN TO TEST
 > This is the big one. Businesses can sell products and services and take bookings.
