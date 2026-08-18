@@ -56,15 +56,22 @@
 }
 
 .twoStep {
-  margin: 0 0 1.2rem;
-  padding: 0.8rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0 0 1.3rem;
+  padding: 0.9rem 1rem;
   border: 1px solid rgba(124, 211, 255, 0.28);
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(31, 170, 233, 0.08);
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.82rem;
-  line-height: 1.55;
   text-align: left;
+}
+
+.twoStep p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.83rem;
+  line-height: 1.5;
 }
 
 .twoStep strong {
