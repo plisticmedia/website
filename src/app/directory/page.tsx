@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Search, Sparkles } from "lucide-react";
+import { MapPin, Search, Sparkles, Store } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -88,14 +88,22 @@ export default async function DirectoryPage({
                 Search
               </button>
             </form>
-            <p style={{ marginTop: "1rem", display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-              <Link href="/list-your-business" style={{ color: "var(--p-white)", fontWeight: 600 }}>
-                Run a creative business? List it free →
+            <div
+              style={{
+                marginTop: "1.25rem",
+                display: "flex",
+                gap: "1.25rem",
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              <Link href="/list-your-business" className="p-btn">
+                <Store aria-hidden="true" size={17} /> Run a creative business? List it free
               </Link>
               <Link href="/showcase" style={{ color: "var(--p-white)", fontWeight: 600 }}>
                 See the talent showcase →
               </Link>
-            </p>
+            </div>
           </div>
         </section>
 
