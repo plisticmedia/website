@@ -542,13 +542,19 @@ textarea {
   position: relative;
 }
 
+/* Invisible "bridge" spanning the gap between the trigger and the dropdown
+   panel. It must cover the full width of the panel (not just the trigger), so
+   the pointer never crosses dead space — moving diagonally from the trigger to
+   a link would otherwise briefly leave the menu and close it before the click
+   lands. Because it's part of .nav-mega, it keeps both the CSS :hover state and
+   the React pointer-leave handler from closing the menu mid-move. */
 .nav-mega::after {
   content: "";
   position: absolute;
   top: 100%;
   left: -1rem;
-  right: -1rem;
-  height: 0.7rem;
+  width: calc(min(320px, 100vw - 2rem) + 1rem);
+  height: 0.8rem;
 }
 
 .nav-mega-trigger {
