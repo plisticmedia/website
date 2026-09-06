@@ -81,6 +81,25 @@ function Clusters({ points }: { points: MapPoint[] }) {
   return null;
 }
 
+// Basemap tiles. CARTO's clean light style needs an API key as of Aug 2026
+// (without one it stamps "API KEY REQUIRED" across the map). If a free CARTO
+// key is provided we use that pale, minimal style; otherwise we fall back to
+// keyless OpenStreetMap tiles so the map always works with no watermark.
+const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+const tiles = CARTO_KEY
+  ? {
+      url: `https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png?api_key=${CARTO_KEY}`,
+      subdomains: "abcd",
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    }
+  : {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      subdomains: "abc",
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    };
+
 export default function ClusterMap({ points, height = 440 }: { points: MapPoint[]; height?: number }) {
   return (
     <MapContainer
@@ -91,13 +110,9 @@ export default function ClusterMap({ points, height = 440 }: { points: MapPoint[
       style={{ height: `${height}px`, width: "100%", borderRadius: "16px" }}
     >
       {/* prefix={false} drops Leaflet's default "Leaflet 🇺🇦" prefix (the flag in
-          the corner) while keeping the required CARTO/OSM credit. */}
+          the corner) while keeping the required map credit. */}
       <AttributionControl position="bottomright" prefix={false} />
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
-      />
+      <TileLayer attribution={tiles.attribution} url={tiles.url} subdomains={tiles.subdomains} />
       <Clusters points={points} />
     </MapContainer>
   );
