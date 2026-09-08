@@ -558,3 +558,117 @@
   .slateRows div, .rateList div { display: grid; gap: 0.2rem; }
   .slateRows strong, .rateList strong { text-align: left; }
 }
+
+/* Discount / quote code entry in the estimate slate. */
+.priceWas {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0 0.18em;
+  font-family: var(--p-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--p-muted);
+  text-decoration: line-through;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.discountToggle {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-azure-deep, #0c6f9e);
+  font-family: var(--p-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.discountToggle:hover { color: var(--p-azure); }
+
+.discountForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.discountInput {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  background: var(--p-white, #fff);
+  font-family: var(--p-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-ink);
+}
+.discountInput:focus-visible { outline: 2px solid var(--p-azure); outline-offset: 1px; }
+.discountApplyBtn {
+  padding: 0.55rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--p-azure, #1faae9);
+  color: #06121a;
+  font-family: var(--p-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.discountApplyBtn:hover { filter: brightness(1.05); }
+.discountApplyBtn:disabled { opacity: 0.55; cursor: default; filter: none; }
+.discountError {
+  flex-basis: 100%;
+  color: #b3261e;
+  font-family: var(--p-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.discountApplied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.7rem;
+}
+.discountChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(31, 170, 233, 0.14);
+  color: var(--p-azure-deep, #0c6f9e);
+  font-family: var(--p-body);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.discountAppliedNote {
+  flex: 1;
+  min-width: 160px;
+  color: var(--p-muted);
+  font-family: var(--p-body);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.discountClear {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-muted);
+  font-family: var(--p-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.discountClear:hover { color: var(--p-ink); }

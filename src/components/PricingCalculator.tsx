@@ -5,7 +5,8 @@ import { track } from "@vercel/analytics";
 import Link from "next/link";
 import { CalendarDays, Check, ClipboardList, CreditCard, Film, Mic2, Sparkles } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
-import { podcastAddOns } from "@/data/pricing";
+import { podcastAddOns, type MoneyRange } from "@/data/pricing";
+import { applyDiscountToRange, discountSummary, type DiscountInfo, type DiscountService } from "@/lib/discounts";
 import {
   estimateCoaching,
   estimateDocumentary,
@@ -292,19 +293,41 @@ function Checkbox({
   );
 }
 
-function PriceRange({ result }: { result: EstimateResult }) {
+function RangeValue({ range }: { range: MoneyRange }) {
+  const { low, high, plus } = range;
+  if (low === high) {
+    return (
+      <>
+        {currency.format(low)}
+        {plus ? "+" : null}
+      </>
+    );
+  }
+  return (
+    <>
+      <span>{currency.format(low)}</span>
+      <span className={styles.rangeDash}>-</span>
+      <span>{currency.format(high)}</span>
+    </>
+  );
+}
+
+function PriceRange({ result, discountedRange }: { result: EstimateResult; discountedRange?: MoneyRange | null }) {
   if (!result.range) {
     return <div className={styles.slateCallout}>Scoped on call</div>;
   }
 
-  const { low, high, qualifier, plus } = result.range;
+  const { qualifier } = result.range;
 
-  if (low === high) {
+  // A discount is applied → show the original struck through, discounted below.
+  if (discountedRange) {
     return (
       <div className={styles.slateRange}>
+        <span className={styles.priceWas}>
+          <RangeValue range={result.range} />
+        </span>
         <span className={styles.priceLine}>
-          {currency.format(low)}
-          {plus ? "+" : null}
+          <RangeValue range={discountedRange} />
         </span>
         {qualifier ? <small>{qualifier}</small> : null}
       </div>
@@ -314,9 +337,7 @@ function PriceRange({ result }: { result: EstimateResult }) {
   return (
     <div className={styles.slateRange}>
       <span className={styles.priceLine}>
-        <span>{currency.format(low)}</span>
-        <span className={styles.rangeDash}>-</span>
-        <span>{currency.format(high)}</span>
+        <RangeValue range={result.range} />
       </span>
       {qualifier ? <small>{qualifier}</small> : null}
     </div>
@@ -330,6 +351,7 @@ function QuoteSlate({
   ctaLabel,
   intro,
   briefOnly = false,
+  serviceKey = "all",
 }: {
   title: string;
   rows: DetailRow[];
@@ -338,12 +360,24 @@ function QuoteSlate({
   intro: string;
   result?: EstimateResult;
   briefOnly?: boolean;
+  serviceKey?: DiscountService;
 }) {
+  const [discount, setDiscount] = useState<DiscountInfo | null>(null);
+  const discountedRange = discount ? applyDiscountToRange(result?.range ?? null, discount) : null;
+
   return (
     <aside className={styles.quoteSlate} aria-live="polite">
       <h3>{title}</h3>
 
-      {result ? <PriceRange result={result} /> : <div className={styles.slateCallout}>Scoped on call</div>}
+      {result ? (
+        <PriceRange result={result} discountedRange={discountedRange} />
+      ) : (
+        <div className={styles.slateCallout}>Scoped on call</div>
+      )}
+
+      {!briefOnly ? (
+        <DiscountField serviceKey={serviceKey} applied={discount} onApply={setDiscount} hasRange={Boolean(result?.range)} />
+      ) : null}
 
       <p className={styles.slateIntro}>{intro}</p>
 
@@ -402,7 +436,15 @@ function QuoteSlate({
         </div>
       ) : null}
 
-      <EstimateLeadForm title={title} result={result} rows={rows} variant={briefOnly ? "brief" : "estimate"} />
+      <EstimateLeadForm
+        title={title}
+        result={result}
+        rows={rows}
+        variant={briefOnly ? "brief" : "estimate"}
+        serviceKey={serviceKey}
+        discount={discount}
+        discountedRange={discountedRange}
+      />
 
       <div className={styles.slateActions}>
         <Link className="p-btn" href={bookingPagePath}>
@@ -425,11 +467,17 @@ function EstimateLeadForm({
   result,
   rows,
   variant = "estimate",
+  serviceKey = "all",
+  discount = null,
+  discountedRange = null,
 }: {
   title: string;
   result?: EstimateResult;
   rows: DetailRow[];
   variant?: "estimate" | "brief";
+  serviceKey?: DiscountService;
+  discount?: DiscountInfo | null;
+  discountedRange?: MoneyRange | null;
 }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -443,9 +491,12 @@ function EstimateLeadForm({
     setStatus("submitting");
     setMessage("Sending estimate...");
 
+    // When a code is applied, send the discounted range as the headline figure.
+    const rangeText = discount && discountedRange ? getRangeText({ ...result!, range: discountedRange }) : getRangeText(result);
+
     const payload = {
       serviceTitle: title,
-      rangeText: getRangeText(result),
+      rangeText,
       rows,
       includes: result?.includes ?? [],
       flags: result?.flags ?? [],
@@ -455,6 +506,8 @@ function EstimateLeadForm({
       email: String(formData.get("email") ?? ""),
       organisation: String(formData.get("organisation") ?? ""),
       projectNote: String(formData.get("projectNote") ?? ""),
+      discountCode: discount?.code ?? "",
+      service: serviceKey,
     };
 
     try {
@@ -536,6 +589,117 @@ function getRangeText(result?: EstimateResult) {
   return qualifier ? `${base} ${qualifier}` : base;
 }
 
+/** "Have a discount code?" entry. Validates against the server and, when valid,
+ *  reports the discount up so the estimate reflects it. */
+function DiscountField({
+  serviceKey,
+  applied,
+  onApply,
+  hasRange,
+}: {
+  serviceKey: DiscountService;
+  applied: DiscountInfo | null;
+  onApply: (info: DiscountInfo | null) => void;
+  hasRange: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [status, setStatus] = useState<"idle" | "checking" | "error">("idle");
+  const [error, setError] = useState("");
+
+  async function check(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = code.trim();
+    if (!value) return;
+    setStatus("checking");
+    setError("");
+    try {
+      const res = await fetch("/api/discount/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: value, service: serviceKey }),
+      });
+      const body = (await res.json().catch(() => null)) as
+        | ({ valid: true } & DiscountInfo)
+        | { valid: false; error?: string }
+        | null;
+      if (body && body.valid) {
+        onApply({ code: body.code, label: body.label, discountType: body.discountType, discountValue: body.discountValue });
+        track("discount_applied");
+        setStatus("idle");
+        setError("");
+      } else {
+        setStatus("error");
+        setError(body?.error ?? "That code isn't recognised.");
+      }
+    } catch {
+      setStatus("error");
+      setError("Couldn't check that code just now. Please try again.");
+    }
+  }
+
+  if (applied) {
+    return (
+      <div className={styles.discountApplied}>
+        <span className={styles.discountChip}>
+          <Check aria-hidden="true" size={14} />
+          {applied.code} · {discountSummary(applied)}
+        </span>
+        <span className={styles.discountAppliedNote}>
+          {hasRange
+            ? "Applied to your estimate — we'll honour it on your quote."
+            : "Noted — we'll apply it to your quote once we've scoped the work."}
+        </span>
+        <button
+          type="button"
+          className={styles.discountClear}
+          onClick={() => {
+            onApply(null);
+            setCode("");
+            setStatus("idle");
+            setError("");
+          }}
+        >
+          Remove
+        </button>
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button type="button" className={styles.discountToggle} onClick={() => setOpen(true)}>
+        Have a discount code?
+      </button>
+    );
+  }
+
+  return (
+    <form className={styles.discountForm} onSubmit={check}>
+      <input
+        className={styles.discountInput}
+        type="text"
+        name="discountCode"
+        value={code}
+        onChange={(e) => setCode(e.target.value.toUpperCase())}
+        placeholder="e.g. EVENT50"
+        autoComplete="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+        aria-label="Discount code"
+      />
+      <button className={styles.discountApplyBtn} type="submit" disabled={status === "checking" || !code.trim()}>
+        {status === "checking" ? "Checking…" : "Apply"}
+      </button>
+      {status === "error" ? (
+        <span className={styles.discountError} role="status">
+          {error}
+        </span>
+      ) : null}
+    </form>
+  );
+}
+
 export function PricingCalculator({ initialService }: { initialService?: ServiceChoice } = {}) {
   const [service, setService] = useState<ServiceChoice>(initialService ?? "podcast");
   const [podcast, setPodcast] = useState<PodcastEstimateInput>(podcastDefaults);
@@ -614,7 +778,7 @@ export function PricingCalculator({ initialService }: { initialService?: Service
             ) : null}
           </div>
 
-          <QuoteSlate {...activeSlate} />
+          <QuoteSlate {...activeSlate} serviceKey={service} />
         </div>
       </div>
     </div>
