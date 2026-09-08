@@ -8,6 +8,7 @@ type LeadInput = {
   serviceTitle: string;
   rangeText?: string;
   projectNote?: string;
+  discountCode?: string;
 };
 
 /** Persist a calculator estimate so we can follow it up. Best-effort. */
@@ -21,6 +22,7 @@ export async function storePricingLead(lead: LeadInput): Promise<void> {
       service_title: lead.serviceTitle || null,
       range_text: lead.rangeText || null,
       project_note: lead.projectNote || null,
+      discount_code: lead.discountCode || null,
     });
   } catch (err) {
     // Storing a lead must never break the estimate flow.

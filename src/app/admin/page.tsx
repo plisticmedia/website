@@ -113,6 +113,9 @@ export default async function AdminPage() {
             <Link href="/admin/showcase" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
               Write &amp; manage showcase stories →
             </Link>
+            <Link href="/admin/discount-codes" style={{ color: "var(--p-azure-deep)", fontWeight: 600 }}>
+              Create &amp; manage discount codes →
+            </Link>
           </p>
           {process.env.SITE_LIVE === "true" && peerConfidencePublic() && (
             <div

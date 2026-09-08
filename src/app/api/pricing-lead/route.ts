@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { brand, fromEmail } from "@/data/site";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 import { storePricingLead } from "@/lib/pricingLeads";
+import { validateDiscountCode, recordDiscountUse } from "@/lib/discountsServer";
+import { discountSummary } from "@/lib/discounts";
 
 export const runtime = "nodejs";
 
@@ -41,6 +43,8 @@ export async function POST(request: Request) {
   const email = clean(body.email, 180).toLowerCase();
   const organisation = clean(body.organisation, 160);
   const projectNote = clean(body.projectNote, 1600);
+  const discountCodeInput = clean(body.discountCode, 40);
+  const discountService = clean(body.service, 40) || "all";
   const rows = readRows(body.rows);
   const includes = readStringList(body.includes);
   const flags = readStringList(body.flags);
@@ -53,6 +57,22 @@ export async function POST(request: Request) {
 
   if (!emailPattern.test(email)) {
     return jsonError("Please enter a valid email address.", 400);
+  }
+
+  // Re-validate any discount code server-side — never trust the client — so we
+  // only ever record and honour a genuinely valid code.
+  let discountLine = "None";
+  let discountId: string | null = null;
+  let discountCode: string | null = null;
+  if (discountCodeInput) {
+    const check = await validateDiscountCode(discountCodeInput, discountService);
+    if (check.valid) {
+      discountId = check.id;
+      discountCode = check.info.code;
+      discountLine = `${check.info.code} — ${discountSummary(check.info)} (applied to the range above; honour on quote)`;
+    } else {
+      discountLine = `${discountCodeInput.toUpperCase()} — NOT valid (${check.reason}); do not apply`;
+    }
   }
 
   const notifyTo = getRecipients(process.env.PRICING_NOTIFY_EMAIL ?? process.env.EARN_NOTIFY_EMAIL ?? brand.email);
@@ -72,6 +92,7 @@ export async function POST(request: Request) {
       ["Organisation", organisation || "Not provided"],
       ["Service", serviceTitle],
       ["Estimated range", rangeText || "Scoped on call"],
+      ["Discount code", discountLine],
       ["Project note", projectNote || "Not provided"],
     ]),
     "",
@@ -154,7 +175,10 @@ export async function POST(request: Request) {
 
   // Persist the lead so the daily cron can send one gentle follow-up if they
   // don't get in touch. Best-effort; never affects the response.
-  await storePricingLead({ name, email, organisation, serviceTitle, rangeText, projectNote });
+  await storePricingLead({ name, email, organisation, serviceTitle, rangeText, projectNote, discountCode: discountCode ?? undefined });
+
+  // Count the redemption once the lead is in (only for a valid code).
+  if (discountId) await recordDiscountUse(discountId);
 
   return NextResponse.json({ ok: true, emailConfigured: true, confirmationSent });
 }
