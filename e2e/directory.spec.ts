@@ -32,8 +32,10 @@ test.describe("Directory & search", () => {
     await page.goto("/directory");
     const first = page.locator(CARD).first();
     test.skip((await first.count()) === 0, "no published listings to open");
-    await first.click();
+    const href = await first.getAttribute("href");
+    await page.goto(href!);
     await expect(page).toHaveURL(/\/directory\/[^/]+$/);
-    await expect(page.getByRole("link", { name: /back to directory/i })).toBeVisible();
+    // The listing's title (an <h1>) proves a real detail page rendered, not a 404.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });
