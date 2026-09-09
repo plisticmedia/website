@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 // The edited walkthrough video. Paste the YouTube / Vimeo / Google Drive share
 // link here (unlisted is fine) — it embeds and streams, so there's no large
 // file to host. Leave blank to show a "coming soon" placeholder.
-const VIDEO_URL = "";
+const VIDEO_URL = "https://youtu.be/05V9SVDKDnE";
 
 const steps = [
   { icon: UserPlus, title: "Create your free account", body: "It only takes a minute, and your listing is always yours to manage." },
