@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEmail, adminEmail } from "@/lib/email";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -9,9 +10,10 @@ function clean(value: unknown, max: number) {
 }
 
 /**
- * Beta feedback: a signed-in or anonymous tester sends a quick note from the
- * on-site feedback button. Emailed straight to the team inbox — no account or
- * database needed, so it's frictionless for testers.
+ * Beta feedback: a signed-in or anonymous tester sends a note from the feedback
+ * page or the floating feedback button. Emailed straight to the team inbox AND
+ * stored so it can be reviewed in the admin console — both best-effort, so a
+ * hiccup in one never blocks the other or the tester.
  */
 export async function POST(request: Request) {
   if (!rateLimit(`feedback:${clientIp(request)}`, 12, 10 * 60 * 1000)) {
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
 
   const message = clean(data.message, 4000);
   const email = clean(data.email, 180);
+  const name = clean(data.name, 120);
   const page = clean(data.page, 300);
+  const ratingRaw = Number(data.rating);
+  const rating = Number.isInteger(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 5 ? ratingRaw : null;
   if (!message) return NextResponse.json({ error: "Please add a note before sending." }, { status: 400 });
 
   const text = [
@@ -36,11 +41,22 @@ export async function POST(request: Request) {
     "",
     message,
     "",
+    rating ? `Rating: ${rating}/5` : "",
+    name ? `Name: ${name}` : "",
     email ? `From: ${email}` : "From: (not given)",
     page ? `Page: ${page}` : "",
   ]
     .filter(Boolean)
     .join("\n");
+
+  // Store for the admin console (best-effort — never blocks the response).
+  try {
+    await createSupabaseServiceRoleClient()
+      .from("beta_feedback")
+      .insert({ message, name: name || null, email: email || null, rating, page: page || null });
+  } catch {
+    /* storing must never break sending feedback */
+  }
 
   await sendEmail({ to: adminEmail(), subject: "Plistic beta feedback", text }).catch(() => {});
 

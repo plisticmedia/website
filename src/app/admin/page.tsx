@@ -96,6 +96,16 @@ export default async function AdminPage() {
     .limit(50);
   const subscribers = (subRows ?? []) as Array<{ email: string; notify_stories: boolean; marketing: boolean; source: string | null; created_at: string }>;
 
+  // Beta feedback (safe if the table isn't migrated in yet — falls back to empty).
+  const { data: feedbackRows } = await svcRole
+    .from("beta_feedback")
+    .select("id, message, name, email, rating, page, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const feedback = (feedbackRows ?? []) as Array<{
+    id: string; message: string; name: string | null; email: string | null; rating: number | null; page: string | null; created_at: string;
+  }>;
+
   return (
     <>
       <SiteHeader />
@@ -220,6 +230,36 @@ export default async function AdminPage() {
                         <td>{s.notify_stories ? "Yes" : "—"}</td>
                         <td>{s.marketing ? "Yes" : "—"}</td>
                         <td>{new Date(s.created_at).toLocaleDateString("en-GB")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Beta feedback */}
+          <div style={{ border: "1px solid var(--p-line)", borderRadius: 12, padding: "1rem 1.1rem", marginTop: "0.8rem" }}>
+            <h3 style={{ margin: "0 0 0.3rem" }}>Beta feedback ({feedback.length}{feedback.length === 100 ? "+" : ""})</h3>
+            <p style={{ margin: "0 0 0.6rem", fontSize: "0.9rem", color: "var(--p-muted)" }}>
+              Notes from the feedback page and the on-site feedback button. Also emailed to you as they arrive.
+            </p>
+            {feedback.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--p-muted)" }}>No feedback yet.</p>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr><th>Date</th><th>Rating</th><th>From</th><th>Feedback</th><th>Page</th></tr>
+                  </thead>
+                  <tbody>
+                    {feedback.map((f) => (
+                      <tr key={f.id}>
+                        <td style={{ whiteSpace: "nowrap" }}>{fmt(f.created_at)}</td>
+                        <td style={{ whiteSpace: "nowrap" }}>{f.rating ? `${"★".repeat(f.rating)}${"☆".repeat(5 - f.rating)}` : "—"}</td>
+                        <td>{[f.name, f.email].filter(Boolean).join(" · ") || "—"}</td>
+                        <td style={{ whiteSpace: "pre-wrap", minWidth: 280 }}>{f.message}</td>
+                        <td style={{ color: "var(--p-muted)" }}>{f.page ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Search, Sparkles, Store } from "lucide-react";
+import { MapPin, Search, Sparkles, Store, MessageSquarePlus } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -61,6 +61,12 @@ export default async function DirectoryPage({
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className="p-container">
+            <Link href="/feedback" className={styles.betaFeedback}>
+              <MessageSquarePlus aria-hidden="true" size={16} />
+              <span>
+                You&apos;re a beta tester — spotted something, or got an idea? <strong>Share your feedback →</strong>
+              </span>
+            </Link>
             <p className={styles.kicker}>Partner directory</p>
             <h1>
               Find a trusted <span>creative partner</span>.
