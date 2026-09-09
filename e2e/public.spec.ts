@@ -12,7 +12,9 @@ test.describe("Public pages load", () => {
 
   test("pricing page loads and offers an estimate", async ({ page }) => {
     await page.goto("/pricing");
-    await expect(page.getByText(/estimate/i).first()).toBeVisible();
+    // The estimator section heading — visible on desktop and mobile (the CTA
+    // text itself is hidden on small screens).
+    await expect(page.locator("#pricing-title")).toBeVisible();
   });
 
   test("List your business page shows the hero and the walkthrough button", async ({ page }) => {
