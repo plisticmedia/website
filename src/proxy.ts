@@ -6,6 +6,8 @@ import { SITE_ACCESS_COOKIE, SITE_ACCESS_COOKIE_VALUE } from "@/lib/siteAccess";
 const publicPaths = new Set([
   "/coming-soon",
   "/directory-access",
+  "/feedback",
+  "/api/feedback",
   "/api/site-access",
   "/api/beta-signup",
   "/api/enter-site",
