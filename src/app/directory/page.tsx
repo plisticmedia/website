@@ -5,6 +5,8 @@ import { Footer } from "@/components/Footer";
 import { GoogleRating } from "@/components/GoogleRating";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations, getMapPoints, getPublishedServices } from "@/lib/services";
+import { getSessionProfile } from "@/lib/auth";
+import { directoryPublic } from "@/lib/directory";
 import { toDisplayImage, initialOf } from "@/lib/images";
 import { DirectoryFilters } from "./DirectoryFilters";
 import { LogoImage } from "./ListingImage";
@@ -38,12 +40,17 @@ export default async function DirectoryPage({
     location: params.location,
     rating: params.rating ? Number(params.rating) : undefined,
   };
-  const [{ services, pageCount, total }, categories, locations, mapPoints] = await Promise.all([
+  const [{ services, pageCount, total }, categories, locations, mapPoints, profile] = await Promise.all([
     getPublishedServices({ ...filters, page }),
     getCategories(),
     getLocations(),
     getMapPoints(filters),
+    getSessionProfile(),
   ]);
+
+  // The beta-feedback banner is for beta testers, not the general public: show
+  // it while the directory is still in beta, or to any signed-in beta/admin.
+  const showFeedbackBanner = !directoryPublic() || profile?.betaAccess === true;
 
   const buildHref = (next: Record<string, string | number | undefined>) => {
     const sp = new URLSearchParams();
@@ -61,12 +68,14 @@ export default async function DirectoryPage({
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className="p-container">
-            <Link href="/feedback" className={styles.betaFeedback}>
-              <MessageSquarePlus aria-hidden="true" size={16} />
-              <span>
-                You&apos;re a beta tester — spotted something, or got an idea? <strong>Share your feedback →</strong>
-              </span>
-            </Link>
+            {showFeedbackBanner && (
+              <Link href="/feedback" className={styles.betaFeedback}>
+                <MessageSquarePlus aria-hidden="true" size={16} />
+                <span>
+                  You&apos;re a beta tester — spotted something, or got an idea? <strong>Share your feedback →</strong>
+                </span>
+              </Link>
+            )}
             <p className={styles.kicker}>Partner directory</p>
             <h1>
               Find a trusted <span>creative partner</span>.

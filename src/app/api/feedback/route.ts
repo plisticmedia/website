@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { sendEmail, adminEmail } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+
+/** Where beta feedback lands. Defaults to the team inbox; overridable in env. */
+function feedbackEmail(): string {
+  return process.env.FEEDBACK_NOTIFY_EMAIL?.trim() || "hello@plisticmedia.com";
+}
 
 function clean(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -58,7 +63,7 @@ export async function POST(request: Request) {
     /* storing must never break sending feedback */
   }
 
-  await sendEmail({ to: adminEmail(), subject: "Plistic beta feedback", text }).catch(() => {});
+  await sendEmail({ to: feedbackEmail(), subject: "Plistic beta feedback", text }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }
