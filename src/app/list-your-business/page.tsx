@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Mail, Sparkles, Search, UserPlus, ArrowRight } from "lucide-react";
+import { MapPin, Mail, Sparkles, Search, UserPlus, ArrowRight, PlayCircle } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCategories, getLocations } from "@/lib/services";
@@ -40,6 +40,10 @@ export default async function ListYourBusinessPage() {
               (brands, charities, broadcasters and productions) come here to find and hire you — <strong>free</strong>.
               Add your business now and start getting found.
             </p>
+            <Link className={styles.heroWatch} href="/list-your-business/guide">
+              <PlayCircle aria-hidden="true" size={20} />
+              Watch how it works <span>· 2 min</span>
+            </Link>
           </div>
         </section>
 

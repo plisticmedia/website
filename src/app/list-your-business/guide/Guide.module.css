@@ -1,0 +1,133 @@
+.page {
+  background: var(--p-paper);
+  color: var(--p-ink);
+}
+
+.hero {
+  padding-block: clamp(2.4rem, 5vw, 4rem);
+  background:
+    radial-gradient(70% 80% at 92% 8%, rgba(31, 170, 233, 0.18), transparent 58%),
+    linear-gradient(180deg, #101115 0%, var(--p-ink) 100%);
+  color: var(--p-white);
+}
+.kicker {
+  margin: 0;
+  color: var(--p-azure);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.hero h1 {
+  margin: 0.6rem 0 0;
+  font-family: var(--p-display);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1;
+}
+.hero h1 span {
+  color: var(--p-azure);
+}
+.lead {
+  margin: 1rem 0 0;
+  max-width: 54ch;
+  color: var(--p-muted-dark);
+  line-height: 1.6;
+}
+
+.body {
+  padding-block: clamp(2rem, 4vw, 3.4rem);
+}
+
+.videoWrap {
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0d0e12;
+  box-shadow: 0 24px 70px rgba(16, 17, 21, 0.16);
+  border: 1px solid var(--p-line);
+}
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d0e12;
+  border: 0;
+}
+.videoSoon {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  color: var(--p-muted-dark);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ctaRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 999px;
+  background: var(--p-azure, #1faae9);
+  color: #06121a;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.primaryBtn:hover {
+  filter: brightness(1.06);
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--p-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.backLink:hover {
+  color: var(--p-ink);
+}
+
+.steps {
+  list-style: none;
+  margin: clamp(2rem, 4vw, 3rem) auto 0;
+  padding: 0;
+  max-width: 760px;
+  display: grid;
+  gap: 1.1rem;
+}
+.steps li {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+.stepIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(31, 170, 233, 0.12);
+  color: var(--p-azure-deep, #0c6f9e);
+}
+.steps strong {
+  display: block;
+  font-size: 1.02rem;
+}
+.steps p {
+  margin: 0.2rem 0 0;
+  color: var(--p-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
