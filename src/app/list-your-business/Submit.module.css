@@ -35,6 +35,27 @@
   line-height: 1.6;
 }
 
+.heroWatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--p-white);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.heroWatch:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.heroWatch svg { color: var(--p-azure); }
+.heroWatch span { color: var(--p-muted-dark); font-weight: 600; }
+
 .body {
   padding-block: clamp(2rem, 4vw, 3rem);
 }

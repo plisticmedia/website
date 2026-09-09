@@ -14,6 +14,7 @@ const publicPaths = new Set([
   "/sitemap.xml",
   // Public sign-up funnel: businesses can list themselves before public launch.
   "/list-your-business",
+  "/list-your-business/guide",
   "/api/submit-listing",
   // Password reset must always resolve, even without the coming-soon cookie.
   "/reset-password",
