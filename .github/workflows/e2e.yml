@@ -1,0 +1,59 @@
+name: E2E tests
+
+# Runs the Playwright end-to-end suite against the live site automatically:
+#  - after each successful production deploy (Vercel reports it to GitHub),
+#  - once a day, and
+#  - whenever you press "Run workflow" in the Actions tab.
+# GitHub emails you if a run fails (check Settings → Notifications → Actions).
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 7 * * *" # 07:00 UTC daily
+  deployment_status: {}
+
+jobs:
+  e2e:
+    # Skip preview/failed deploys; only run on a successful production deploy
+    # (plus manual + scheduled runs).
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'deployment_status' &&
+       github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: pnpm test:e2e
+        env:
+          # Override in repo Settings → Variables if you ever want to test a
+          # different URL. BETA_PASSWORD defaults to "plisticbeta" in code.
+          BASE_URL: ${{ vars.E2E_BASE_URL || 'https://www.plisticmedia.com' }}
+          BETA_PASSWORD: ${{ secrets.BETA_PASSWORD }}
+
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
