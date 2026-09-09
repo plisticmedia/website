@@ -30,6 +30,37 @@ const LISTING_SELECT = `
   service_media ( id, service_id, url, kind, sort_order )
 `;
 
+/**
+ * Fuzzy free-text match for the directory search. Searches the listing's title,
+ * summary, description AND its category / service-tag names (so "podcasting"
+ * finds a listing tagged Podcasting even if its copy only says "podcast"), and
+ * tolerates word-stem variations (podcast / podcasts / podcasting, film /
+ * filming) by matching on a shared word prefix in either direction.
+ */
+type Searchable = {
+  title: string;
+  summary?: string | null;
+  description?: string | null;
+  categories?: { name: string } | null;
+  listing_services?: Array<{ categories: { name: string } | null }> | null;
+};
+function matchesSearch(row: Searchable, q: string): boolean {
+  const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  const catNames = [
+    row.categories?.name,
+    ...(row.listing_services ?? []).map((ls) => ls.categories?.name),
+  ].filter((n): n is string => !!n);
+  const hay = norm([row.title, row.summary, row.description, ...catNames].join(" "));
+  const hayWords = hay.split(/\s+/).filter(Boolean);
+  const tokens = norm(q).split(/\s+/).filter((t) => t.length >= 2);
+  if (tokens.length === 0) return true;
+  return tokens.every(
+    (t) =>
+      hay.includes(t) ||
+      (t.length >= 3 && hayWords.some((w) => w.length >= 3 && (w.startsWith(t) || t.startsWith(w)))),
+  );
+}
+
 /** Public directory: published listings only, featured first. RLS enforces visibility. */
 export async function getPublishedServices(query: DirectoryQuery = {}): Promise<DirectoryResult> {
   const supabase = await createSupabaseServerClient();
@@ -77,10 +108,9 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
     }
   }
 
-  if (query.q) {
-    const term = `%${query.q.replace(/[%_]/g, "")}%`;
-    builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
-  }
+  // Free-text search is applied in JS below (matchesSearch) so it can cover
+  // category/service names and tolerate word-stem variations — things a plain
+  // SQL ILIKE on title/summary can't do.
 
   if (query.rating) {
     builder = builder.gte("google_rating", query.rating);
@@ -98,7 +128,7 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
   // Rank so the fullest-looking listings lead every page: featured first, then
   // any with a logo (never open on empty-looking cards), then by rating, then
   // newest. Done here rather than in SQL so "has a logo" can be a real sort key.
-  const ranked = ((data ?? []) as unknown as ServiceWithRelations[]).slice().sort((a, b) => {
+  let ranked = ((data ?? []) as unknown as ServiceWithRelations[]).slice().sort((a, b) => {
     const fa = a as unknown as ListingRank;
     const fb = b as unknown as ListingRank;
     return (
@@ -108,6 +138,10 @@ export async function getPublishedServices(query: DirectoryQuery = {}): Promise<
       new Date(fb.created_at).getTime() - new Date(fa.created_at).getTime()
     );
   });
+
+  if (query.q && query.q.trim()) {
+    ranked = ranked.filter((r) => matchesSearch(r, query.q as string));
+  }
 
   const total = ranked.length;
   return {
@@ -245,7 +279,9 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   const supabase = await createSupabaseServerClient();
   let builder = supabase
     .from("services")
-    .select("id, slug, title, latitude, longitude, is_featured, address, postcode, categories!category_id(name), locations!location_id(name)")
+    .select(
+      "id, slug, title, summary, description, latitude, longitude, is_featured, address, postcode, categories!category_id(name), listing_services(categories(name)), locations!location_id(name)",
+    )
     .eq("status", "published")
     .not("latitude", "is", null)
     .not("longitude", "is", null);
@@ -266,10 +302,7 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
       builder = ids.length > 0 ? builder.or(`location_id.eq.${loc.id},id.in.(${ids.join(",")})`) : builder.eq("location_id", loc.id);
     }
   }
-  if (query.q) {
-    const term = `%${query.q.replace(/[%_]/g, "")}%`;
-    builder = builder.or(`title.ilike.${term},summary.ilike.${term}`);
-  }
+  // Free-text search is applied in JS below to match the directory search.
   if (query.rating) {
     builder = builder.gte("google_rating", query.rating);
   }
@@ -278,10 +311,17 @@ export async function getMapPoints(query: DirectoryQuery = {}): Promise<MapPoint
   if (error) throw new Error(`Failed to load map points: ${error.message}`);
 
   type Row = {
-    id: string; slug: string; title: string; latitude: number; longitude: number; is_featured: boolean;
-    address: string | null; postcode: string | null; categories: { name: string } | null; locations: { name: string } | null;
+    id: string; slug: string; title: string; summary: string | null; description: string | null;
+    latitude: number; longitude: number; is_featured: boolean;
+    address: string | null; postcode: string | null;
+    categories: { name: string } | null; listing_services: Array<{ categories: { name: string } | null }> | null;
+    locations: { name: string } | null;
   };
-  return ((data ?? []) as unknown as Row[]).map((r) => ({
+  let rows = (data ?? []) as unknown as Row[];
+  if (query.q && query.q.trim()) {
+    rows = rows.filter((r) => matchesSearch(r, query.q as string));
+  }
+  return rows.map((r) => ({
     id: r.id, slug: r.slug, title: r.title, latitude: r.latitude, longitude: r.longitude,
     is_featured: r.is_featured, category: r.categories?.name ?? null, location: r.locations?.name ?? null,
     address: [r.address, r.postcode].filter(Boolean).join(", ") || null,
