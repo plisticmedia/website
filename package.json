@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "vercel:preview": "pnpm dlx vercel",
-    "vercel:prod": "pnpm dlx vercel --prod"
+    "vercel:prod": "pnpm dlx vercel --prod",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@radix-ui/react-navigation-menu": "^1.2.16",
@@ -27,6 +30,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.55.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "latest",
     "@types/react": "latest",

@@ -10,3 +10,9 @@ tmp
 
 .vercel
 .env*
+
+# Playwright
+/e2e/.auth/
+/playwright-report/
+/test-results/
+/blob-report/
