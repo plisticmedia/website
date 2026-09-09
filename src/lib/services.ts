@@ -44,13 +44,16 @@ type Searchable = {
   categories?: { name: string } | null;
   listing_services?: Array<{ categories: { name: string } | null }> | null;
 };
-function matchesSearch(row: Searchable, q: string): boolean {
-  const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
-  const catNames = [
-    row.categories?.name,
-    ...(row.listing_services ?? []).map((ls) => ls.categories?.name),
-  ].filter((n): n is string => !!n);
-  const hay = norm([row.title, row.summary, row.description, ...catNames].join(" "));
+
+/**
+ * Fuzzy free-text match over a prebuilt haystack string. Every query word must
+ * match — either as a substring, or by sharing a word-start with a haystack
+ * word in either direction (so podcast / podcasts / podcasting, film / filming
+ * all match). Shared by the directory and compare searches.
+ */
+function haystackMatches(haystack: string, q: string): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  const hay = norm(haystack);
   const hayWords = hay.split(/\s+/).filter(Boolean);
   const tokens = norm(q).split(/\s+/).filter((t) => t.length >= 2);
   if (tokens.length === 0) return true;
@@ -59,6 +62,14 @@ function matchesSearch(row: Searchable, q: string): boolean {
       hay.includes(t) ||
       (t.length >= 3 && hayWords.some((w) => w.length >= 3 && (w.startsWith(t) || t.startsWith(w)))),
   );
+}
+
+function matchesSearch(row: Searchable, q: string): boolean {
+  const catNames = [
+    row.categories?.name,
+    ...(row.listing_services ?? []).map((ls) => ls.categories?.name),
+  ].filter((n): n is string => !!n);
+  return haystackMatches([row.title, row.summary, row.description, ...catNames].join(" "), q);
 }
 
 /** Public directory: published listings only, featured first. RLS enforces visibility. */
@@ -184,13 +195,13 @@ export async function getComparableServices(
   const { data } = await supabase
     .from("services")
     .select(
-      "slug, title, summary, logo_url, is_featured, google_rating, google_rating_count, categories!category_id(name, slug), listing_services(categories(name, slug)), profiles(payouts_enabled), service_packages(price_gbp, delivery_days, is_bookable)",
+      "slug, title, summary, description, logo_url, is_featured, google_rating, google_rating_count, categories!category_id(name, slug), listing_services(categories(name, slug)), profiles(payouts_enabled), service_packages(price_gbp, delivery_days, is_bookable)",
     )
     .eq("status", "published")
     .limit(400);
 
   type Row = {
-    slug: string; title: string; summary: string | null; logo_url: string | null; is_featured: boolean;
+    slug: string; title: string; summary: string | null; description: string | null; logo_url: string | null; is_featured: boolean;
     google_rating: number | null; google_rating_count: number | null;
     categories: { name: string; slug: string } | null;
     listing_services: Array<{ categories: { name: string; slug: string } | null }> | null;
@@ -198,9 +209,7 @@ export async function getComparableServices(
     service_packages: Array<{ price_gbp: number | null; delivery_days: number | null; is_bookable: boolean }>;
   };
 
-  // Loose word match so "podcasts" finds "podcasting" etc. (strip a trailing s).
-  const destem = (w: string) => w.toLowerCase().replace(/s$/, "");
-  const needles = (q ?? "").trim().toLowerCase().split(/\s+/).filter(Boolean).map(destem);
+  const hasQuery = !!(q && q.trim());
 
   type Enriched = CompareRow & { disciplineSlugs: string[]; haystack: string };
   const rows: Enriched[] = [];
@@ -220,7 +229,7 @@ export async function getComparableServices(
     ].filter((c): c is { name: string; slug: string } => !!c);
     for (const c of disciplines) cats.set(c.slug, c.name);
     const disciplineSlugs = [...new Set(disciplines.map((c) => c.slug))];
-    const haystack = [r.title, r.summary ?? "", ...disciplines.map((c) => c.name)].join(" ").toLowerCase();
+    const haystack = [r.title, r.summary ?? "", r.description ?? "", ...disciplines.map((c) => c.name)].join(" ");
 
     rows.push({
       slug: r.slug,
@@ -240,7 +249,7 @@ export async function getComparableServices(
   }
 
   let filtered = categorySlug ? rows.filter((r) => r.disciplineSlugs.includes(categorySlug)) : rows;
-  if (needles.length > 0) filtered = filtered.filter((r) => needles.every((n) => r.haystack.includes(n)));
+  if (hasQuery) filtered = filtered.filter((r) => haystackMatches(r.haystack, q as string));
   // A max-price filter only makes sense for listings that actually have a price.
   if (typeof maxPrice === "number" && maxPrice > 0) {
     filtered = filtered.filter((r) => r.fromPrice != null && r.fromPrice <= maxPrice);
