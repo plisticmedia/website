@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX, Play } from "lucide-react";
+import { Volume2, VolumeX, Play, Maximize, Minimize } from "lucide-react";
 import styles from "./Listing.module.css";
 
 /**
@@ -11,8 +11,10 @@ import styles from "./Listing.module.css";
  */
 export function ProfileShowreel({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(true);
+  const [fullscreen, setFullscreen] = useState(false);
   // Once the viewer pauses it themselves, don't let scroll-autoplay override them.
   const userPausedRef = useRef(false);
 
@@ -69,8 +71,43 @@ export function ProfileShowreel({ src }: { src: string }) {
     if (!video.muted) video.play().catch(() => {});
   }
 
+  // Keep the button in sync when the viewer leaves fullscreen with Esc, etc.
+  useEffect(() => {
+    const onChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      setFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
+
+  function toggleFullscreen() {
+    const frame = frameRef.current;
+    const video = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    const doc = document as Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
+    if (!frame || !video) return;
+
+    if (document.fullscreenElement || doc.webkitFullscreenElement) {
+      (document.exitFullscreen || doc.webkitExitFullscreen)?.call(document);
+      return;
+    }
+    const el = frame as HTMLDivElement & { webkitRequestFullscreen?: () => void };
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    } else if (video.webkitEnterFullscreen) {
+      // iOS Safari can only fullscreen the video element itself.
+      video.webkitEnterFullscreen();
+    }
+  }
+
   return (
-    <div className={styles.showreel}>
+    <div className={styles.showreel} ref={frameRef}>
       <video
         ref={videoRef}
         className={styles.showreelVideo}
@@ -87,10 +124,22 @@ export function ProfileShowreel({ src }: { src: string }) {
           <Play aria-hidden="true" size={28} />
         </button>
       )}
-      <button type="button" className={styles.showreelSound} onClick={toggleSound} aria-pressed={!muted}>
-        {muted ? <VolumeX aria-hidden="true" size={15} /> : <Volume2 aria-hidden="true" size={15} />}
-        {muted ? "Sound off" : "Sound on"}
-      </button>
+      <div className={styles.showreelControls}>
+        <button type="button" className={styles.showreelSound} onClick={toggleSound} aria-pressed={!muted}>
+          {muted ? <VolumeX aria-hidden="true" size={15} /> : <Volume2 aria-hidden="true" size={15} />}
+          {muted ? "Sound off" : "Sound on"}
+        </button>
+        <button
+          type="button"
+          className={styles.showreelSound}
+          onClick={toggleFullscreen}
+          aria-pressed={fullscreen}
+          aria-label={fullscreen ? "Exit full screen" : "Full screen"}
+        >
+          {fullscreen ? <Minimize aria-hidden="true" size={15} /> : <Maximize aria-hidden="true" size={15} />}
+          {fullscreen ? "Exit" : "Fullscreen"}
+        </button>
+      </div>
     </div>
   );
 }
