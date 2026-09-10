@@ -62,12 +62,18 @@
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* Mute / unmute toggle (the reel autoplays muted on scroll) */
-.sound {
+/* Bottom-right control cluster (sound + fullscreen). */
+.controls {
   position: absolute;
   right: 1rem;
   bottom: 1rem;
   z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Pill buttons (sound toggle, fullscreen) */
+.sound {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -91,4 +97,25 @@
 .sound:focus-visible {
   outline: 2px solid var(--p-azure, #1faae9);
   outline-offset: 2px;
+}
+
+/* Fullscreen: fill the screen and letterbox the video instead of cropping it. */
+.frame:fullscreen {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+.frame:-webkit-full-screen {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+}
+.frame:fullscreen .video,
+.frame:-webkit-full-screen .video {
+  object-fit: contain;
 }
