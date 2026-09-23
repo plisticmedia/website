@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     "Scotland creative directory",
   ],
   alternates: { canonical: "/" },
+  verification: {
+    google: "XfOIUHwrWvtqZpnnzkWAgOkjDzyAO8_zaUmhWACHgh8",
+  },
   openGraph: {
     type: "website",
     siteName: "Plistic Media",
