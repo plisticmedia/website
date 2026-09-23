@@ -41,6 +41,25 @@ export const metadata: Metadata = {
   },
 };
 
+// Organisation structured data — tells Google that "Plistic Media" is a real
+// organisation (helping it treat the name as a genuine word rather than a typo
+// of "plastic"), and links the former "PodPlistic" brand to it via alternateName.
+const ORGANIZATION_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Plistic Media",
+  legalName: "Songplistic Ltd",
+  alternateName: ["Plistic", "PodPlistic", "Pod Plistic"],
+  url: SITE_URL,
+  logo: `${SITE_URL}/assets/brand/plistic-media.png`,
+  description: SITE_DESCRIPTION,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Glasgow",
+    addressCountry: "GB",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +74,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://app.cal.com" crossOrigin="" />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSONLD) }}
+        />
         {children}
         {process.env.SITE_LIVE !== "true" && <FeedbackButton />}
         <Analytics />
