@@ -284,6 +284,7 @@
   color: var(--p-muted);
 }
 .storyCard p + p { margin-top: 1rem; }
+.quoteBlock p + p { margin-top: 0.9rem; }
 
 .results {
   background: var(--p-ink);

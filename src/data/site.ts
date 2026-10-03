@@ -222,6 +222,14 @@ export const caseStudies = [
     image: "/assets/photos/site/documentary-2.jpg",
     href: "/work/unfiltered-neurodiverse-entrepreneur",
   },
+  {
+    client: "Dyspraxia DCD Ireland",
+    service: "Sensitive location filming",
+    description:
+      "A series of video snapshots for a parenting support programme, filming children with DCD and their families with care, trust and a calm, consent-led process.",
+    image: "/assets/photos/site/documentary-3.jpg",
+    href: "/work/dyspraxia-dcd-ireland",
+  },
 ];
 
 export const resourceTopics = [
