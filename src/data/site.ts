@@ -85,7 +85,7 @@ export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
 export const testimonials = [
   {
     quote:
-      "From the outset, Ross and Andi created a warm, relaxed and supportive environment that immediately put families at ease — especially important given the personal nature of the project. The communication, planning and project management were first class: they understood our vision from day one and consistently delivered with professionalism, reliability and attention to detail. We would wholeheartedly recommend Plistic Media to any organisation seeking a creative, professional and compassionate media production team.",
+      "From the outset, Plistic Media created a warm, relaxed and supportive environment that immediately put families at ease — especially important given the personal nature of the project. The communication, planning and project management were first class: they understood our vision from day one and consistently delivered with professionalism, reliability and attention to detail. We would wholeheartedly recommend Plistic Media to any organisation seeking a creative, professional and compassionate media production team.",
     name: "Sharon Lane",
     org: "Dyspraxia DCD Ireland",
   },
