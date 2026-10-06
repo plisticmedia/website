@@ -79,7 +79,6 @@ const services = [
   "Location filming (home, park and shop)",
   "Working sensitively with children and families",
   "Child-centred scheduling for a dyspraxia audience",
-  "Chaperone and compliance coordination (Protection of Young Persons Act / WRC licence)",
   "Direction",
   "Editing",
   "Delivery",
@@ -226,7 +225,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
           <div className={`p-container ${styles.ctaInner}`}>
             <div>
               <p className={styles.kicker}>Next step</p>
-              <h2 id="case-cta-title">Have a sensitive story to tell?</h2>
+              <h2 id="case-cta-title">Have a story to tell?</h2>
               <p>
                 Use the pricing tool for an instant range, or book a call and we will talk through how to film it with
                 the care it deserves.
