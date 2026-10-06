@@ -40,7 +40,6 @@ export function WorkPreview() {
                       src={videoSrc}
                       autoPlay
                       muted
-                      loop
                       playsInline
                       preload="metadata"
                       aria-hidden="true"
