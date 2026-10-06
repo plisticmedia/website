@@ -68,10 +68,6 @@ const results = [
     label: "pace built for a dyspraxia audience, with extra time and proper breaks.",
   },
   {
-    value: "Licensed",
-    label: "shoot under the Protection of Young Persons (Employment) Act 1996, chaperoned throughout.",
-  },
-  {
     value: "End to end",
     label: "scripting, shoot-order, scheduling, project management and delivery.",
   },
