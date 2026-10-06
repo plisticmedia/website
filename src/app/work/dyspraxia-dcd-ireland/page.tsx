@@ -46,13 +46,6 @@ const storySections = [
     ],
   },
   {
-    title: "Safe, and by the book",
-    paragraphs: [
-      "Filming children in Ireland is governed by the Protection of Young Persons (Employment) Act 1996, which requires a film/TV licence, a qualified chaperone present at all times, and strict limits on hours, continuous filming and breaks. We coordinated the shoot to meet all of it, and parents were able to be present throughout.",
-      "From the outset, Ross and Andi set out to create a warm, relaxed and supportive environment where both children and parents felt at ease - comfort that mattered as much as the footage, and that families kept remarking on.",
-    ],
-  },
-  {
     title: "Planning and delivery",
     paragraphs: [
       "We handled the communication, planning and project management end to end - preparing the scripts and a clear shoot-order, coordinating several families across two filming days and three settings, and understanding the charity's vision from day one.",
