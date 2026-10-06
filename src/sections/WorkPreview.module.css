@@ -63,6 +63,17 @@
   padding: clamp(1.2rem, 2.2vw, 2rem);
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
 }
+/* Top-left copy variant (used on the video thumbnail): text at the top with the
+   scrim darkened at the top instead of the bottom. */
+.topCopy .copy {
+  top: 0;
+  bottom: auto;
+}
+.topCopy .scrim {
+  background:
+    linear-gradient(0deg, rgba(15, 16, 19, 0.1) 18%, rgba(15, 16, 19, 0.6) 58%, rgba(15, 16, 19, 0.96) 100%),
+    linear-gradient(90deg, rgba(15, 16, 19, 0.54), rgba(15, 16, 19, 0.08) 66%);
+}
 .tag {
   margin: 0 0 0.45rem;
   font-family: var(--p-body);

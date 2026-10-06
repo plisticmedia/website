@@ -69,12 +69,13 @@ export function WorkPreview() {
               </>
             );
 
+            const topCopyCls = videoSrc ? ` ${styles.topCopy}` : "";
             return study.href ? (
-              <Link className={`${styles.tile} ${styles.linkTile} p-vf`} href={study.href} key={study.client}>
+              <Link className={`${styles.tile} ${styles.linkTile} p-vf${topCopyCls}`} href={study.href} key={study.client}>
                 {tile}
               </Link>
             ) : (
-              <article className={`${styles.tile} p-vf`} key={study.client}>
+              <article className={`${styles.tile} p-vf${topCopyCls}`} key={study.client}>
                 {tile}
               </article>
             );
