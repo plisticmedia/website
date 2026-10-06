@@ -119,6 +119,15 @@
   object-fit: contain;
   background: #0d0e12;
 }
+/* Title-slide video hero: size to the slide's own 16:9 so there is no empty
+   letterboxing, and skip the darkening overlay so the slide reads clearly. */
+.heroMediaVideo {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+}
+.heroMediaVideo::before {
+  display: none;
+}
 .heroMedia::before {
   content: "";
   position: absolute;
@@ -458,6 +467,9 @@
 @media (max-width: 620px) {
   .heroMedia {
     min-height: 360px;
+  }
+  .heroMediaVideo {
+    min-height: 0;
   }
   .mediaCaption {
     align-items: start;

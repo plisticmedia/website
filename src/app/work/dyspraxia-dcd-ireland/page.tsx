@@ -136,7 +136,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
               </div>
             </div>
 
-            <div className={`${styles.heroMedia} p-vf`}>
+            <div className={`${styles.heroMedia} ${styles.heroMediaVideo} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <video
                 className={styles.heroVideo}
@@ -145,15 +145,9 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
                 muted
                 loop
                 playsInline
-                preload="metadata"
+                preload="auto"
                 aria-label="Signposts for managing challenging behaviour — title slide"
               />
-              <div className={styles.mediaCaption}>
-                <div>
-                  <strong>Dyspraxia DCD Ireland</strong>
-                  <span>National Dyspraxia / DCD charity</span>
-                </div>
-              </div>
             </div>
           </div>
         </section>
