@@ -114,9 +114,9 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
         <section className={styles.hero} aria-labelledby="case-study-title">
           <div className={`p-container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <p className={styles.kicker}>Case study - sensitive location production</p>
-              <h1 id="case-study-title">
-                Dyspraxia DCD Ireland <span>Signposts for managing challenging behaviour</span>
+              <p className={styles.kicker}>Case study · Dyspraxia DCD Ireland</p>
+              <h1 id="case-study-title" className={styles.stackedTitle}>
+                Signposts <span>for managing challenging behaviour</span>
               </h1>
               <p className={styles.heroLead}>
                 Dyspraxia DCD Ireland wanted a series of short parent-education films - everyday moments between a parent and
