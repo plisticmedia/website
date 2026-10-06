@@ -226,7 +226,7 @@ export const caseStudies = [
     client: "Dyspraxia DCD Ireland",
     service: "Sensitive location filming",
     description:
-      "A series of video snapshots for a parenting support programme, filming children with DCD and their families with care, trust and a calm, consent-led process.",
+      "A series of parent-education films for Signposts for managing challenging behaviour, filmed over two days with several families in a calm, child-led shoot built for a dyspraxia audience.",
     image: "/assets/photos/site/documentary-3.jpg",
     href: "/work/dyspraxia-dcd-ireland",
   },

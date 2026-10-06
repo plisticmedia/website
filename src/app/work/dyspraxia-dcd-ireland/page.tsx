@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clapperboard, HeartHandshake, MapPin } from "lucide-react";
 import { Footer } from "@/components/Footer";
@@ -10,24 +9,24 @@ import styles from "../WorkCaseStudy.module.css";
 export const metadata: Metadata = {
   title: "Dyspraxia DCD Ireland Case Study | Plistic",
   description:
-    "How Plistic Media produced a series of video snapshots for Dyspraxia DCD Ireland's parenting support programme, filming children with DCD and their families with care and sensitivity.",
+    "How Plistic Media produced a series of parent-education films for Dyspraxia DCD Ireland - everyday parent-and-child scenes for Signposts for managing challenging behaviour, filmed over two days with several families and built around a dyspraxia audience.",
 };
 
 const stats = [
   {
     icon: Clapperboard,
-    value: "Series",
-    label: "of video snapshots for the parenting support programme",
+    value: "2 days",
+    label: "on-location filming across home, a park and a shop",
   },
   {
     icon: HeartHandshake,
     value: "Families",
-    label: "children with DCD and their parents, filmed with care",
+    label: "several families filmed at their own pace, parents present throughout",
   },
   {
     icon: MapPin,
-    value: "On location",
-    label: "filmed across multiple days in Ireland",
+    value: "Child-led",
+    label: "a shoot built specifically for a dyspraxia audience",
   },
 ];
 
@@ -35,56 +34,64 @@ const storySections = [
   {
     title: "The brief",
     paragraphs: [
-      "Dyspraxia DCD Ireland is the national charity supporting people with Dyspraxia / Developmental Coordination Disorder (DCD) and their families across Ireland. As part of a new parenting support programme, they wanted a series of video snapshots featuring children with DCD and their families - a warm, honest resource that would help other parents feel seen, informed and less alone.",
-      "The subject was personal. The films would feature real children and real families talking openly about their everyday lives, so the whole project had to be built on trust. Dyspraxia DCD Ireland came to us to turn that vision into a finished series, and to do it in a way that protected and respected the families taking part.",
+      "Dyspraxia DCD Ireland is the national charity supporting people with Dyspraxia / Developmental Coordination Disorder (DCD) and their families. For Signposts for managing challenging behaviour, a parent-education resource, they wanted a series of short films made for a dyspraxia audience.",
+      "Each film is a short, everyday moment between a parent and child - getting ready in the morning, mealtimes, chores, homework, learning to pour a drink or use the washing machine, playing together - used to model positive, practical ways of handling everyday behaviour. The scenes stand alone, so families only ever had to focus on their own moment on the day.",
     ],
   },
   {
-    title: "The approach",
+    title: "A shoot built for the children in it",
     paragraphs: [
-      "From the outset, Ross and Andi set out to create a warm, relaxed and supportive environment - one where children and parents could feel at ease in front of the camera. Given the personal nature of the project, that comfort mattered as much as the finished footage.",
-      "Families frequently commented on how natural and comfortable the entire filming process felt. That is not an accident: it comes from preparation, patience, and leading the day around the people in the room rather than around the schedule.",
+      "Because the films feature real children, the whole production was designed around them. We filmed just one scene at a time, in short blocks of two or three with proper rest in between, so there was never a rush - and there was no pressure to be word-perfect, with the crew happy to run extra takes.",
+      "The schedule was built for a dyspraxia audience specifically: extra time for scenes involving physical tasks, a predictable running order with clear signals before moving on, and settling-in time whenever filming moved to a new or unfamiliar location such as the park. If a child needed a longer break or more time to settle, the day had the flexibility built in.",
     ],
   },
   {
-    title: "The production",
+    title: "Safe, and by the book",
     paragraphs: [
-      "We handled the communication, planning and project management end to end - understanding the charity's vision from day one and delivering against it with professionalism, reliability and attention to detail.",
-      "Filming took place on location in Ireland across multiple days, coordinated closely with the organisation and the families involved. Throughout, the priority was a calm, consent-led process that put the families first while still capturing the honest, human moments the programme needed.",
+      "Filming children in Ireland is governed by the Protection of Young Persons (Employment) Act 1996, which requires a film/TV licence, a qualified chaperone present at all times, and strict limits on hours, continuous filming and breaks. We coordinated the shoot to meet all of it, and parents were able to be present throughout.",
+      "From the outset, Ross and Andi set out to create a warm, relaxed and supportive environment where both children and parents felt at ease - comfort that mattered as much as the footage, and that families kept remarking on.",
+    ],
+  },
+  {
+    title: "Planning and delivery",
+    paragraphs: [
+      "We handled the communication, planning and project management end to end - preparing the scripts and a clear shoot-order, coordinating several families across two filming days and three settings, and understanding the charity's vision from day one.",
+      "Throughout, the priority was a calm, consent-led process that put the families first while still capturing the honest, human moments the resource needed - then delivering the finished films with professionalism, reliability and attention to detail.",
     ],
   },
 ];
 
 const results = [
   {
+    value: "2 days",
+    label: "of on-location filming across home, a park and a shop.",
+  },
+  {
     value: "Series",
-    label: "of video snapshots produced for the parenting support programme.",
+    label: "of standalone parent-and-child scenes produced for the resource.",
   },
   {
-    value: "Families",
-    label: "children with DCD and their parents supported through a calm, consent-led shoot.",
+    value: "Child-led",
+    label: "pace built for a dyspraxia audience, with extra time and proper breaks.",
   },
   {
-    value: "On location",
-    label: "multi-day filming coordinated in Ireland.",
+    value: "Licensed",
+    label: "shoot under the Protection of Young Persons (Employment) Act 1996, chaperoned throughout.",
   },
   {
     value: "End to end",
-    label: "communication, planning and project management across the project.",
-  },
-  {
-    value: "Full",
-    label: "production and delivery, handled with care for a sensitive subject.",
+    label: "scripting, shoot-order, scheduling, project management and delivery.",
   },
 ];
 
 const services = [
   "Concept and brief development",
-  "Location filming",
+  "Script and shoot-order preparation",
+  "Location filming (home, park and shop)",
   "Working sensitively with children and families",
-  "Direction for a personal subject",
-  "Communication and planning",
-  "Full project management",
+  "Child-centred scheduling for a dyspraxia audience",
+  "Chaperone and compliance coordination (Protection of Young Persons Act / WRC licence)",
+  "Direction",
   "Editing",
   "Delivery",
 ];
@@ -109,13 +116,13 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
             <div className={styles.heroCopy}>
               <p className={styles.kicker}>Case study - sensitive location production</p>
               <h1 id="case-study-title">
-                Dyspraxia DCD Ireland <span>parenting support films</span>
+                Dyspraxia DCD Ireland <span>Signposts for managing challenging behaviour</span>
               </h1>
               <p className={styles.heroLead}>
-                Dyspraxia DCD Ireland wanted a series of video snapshots featuring children with DCD and their families
-                for a new parenting support programme. The subject was personal, so the work had to be built on trust.
-                They brought the vision and the families. We created the calm, caring environment that let their story be
-                told.
+                Dyspraxia DCD Ireland wanted a series of short parent-education films - everyday moments between a parent and
+                child that model positive, practical ways to handle behaviour, made for a dyspraxia audience. We filmed
+                several families over two days, at home, in a park and in a shop, in a shoot built entirely around the
+                children in it.
               </p>
               <div className={styles.heroActions}>
                 <Link className="p-btn" href="/pricing">
@@ -131,12 +138,15 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
 
             <div className={`${styles.heroMedia} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
-              <Image
-                src="/assets/photos/site/documentary-1.jpg"
-                alt="On-location video production for a sensitive documentary project"
-                fill
-                priority
-                sizes="(max-width: 900px) 100vw, 52vw"
+              <video
+                className={styles.heroVideo}
+                src="/assets/video/dyspraxia-signposts.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label="Signposts for managing challenging behaviour — title slide"
               />
               <div className={styles.mediaCaption}>
                 <div>
