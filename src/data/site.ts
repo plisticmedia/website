@@ -228,6 +228,7 @@ export const caseStudies = [
     description:
       "A series of parent-education films for Signposts for managing challenging behaviour, filmed over two days with several families in a calm, child-led shoot built for a dyspraxia audience.",
     image: "/assets/photos/site/documentary-3.jpg",
+    video: "/assets/video/dyspraxia-signposts.mp4",
     href: "/work/dyspraxia-dcd-ireland",
   },
 ];

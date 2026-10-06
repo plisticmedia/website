@@ -30,8 +30,18 @@
 .linkTile { cursor: pointer; }
 .media { position: relative; aspect-ratio: 16 / 10; background: #0d0e12; }
 .media :global(img) { object-fit: cover; transition: transform 0.5s ease; }
+.mediaVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
 .tile:hover .media :global(img),
-.tile:focus-visible .media :global(img) { transform: scale(1.04); }
+.tile:focus-visible .media :global(img),
+.tile:hover .mediaVideo,
+.tile:focus-visible .mediaVideo { transform: scale(1.04); }
 .linkTile:focus-visible {
   outline: 3px solid var(--p-azure);
   outline-offset: 4px;
