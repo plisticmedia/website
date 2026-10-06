@@ -29,17 +29,30 @@ export function WorkPreview() {
                   : study.client === "Tiny Changes"
                     ? ({ objectPosition: "center 22%" } as const)
                     : undefined;
+            const videoSrc = (study as { video?: string }).video;
             const tile = (
               <>
                 <span className="p-vfc" aria-hidden="true" />
                 <div className={styles.media}>
-                  <Image
-                    src={study.image}
-                    alt={study.client}
-                    fill
-                    sizes="(max-width: 760px) 100vw, 50vw"
-                    style={imageStyle}
-                  />
+                  {videoSrc ? (
+                    <video
+                      className={styles.mediaVideo}
+                      src={videoSrc}
+                      autoPlay
+                      muted
+                      playsInline
+                      preload="metadata"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Image
+                      src={study.image}
+                      alt={study.client}
+                      fill
+                      sizes="(max-width: 760px) 100vw, 50vw"
+                      style={imageStyle}
+                    />
+                  )}
                 </div>
                 <span className={styles.scrim} aria-hidden="true" />
                 <div className={styles.copy}>

@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/work/tiny-changes",
     "/work/connect-ed-network",
     "/work/unfiltered-neurodiverse-entrepreneur",
+    "/work/dyspraxia-dcd-ireland",
     "/terms",
     "/privacy",
   ];

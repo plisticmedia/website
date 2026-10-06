@@ -222,6 +222,15 @@ export const caseStudies = [
     image: "/assets/photos/site/documentary-2.jpg",
     href: "/work/unfiltered-neurodiverse-entrepreneur",
   },
+  {
+    client: "Dyspraxia DCD Ireland",
+    service: "Sensitive location filming",
+    description:
+      "A series of parent-education films for Signposts for managing challenging behaviour, filmed over two days with several families in a calm, child-led shoot built for a dyspraxia audience.",
+    image: "/assets/photos/site/documentary-3.jpg",
+    video: "/assets/video/dyspraxia-signposts.mp4",
+    href: "/work/dyspraxia-dcd-ireland",
+  },
 ];
 
 export const resourceTopics = [

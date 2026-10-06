@@ -25,6 +25,12 @@
   gap: clamp(2rem, 5vw, 5rem);
   align-items: center;
 }
+/* Stacked hero: full-width title-slide video above the heading and copy. */
+.heroStack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.6rem, 3.5vw, 2.8rem);
+}
 .heroCopy { min-width: 0; }
 .kicker,
 .miniLabel {
@@ -111,6 +117,23 @@
   background: #0d0e12;
 }
 .heroMedia :global(img) { object-fit: cover; }
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0d0e12;
+}
+/* Title-slide video hero: size to the slide's own 16:9 so there is no empty
+   letterboxing, and skip the darkening overlay so the slide reads clearly. */
+.heroMediaVideo {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+}
+.heroMediaVideo::before {
+  display: none;
+}
 .heroMedia::before {
   content: "";
   position: absolute;
@@ -284,6 +307,7 @@
   color: var(--p-muted);
 }
 .storyCard p + p { margin-top: 1rem; }
+.quoteBlock p + p { margin-top: 0.9rem; }
 
 .results {
   background: var(--p-ink);
@@ -318,6 +342,17 @@
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.76);
 }
+/* Compact variant for word-based values (e.g. "End to end") rather than short
+   numbers: smaller leading-safe value text and a wider value column so the
+   heading never overlaps the label. */
+.resultsCompact .resultCard {
+  grid-template-columns: minmax(7rem, 0.3fr) minmax(0, 0.7fr);
+}
+.resultsCompact .resultCard strong {
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  line-height: 1.05;
+  overflow-wrap: break-word;
+}
 .narrativeResultList .resultCard {
   grid-template-columns: minmax(0, 1fr);
   gap: 0.55rem;
@@ -339,6 +374,61 @@
   grid-template-columns: minmax(0, 0.72fr) minmax(260px, 0.28fr);
   gap: clamp(1.6rem, 4vw, 3.5rem);
   align-items: start;
+}
+/* Stacked variant: quote sits below the services block instead of beside it. */
+.meaningStacked {
+  grid-template-columns: 1fr;
+}
+.meaningStacked .quoteBlock {
+  max-width: 760px;
+}
+
+/* Centered + wider treatment (this case study). */
+.heroCentered {
+  text-align: center;
+}
+.heroCentered h1.stackedTitle {
+  max-width: none;
+  margin-inline: auto;
+  text-align: center;
+}
+.heroCentered h1.stackedTitle span {
+  max-width: none;
+  margin-inline: auto;
+}
+.heroCentered .heroLead {
+  max-width: 72ch;
+  margin-inline: auto;
+}
+.heroCentered .heroActions {
+  justify-content: center;
+}
+
+.statsCentered {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.statsCentered .statCard {
+  text-align: center;
+}
+.statsCentered .statCard svg {
+  margin-inline: auto;
+}
+
+.meaningCentered {
+  text-align: center;
+}
+.meaningCentered > div > p {
+  max-width: 960px;
+  margin-inline: auto;
+}
+.meaningCentered .quoteBlock {
+  max-width: 980px;
+  margin-inline: auto;
+  text-align: left;
+}
+.meaningCentered .quoteBlock .miniLabel,
+.meaningCentered .quoteBlock .quoteAttribution {
+  text-align: center;
 }
 .meaning h2 {
   margin: 0;
@@ -449,6 +539,9 @@
 @media (max-width: 620px) {
   .heroMedia {
     min-height: 360px;
+  }
+  .heroMediaVideo {
+    min-height: 0;
   }
   .mediaCaption {
     align-items: start;
