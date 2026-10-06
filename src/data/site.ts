@@ -200,12 +200,13 @@ export const caseStudies = [
     topText: true,
   },
   {
-    client: "Tiny Changes",
-    service: "End-to-end production",
+    client: "Dyspraxia DCD Ireland",
+    service: "Sensitive location filming",
     description:
-      "End-to-end support for a youth mental health podcast about building a career in music without losing yourself inside it.",
-    image: "/assets/photos/site/tiny-changes-2.jpg",
-    href: "/work/tiny-changes",
+      "A series of parent-education films for Signposts for managing challenging behaviour, filmed over two days with several families in a calm, child-led shoot built for a dyspraxia audience.",
+    image: "/assets/photos/site/documentary-3.jpg",
+    video: "/assets/video/dyspraxia-signposts.mp4",
+    href: "/work/dyspraxia-dcd-ireland",
   },
   {
     client: "Connect-Ed",
@@ -224,13 +225,12 @@ export const caseStudies = [
     href: "/work/unfiltered-neurodiverse-entrepreneur",
   },
   {
-    client: "Dyspraxia DCD Ireland",
-    service: "Sensitive location filming",
+    client: "Tiny Changes",
+    service: "End-to-end production",
     description:
-      "A series of parent-education films for Signposts for managing challenging behaviour, filmed over two days with several families in a calm, child-led shoot built for a dyspraxia audience.",
-    image: "/assets/photos/site/documentary-3.jpg",
-    video: "/assets/video/dyspraxia-signposts.mp4",
-    href: "/work/dyspraxia-dcd-ireland",
+      "End-to-end support for a youth mental health podcast about building a career in music without losing yourself inside it.",
+    image: "/assets/photos/site/tiny-changes-2.jpg",
+    href: "/work/tiny-changes",
   },
 ];
 
