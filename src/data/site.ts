@@ -197,6 +197,7 @@ export const caseStudies = [
     description: "Production support for a show that reached #1 in its niche on Apple Podcasts.",
     image: "/assets/photos/site/inspire-1.jpg",
     href: "/work/strathclyde-inspire",
+    topText: true,
   },
   {
     client: "Tiny Changes",

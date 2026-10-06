@@ -69,7 +69,7 @@ export function WorkPreview() {
               </>
             );
 
-            const topCopyCls = videoSrc ? ` ${styles.topCopy}` : "";
+            const topCopyCls = videoSrc || (study as { topText?: boolean }).topText ? ` ${styles.topCopy}` : "";
             return study.href ? (
               <Link className={`${styles.tile} ${styles.linkTile} p-vf${topCopyCls}`} href={study.href} key={study.client}>
                 {tile}
