@@ -387,9 +387,14 @@
 .heroCentered {
   text-align: center;
 }
-.heroCentered .stackedTitle,
-.heroCentered .stackedTitle span {
+.heroCentered h1.stackedTitle {
   max-width: none;
+  margin-inline: auto;
+  text-align: center;
+}
+.heroCentered h1.stackedTitle span {
+  max-width: none;
+  margin-inline: auto;
 }
 .heroCentered .heroLead {
   max-width: 72ch;
