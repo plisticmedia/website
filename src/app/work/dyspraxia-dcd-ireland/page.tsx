@@ -112,7 +112,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
       <SiteHeader />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="case-study-title">
-          <div className={`p-container ${styles.heroStack}`}>
+          <div className={`p-container ${styles.heroStack} ${styles.heroCentered}`}>
             <div className={`${styles.heroMedia} ${styles.heroMediaVideo} p-vf`}>
               <span className="p-vfc" aria-hidden="true" />
               <video
@@ -152,7 +152,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
         </section>
 
         <section className={styles.statBand} aria-label="Dyspraxia DCD Ireland case study statistics">
-          <div className={`p-container ${styles.statGrid}`}>
+          <div className={`p-container ${styles.statGrid} ${styles.statsCentered}`}>
             {stats.map((stat) => {
               const Icon = stat.icon;
 
@@ -212,7 +212,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
         </section>
 
         <section className={`p-section ${styles.meaning}`} aria-labelledby="case-meaning-title">
-          <div className={`p-container ${styles.meaningInner} ${styles.meaningStacked}`}>
+          <div className={`p-container ${styles.meaningInner} ${styles.meaningStacked} ${styles.meaningCentered}`}>
             <div>
               <h2 id="case-meaning-title">
                 Services <span>included</span>.

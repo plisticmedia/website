@@ -382,6 +382,49 @@
 .meaningStacked .quoteBlock {
   max-width: 760px;
 }
+
+/* Centered + wider treatment (this case study). */
+.heroCentered {
+  text-align: center;
+}
+.heroCentered .stackedTitle,
+.heroCentered .stackedTitle span {
+  max-width: none;
+}
+.heroCentered .heroLead {
+  max-width: 72ch;
+  margin-inline: auto;
+}
+.heroCentered .heroActions {
+  justify-content: center;
+}
+
+.statsCentered {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.statsCentered .statCard {
+  text-align: center;
+}
+.statsCentered .statCard svg {
+  margin-inline: auto;
+}
+
+.meaningCentered {
+  text-align: center;
+}
+.meaningCentered > div > p {
+  max-width: 960px;
+  margin-inline: auto;
+}
+.meaningCentered .quoteBlock {
+  max-width: 980px;
+  margin-inline: auto;
+  text-align: left;
+}
+.meaningCentered .quoteBlock .miniLabel,
+.meaningCentered .quoteBlock .quoteAttribution {
+  text-align: center;
+}
 .meaning h2 {
   margin: 0;
   font-family: var(--p-display);
