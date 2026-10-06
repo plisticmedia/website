@@ -143,7 +143,6 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
                 src="/assets/video/dyspraxia-signposts.mp4"
                 autoPlay
                 muted
-                loop
                 playsInline
                 preload="auto"
                 aria-label="Signposts for managing challenging behaviour — title slide"
