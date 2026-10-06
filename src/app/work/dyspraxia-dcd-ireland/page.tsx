@@ -112,7 +112,20 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
       <SiteHeader />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="case-study-title">
-          <div className={`p-container ${styles.heroGrid}`}>
+          <div className={`p-container ${styles.heroStack}`}>
+            <div className={`${styles.heroMedia} ${styles.heroMediaVideo} p-vf`}>
+              <span className="p-vfc" aria-hidden="true" />
+              <video
+                className={styles.heroVideo}
+                src="/assets/video/dyspraxia-signposts.mp4"
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                aria-label="Signposts for managing challenging behaviour — title slide"
+              />
+            </div>
+
             <div className={styles.heroCopy}>
               <p className={styles.kicker}>Case study · Dyspraxia DCD Ireland</p>
               <h1 id="case-study-title" className={styles.stackedTitle}>
@@ -134,19 +147,6 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
                   Book a call
                 </Link>
               </div>
-            </div>
-
-            <div className={`${styles.heroMedia} ${styles.heroMediaVideo} p-vf`}>
-              <span className="p-vfc" aria-hidden="true" />
-              <video
-                className={styles.heroVideo}
-                src="/assets/video/dyspraxia-signposts.mp4"
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                aria-label="Signposts for managing challenging behaviour — title slide"
-              />
             </div>
           </div>
         </section>
@@ -200,7 +200,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
               <p className="p-eyebrow">What we delivered</p>
               <h2 id="case-results-title">A caring production, start to finish.</h2>
             </div>
-            <div className={styles.resultList}>
+            <div className={`${styles.resultList} ${styles.resultsCompact}`}>
               {results.map((result) => (
                 <div className={styles.resultCard} key={`${result.value}-${result.label}`}>
                   <strong>{result.value}</strong>
@@ -212,7 +212,7 @@ export default function DyspraxiaDcdIrelandCaseStudyPage() {
         </section>
 
         <section className={`p-section ${styles.meaning}`} aria-labelledby="case-meaning-title">
-          <div className={`p-container ${styles.meaningInner}`}>
+          <div className={`p-container ${styles.meaningInner} ${styles.meaningStacked}`}>
             <div>
               <h2 id="case-meaning-title">
                 Services <span>included</span>.

@@ -25,6 +25,12 @@
   gap: clamp(2rem, 5vw, 5rem);
   align-items: center;
 }
+/* Stacked hero: full-width title-slide video above the heading and copy. */
+.heroStack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.6rem, 3.5vw, 2.8rem);
+}
 .heroCopy { min-width: 0; }
 .kicker,
 .miniLabel {
@@ -336,6 +342,17 @@
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.76);
 }
+/* Compact variant for word-based values (e.g. "End to end") rather than short
+   numbers: smaller leading-safe value text and a wider value column so the
+   heading never overlaps the label. */
+.resultsCompact .resultCard {
+  grid-template-columns: minmax(7rem, 0.3fr) minmax(0, 0.7fr);
+}
+.resultsCompact .resultCard strong {
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  line-height: 1.05;
+  overflow-wrap: break-word;
+}
 .narrativeResultList .resultCard {
   grid-template-columns: minmax(0, 1fr);
   gap: 0.55rem;
@@ -357,6 +374,13 @@
   grid-template-columns: minmax(0, 0.72fr) minmax(260px, 0.28fr);
   gap: clamp(1.6rem, 4vw, 3.5rem);
   align-items: start;
+}
+/* Stacked variant: quote sits below the services block instead of beside it. */
+.meaningStacked {
+  grid-template-columns: 1fr;
+}
+.meaningStacked .quoteBlock {
+  max-width: 760px;
 }
 .meaning h2 {
   margin: 0;
