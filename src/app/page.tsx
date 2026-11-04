@@ -6,7 +6,6 @@ import { Hero } from "@/sections/Hero";
 import { PlatformSignpost } from "@/sections/PlatformSignpost";
 import { ProofTrust } from "@/sections/ProofTrust";
 import { ServicesOverview } from "@/sections/ServicesOverview";
-import { ShowcaseHighlights } from "@/sections/ShowcaseHighlights";
 import { Showreel } from "@/sections/Showreel";
 import { Testimonials } from "@/sections/Testimonials";
 import { WorkPreview } from "@/sections/WorkPreview";
@@ -25,7 +24,6 @@ export default function Home() {
         <Showreel />
         <ServicesOverview />
         <WorkPreview />
-        <ShowcaseHighlights />
         <Testimonials />
         <ClosingCTA />
       </main>
