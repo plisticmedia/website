@@ -7,10 +7,7 @@ import { getSessionProfile } from "@/lib/auth";
 // Explicit footer list (not derived from the header nav, so restructuring the
 // header dropdowns never silently drops footer links).
 const companyLinks = [
-  { label: "Media Directory", href: "/directory" },
-  { label: "Compare Prices", href: "/compare" },
-  { label: "Scotland's Showcase", href: "/showcase" },
-  { label: "List Your Business", href: "/list-your-business" },
+  { label: "Shop", href: "/marketplace" },
   { label: "Pricing", href: "/pricing" },
   { label: "Earn With Us", href: "/earn" },
   { label: "About", href: "/about" },
