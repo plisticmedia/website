@@ -197,10 +197,12 @@ export function SiteHeader() {
             <span>List your business</span>
           </Link>
         )}
-        <Link className="header-account" href={accountHref}>
-          <AccountIcon aria-hidden="true" size={16} />
-          <span>{accountLabel}</span>
-        </Link>
+        {signedIn && (
+          <Link className="header-account" href={accountHref}>
+            <AccountIcon aria-hidden="true" size={16} />
+            <span>{accountLabel}</span>
+          </Link>
+        )}
         <Link className="header-cta" href={bookingPagePath}>
           {brand.bookingLabel}
           <ArrowUpRight aria-hidden="true" size={16} />
@@ -292,9 +294,11 @@ export function SiteHeader() {
                   </Link>
                 </>
               )}
-              <Link href={accountHref} className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
-                <AccountIcon aria-hidden="true" size={18} /> {accountLabel}
-              </Link>
+              {signedIn && (
+                <Link href={accountHref} className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
+                  <AccountIcon aria-hidden="true" size={18} /> {accountLabel}
+                </Link>
+              )}
               <Link href={bookingPagePath} className="p-btn" onClick={() => setMobileOpen(false)}>
                 {brand.bookingLabel} <ArrowUpRight aria-hidden="true" size={16} />
               </Link>
