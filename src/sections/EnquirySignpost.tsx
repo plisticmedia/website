@@ -13,7 +13,7 @@ const pillars = [
     icon: Clapperboard,
     title: "We make the media",
     text: "Our own Glasgow production studio — podcasts, video, documentary, ads and strategy, made with you end to end.",
-    href: "/#services",
+    href: "#services",
     cta: "See what we make",
   },
   {
@@ -41,17 +41,30 @@ export function EnquirySignpost() {
         </div>
 
         <div className={`${styles.grid} ${styles.gridTwo}`}>
-          {pillars.map((p) => (
-            <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
-              <span className="p-vfc" aria-hidden="true" />
-              <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
-              <h3 className={styles.cardTitle}>{p.title}</h3>
-              <p className={styles.cardText}>{p.text}</p>
-              <span className={styles.link}>
-                {p.cta} <ArrowRight aria-hidden="true" size={16} />
-              </span>
-            </Link>
-          ))}
+          {pillars.map((p) => {
+            const inner = (
+              <>
+                <span className="p-vfc" aria-hidden="true" />
+                <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
+                <h3 className={styles.cardTitle}>{p.title}</h3>
+                <p className={styles.cardText}>{p.text}</p>
+                <span className={styles.link}>
+                  {p.cta} <ArrowRight aria-hidden="true" size={16} />
+                </span>
+              </>
+            );
+            // Same-page anchors (e.g. #services) use a native <a> so the browser
+            // reliably scrolls to the section; real routes use Next's <Link>.
+            return p.href.startsWith("#") ? (
+              <a href={p.href} className={`${styles.card} p-vf`} key={p.title}>
+                {inner}
+              </a>
+            ) : (
+              <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
+                {inner}
+              </Link>
+            );
+          })}
         </div>
 
         <div className={styles.helper}>
