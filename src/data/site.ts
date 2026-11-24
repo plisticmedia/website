@@ -95,6 +95,17 @@ export const publicNavItems: NavItem[] = [
       { label: "About", href: "/about", description: "Who we are, and how we work" },
     ],
   },
+  {
+    label: "Services",
+    href: "/services/podcasting",
+    children: [
+      { label: "Podcasting", href: "/services/podcasting", description: "Full-service podcast production, concept to launch" },
+      { label: "Video production", href: "/services/video-production", description: "Brand films, ads and music videos" },
+      { label: "Event filming", href: "/services/event-filming", description: "Multi-camera coverage of live events" },
+      { label: "Documentary", href: "/services/documentary", description: "Long-form storytelling with real depth" },
+      { label: "Coaching", href: "/services/coaching", description: "Presentation and media coaching" },
+    ],
+  },
   { label: "Earn With Us", href: "/earn" },
   {
     label: "Work with us",
