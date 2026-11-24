@@ -102,7 +102,6 @@ export const publicNavItems: NavItem[] = [
     highlight: true,
     icon: "store",
     children: [
-      { label: "Buy from us", href: "/marketplace", description: "Shop Plistic Media's packages, items & services" },
       { label: "Our profile", href: "/directory/plistic-media", description: "See Plistic Media's full profile, packages & reviews" },
     ],
   },
