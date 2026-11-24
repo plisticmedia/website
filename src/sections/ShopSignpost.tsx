@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Clapperboard, ShoppingBag, Store } from "lucide-react";
+import { ArrowRight, Clapperboard, Store } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
 import styles from "./PlatformSignpost.module.css";
 
 /**
  * Public-facing version of the homepage signpost (shown to everyone who is not
- * an admin or beta tester): the studio plus the shop, with no wider directory
- * or showcase. Admins/beta testers see <PlatformSignpost /> instead.
+ * an admin or beta tester): the studio plus a link to our profile, with no
+ * wider directory or showcase. Admins/beta testers see <PlatformSignpost />.
  */
 const pillars = [
   {
@@ -15,13 +15,6 @@ const pillars = [
     text: "Our own Glasgow production studio — podcasts, video, documentary, ads and strategy, made with you end to end.",
     href: "/#services",
     cta: "See what we make",
-  },
-  {
-    icon: ShoppingBag,
-    title: "Buy from us",
-    text: "Shop Plistic Media's packages, items and services directly — pick what you need and check out online.",
-    href: "/marketplace",
-    cta: "Visit the shop",
   },
   {
     icon: Store,
@@ -47,7 +40,7 @@ export function ShopSignpost() {
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className={`${styles.grid} ${styles.gridTwo}`}>
           {pillars.map((p) => (
             <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
               <span className="p-vfc" aria-hidden="true" />
