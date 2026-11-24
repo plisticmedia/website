@@ -86,13 +86,14 @@ export const navItems: NavItem[] = [
 export const publicNavItems: NavItem[] = [
   { label: "Home", href: "/#top" },
   {
-    label: "Plistic Studio",
-    href: "/#services",
+    label: "Work we're proud of",
+    href: "/#work",
     children: [
-      { label: "Services", href: "/#services", description: "Podcasting, video, events, documentary, coaching" },
-      { label: "Our Work", href: "/#work", description: "Selected case studies" },
-      { label: "Pricing", href: "/pricing", description: "Get an instant estimate" },
-      { label: "About", href: "/about", description: "Who we are, and how we work" },
+      { label: "Strathclyde Inspire", href: "/work/strathclyde-inspire", description: "Podcast production" },
+      { label: "Dyspraxia DCD Ireland", href: "/work/dyspraxia-dcd-ireland", description: "Sensitive location filming" },
+      { label: "Connect-Ed", href: "/work/connect-ed-network", description: "Event capture and editing" },
+      { label: "Unfiltered", href: "/work/unfiltered-neurodiverse-entrepreneur", description: "Feature documentary" },
+      { label: "Tiny Changes", href: "/work/tiny-changes", description: "End-to-end podcast production" },
     ],
   },
   {
@@ -106,6 +107,8 @@ export const publicNavItems: NavItem[] = [
       { label: "Coaching", href: "/services/coaching", description: "Presentation and media coaching" },
     ],
   },
+  { label: "Pricing", href: "/pricing" },
+  { label: "About", href: "/about" },
   { label: "Earn With Us", href: "/earn" },
   {
     label: "Work with us",
