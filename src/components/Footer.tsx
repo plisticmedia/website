@@ -18,7 +18,7 @@ const companyLinks = [
 // Public-facing footer (everyone who is not an admin / beta tester): the
 // streamlined set, with Directory/Compare/Showcase/List hidden.
 const publicCompanyLinks = [
-  { label: "Shop", href: "/marketplace" },
+  { label: "Book a call", href: "/book" },
   { label: "Pricing", href: "/pricing" },
   { label: "Earn With Us", href: "/earn" },
   { label: "About", href: "/about" },

@@ -44,7 +44,7 @@ export type NavItem = {
   label: string;
   href: string;
   highlight?: boolean;
-  icon?: "compass" | "sparkles" | "store";
+  icon?: "compass" | "sparkles" | "store" | "handshake";
   children?: NavChild[];
 };
 
@@ -97,12 +97,13 @@ export const publicNavItems: NavItem[] = [
   },
   { label: "Earn With Us", href: "/earn" },
   {
-    label: "Shop",
-    href: "/marketplace",
+    label: "Work with us",
+    href: "/pricing",
     highlight: true,
-    icon: "store",
+    icon: "handshake",
     children: [
-      { label: "Our profile", href: "/directory/plistic-media", description: "See Plistic Media's full profile, packages & reviews" },
+      { label: "Get an estimate", href: "/pricing", description: "See an instant ballpark price for your project" },
+      { label: "Book a call", href: "/book", description: "Talk it through with us — no pressure, no jargon" },
     ],
   },
 ];

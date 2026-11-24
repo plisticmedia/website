@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Clapperboard, Store } from "lucide-react";
+import { ArrowRight, Clapperboard, Receipt } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
 import styles from "./PlatformSignpost.module.css";
 
 /**
- * Public-facing version of the homepage signpost (shown to everyone who is not
- * an admin or beta tester): the studio plus a link to our profile, with no
- * wider directory or showcase. Admins/beta testers see <PlatformSignpost />.
+ * Public-facing homepage signpost (shown to everyone who is not an admin or
+ * beta tester): an enquiry-led studio — see what we make, get an instant
+ * estimate, then book a call. Admins/beta testers see <PlatformSignpost />.
  */
 const pillars = [
   {
@@ -17,26 +17,26 @@ const pillars = [
     cta: "See what we make",
   },
   {
-    icon: Store,
-    title: "Our profile",
-    text: "See Plistic Media's full profile — our packages, work, items for sale and client reviews, all in one place.",
-    href: "/directory/plistic-media",
-    cta: "See our profile",
+    icon: Receipt,
+    title: "Get an estimate",
+    text: "See a ballpark price for your project in about a minute, then book a call to talk it through — no pressure, no jargon.",
+    href: "/pricing",
+    cta: "Get an instant estimate",
   },
 ];
 
-export function ShopSignpost() {
+export function EnquirySignpost() {
   return (
     <section className={`p-section ${styles.section}`} aria-labelledby="platform-title">
       <div className="p-container">
         <div className={styles.head}>
-          <p className="p-eyebrow">One studio, everything you need</p>
+          <p className="p-eyebrow">One studio, made simple</p>
           <h2 id="platform-title" className={`p-h2 ${styles.title}`}>
-            Plistic makes media — and makes it <span className="azu">easy to buy</span>.
+            Plistic makes media — <span className="azu">let&apos;s make yours</span>.
           </h2>
           <p className={`p-lead ${styles.lead}`}>
-            We&apos;re a Glasgow production studio you can hire end to end, or shop directly for packages, items and
-            services — all under one roof.
+            We&apos;re a Glasgow production studio you can hire end to end. Get an instant estimate, then talk it through
+            with us.
           </p>
         </div>
 

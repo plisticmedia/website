@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown, Compass, LayoutDashboard, LogIn, Menu, Sparkles, Store, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Compass, Handshake, LayoutDashboard, LogIn, Menu, Sparkles, Store, X } from "lucide-react";
 import { bookingPagePath, brand, navItems, publicNavItems } from "@/data/site";
 import { directoryPublic } from "@/lib/directory";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -104,7 +104,7 @@ export function SiteHeader() {
       >
         <NavigationMenuList className="primary-nav-list">
           {items.slice(1).map((item) => {
-            const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : Compass;
+            const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : item.icon === "handshake" ? Handshake : Compass;
 
             // Grouped item → dropdown menu.
             if (item.children && item.children.length > 0) {
@@ -229,7 +229,7 @@ export function SiteHeader() {
             </div>
             <ul className="mobile-menu-list">
               {items.map((item) => {
-                const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : Compass;
+                const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : item.icon === "handshake" ? Handshake : Compass;
                 const itemLocked = directoryLocked && item.href === "/directory";
                 const isDirChild = (href: string) =>
                   href === "/directory" || href === "/compare" || href === "/marketplace";
