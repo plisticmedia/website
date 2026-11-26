@@ -44,7 +44,7 @@ export type NavItem = {
   label: string;
   href: string;
   highlight?: boolean;
-  icon?: "compass" | "sparkles";
+  icon?: "compass" | "sparkles" | "store";
   children?: NavChild[];
 };
 
@@ -78,6 +78,33 @@ export const navItems: NavItem[] = [
     ],
   },
   { label: "Scotland's Showcase", href: "/showcase", highlight: true, icon: "sparkles" },
+];
+
+// Public-facing nav (shown to everyone who is NOT an admin or beta tester):
+// the streamlined studio + shop, with the wider Directory/Showcase hidden.
+// Admins and beta testers get the full `navItems` above instead.
+export const publicNavItems: NavItem[] = [
+  { label: "Home", href: "/#top" },
+  {
+    label: "Plistic Studio",
+    href: "/#services",
+    children: [
+      { label: "Services", href: "/#services", description: "Podcasting, video, events, documentary, coaching" },
+      { label: "Our Work", href: "/#work", description: "Selected case studies" },
+      { label: "Pricing", href: "/pricing", description: "Get an instant estimate" },
+      { label: "About", href: "/about", description: "Who we are, and how we work" },
+    ],
+  },
+  { label: "Earn With Us", href: "/earn" },
+  {
+    label: "Shop",
+    href: "/marketplace",
+    highlight: true,
+    icon: "store",
+    children: [
+      { label: "Our profile", href: "/directory/plistic-media", description: "See Plistic Media's full profile, packages & reviews" },
+    ],
+  },
 ];
 
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];

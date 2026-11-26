@@ -442,7 +442,12 @@ textarea {
   display: flex;
   justify-content: center;
   min-width: 0;
-  position: relative;
+  /* Anchor to the true centre of the header, independent of the differing
+     widths of the logo (left) and the actions (right). Hidden below 1120px. */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .primary-nav-list {
