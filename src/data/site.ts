@@ -44,7 +44,7 @@ export type NavItem = {
   label: string;
   href: string;
   highlight?: boolean;
-  icon?: "compass" | "sparkles";
+  icon?: "compass" | "sparkles" | "store" | "handshake";
   children?: NavChild[];
 };
 
@@ -78,6 +78,48 @@ export const navItems: NavItem[] = [
     ],
   },
   { label: "Scotland's Showcase", href: "/showcase", highlight: true, icon: "sparkles" },
+];
+
+// Public-facing nav (shown to everyone who is NOT an admin or beta tester):
+// the streamlined studio + shop, with the wider Directory/Showcase hidden.
+// Admins and beta testers get the full `navItems` above instead.
+export const publicNavItems: NavItem[] = [
+  { label: "Home", href: "/#top" },
+  {
+    label: "Work we're proud of",
+    href: "/#work",
+    children: [
+      { label: "Strathclyde Inspire", href: "/work/strathclyde-inspire", description: "Podcast production" },
+      { label: "Dyspraxia DCD Ireland", href: "/work/dyspraxia-dcd-ireland", description: "Sensitive location filming" },
+      { label: "Connect-Ed", href: "/work/connect-ed-network", description: "Event capture and editing" },
+      { label: "Unfiltered", href: "/work/unfiltered-neurodiverse-entrepreneur", description: "Feature documentary" },
+      { label: "Tiny Changes", href: "/work/tiny-changes", description: "End-to-end podcast production" },
+    ],
+  },
+  {
+    label: "Services",
+    href: "/services/podcasting",
+    children: [
+      { label: "Podcasting", href: "/services/podcasting", description: "Full-service podcast production, concept to launch" },
+      { label: "Video production", href: "/services/video-production", description: "Brand films, ads and music videos" },
+      { label: "Event filming", href: "/services/event-filming", description: "Multi-camera coverage of live events" },
+      { label: "Documentary", href: "/services/documentary", description: "Long-form storytelling with real depth" },
+      { label: "Coaching", href: "/services/coaching", description: "Presentation and media coaching" },
+    ],
+  },
+  { label: "Pricing", href: "/pricing" },
+  { label: "About", href: "/about" },
+  { label: "Earn With Us", href: "/earn" },
+  {
+    label: "Work with us",
+    href: "/pricing",
+    highlight: true,
+    icon: "handshake",
+    children: [
+      { label: "Get an estimate", href: "/pricing", description: "See an instant ballpark price for your project" },
+      { label: "Book a call", href: "/book", description: "Talk it through with us — no pressure, no jargon" },
+    ],
+  },
 ];
 
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];

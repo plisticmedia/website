@@ -15,6 +15,14 @@ const companyLinks = [
   { label: "Earn With Us", href: "/earn" },
   { label: "About", href: "/about" },
 ];
+// Public-facing footer (everyone who is not an admin / beta tester): the
+// streamlined set, with Directory/Compare/Showcase/List hidden.
+const publicCompanyLinks = [
+  { label: "Book a call", href: "/book" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Earn With Us", href: "/earn" },
+  { label: "About", href: "/about" },
+];
 const legalLinks = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },
@@ -22,6 +30,8 @@ const legalLinks = [
 
 export async function Footer() {
   const viewer = await getSessionProfile();
+  const privileged = viewer?.betaAccess === true;
+  const links = privileged ? companyLinks : publicCompanyLinks;
   const directoryLocked = !directoryPublic() && !viewer?.betaAccess;
   const isDirectoryLink = (href: string) => href === "/directory" || href === "/compare";
 
@@ -53,7 +63,7 @@ export async function Footer() {
 
           <nav className="footer-column" aria-labelledby="footer-company-title">
             <h2 id="footer-company-title">Company</h2>
-            {companyLinks.map((item) =>
+            {links.map((item) =>
               directoryLocked && isDirectoryLink(item.href) ? (
                 <Link
                   key={item.href}

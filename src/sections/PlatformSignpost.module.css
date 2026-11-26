@@ -20,6 +20,12 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 2.5vw, 1.6rem);
 }
+/* Two-card variant (public signpost) — centred rather than a left-aligned pair. */
+.gridTwo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 720px;
+  margin-inline: auto;
+}
 .card {
   position: relative;
   display: flex;
