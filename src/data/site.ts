@@ -85,7 +85,7 @@ export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
 export const testimonials = [
   {
     quote:
-      "Ross and Podplistic were really straight forward to work with - the quote was clear and reasonable, the set up was effortless, and production turnaround was quick. Ross paid attention to detail and was responsive; easy-going yet professional. We're looking forward to doing more with Podplistic over the coming months.",
+      "Ross and Plistic Media were really straight forward to work with - the quote was clear and reasonable, the set up was effortless, and production turnaround was quick. Ross paid attention to detail and was responsive; easy-going yet professional. We're looking forward to doing more with Plistic Media over the coming months.",
     name: "Abi Hird",
     org: "Defankle Innovation Consultancy",
   },
@@ -97,7 +97,7 @@ export const testimonials = [
   },
   {
     quote:
-      "Inspire's long relationship with Podplistic has been built on the fact that they are flexible, reliable and collaborative. They've handled everything we've thrown at them, from recording live events and panel sessions, to full day sessions capturing multiple episodes of our Inspiring Entrepreneurs podcast. Their professionalism, adaptability and commitment to quality make them a trusted partner that we would confidently recommend to any organisation looking to create engaging, high-quality podcast content.",
+      "Inspire's long relationship with Plistic Media has been built on the fact that they are flexible, reliable and collaborative. They've handled everything we've thrown at them, from recording live events and panel sessions, to full day sessions capturing multiple episodes of our Inspiring Entrepreneurs podcast. Their professionalism, adaptability and commitment to quality make them a trusted partner that we would confidently recommend to any organisation looking to create engaging, high-quality podcast content.",
     name: "Katy McNair",
     org: "Strathclyde Inspire",
   },
