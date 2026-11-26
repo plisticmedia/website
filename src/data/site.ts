@@ -112,7 +112,7 @@ export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
 export const testimonials = [
   {
     quote:
-      "Ross and Podplistic were really straight forward to work with - the quote was clear and reasonable, the set up was effortless, and production turnaround was quick. Ross paid attention to detail and was responsive; easy-going yet professional. We're looking forward to doing more with Podplistic over the coming months.",
+      "Ross and Plistic Media were really straight forward to work with - the quote was clear and reasonable, the set up was effortless, and production turnaround was quick. Ross paid attention to detail and was responsive; easy-going yet professional. We're looking forward to doing more with Plistic Media over the coming months.",
     name: "Abi Hird",
     org: "Defankle Innovation Consultancy",
   },
