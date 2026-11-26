@@ -44,7 +44,7 @@ export type NavItem = {
   label: string;
   href: string;
   highlight?: boolean;
-  icon?: "compass" | "sparkles";
+  icon?: "compass" | "sparkles" | "store";
   children?: NavChild[];
 };
 
@@ -66,18 +66,15 @@ export const navItems: NavItem[] = [
   },
   { label: "Earn With Us", href: "/earn" },
   {
-    label: "Media Directory",
-    href: "/directory",
+    label: "Shop",
+    href: "/marketplace",
     highlight: true,
-    icon: "compass",
+    icon: "store",
     children: [
-      { label: "Browse businesses", href: "/directory", description: "Search Scotland's media companies & freelancers" },
-      { label: "Compare prices & services", href: "/compare", description: "Search by service — see who offers it & what they charge" },
-      { label: "Marketplace", href: "/marketplace", description: "Buy items & services from Scotland's creatives" },
-      { label: "List your business", href: "/list-your-business", description: "Add yourself to the directory — it's free" },
+      { label: "Buy from us", href: "/marketplace", description: "Shop Plistic Media's packages, items & services" },
+      { label: "Our profile", href: "/directory/plistic-media", description: "See Plistic Media's full profile, packages & reviews" },
     ],
   },
-  { label: "Scotland's Showcase", href: "/showcase", highlight: true, icon: "sparkles" },
 ];
 
 export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];

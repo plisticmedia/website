@@ -100,7 +100,7 @@ export function SiteHeader() {
       >
         <NavigationMenuList className="primary-nav-list">
           {navItems.slice(1).map((item) => {
-            const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
+            const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : Compass;
 
             // Grouped item → dropdown menu.
             if (item.children && item.children.length > 0) {
@@ -187,10 +187,6 @@ export function SiteHeader() {
       </NavigationMenu>
 
       <div className="header-actions">
-        <Link className="header-list" href="/list-your-business">
-          <Store aria-hidden="true" size={16} />
-          <span>List your business</span>
-        </Link>
         <Link className="header-account" href={accountHref}>
           <AccountIcon aria-hidden="true" size={16} />
           <span>{accountLabel}</span>
@@ -223,7 +219,7 @@ export function SiteHeader() {
             </div>
             <ul className="mobile-menu-list">
               {navItems.map((item) => {
-                const HighlightIcon = item.icon === "sparkles" ? Sparkles : Compass;
+                const HighlightIcon = item.icon === "sparkles" ? Sparkles : item.icon === "store" ? Store : Compass;
                 const itemLocked = directoryLocked && item.href === "/directory";
                 const isDirChild = (href: string) =>
                   href === "/directory" || href === "/compare" || href === "/marketplace";
@@ -276,12 +272,6 @@ export function SiteHeader() {
               })}
             </ul>
             <div className="mobile-menu-foot">
-              <Link href="/list-your-business" className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
-                <Store aria-hidden="true" size={18} /> List your business
-              </Link>
-              <Link href="/coming-soon" className="mobile-beta-cta" onClick={() => setMobileOpen(false)}>
-                Become a beta tester for Scotland&apos;s leading media directory
-              </Link>
               <Link href={accountHref} className="p-btn p-btn--ghost" onClick={() => setMobileOpen(false)}>
                 <AccountIcon aria-hidden="true" size={18} /> {accountLabel}
               </Link>

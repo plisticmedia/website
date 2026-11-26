@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Clapperboard, Compass, Sparkles } from "lucide-react";
+import { ArrowRight, Clapperboard, ShoppingBag, Store } from "lucide-react";
 import { bookingPagePath } from "@/data/site";
-import { directoryPublic } from "@/lib/directory";
-import { getSessionProfile } from "@/lib/auth";
 import styles from "./PlatformSignpost.module.css";
 
 /**
- * Explains the whole of Plistic in one place: we make media ourselves, we run
- * Scotland's media directory, and we celebrate the scene with the showcase —
- * plus a low-pressure "not sure what you need?" route to a call.
+ * Explains Plistic in one place: we make media ourselves, and you can buy our
+ * packages, items and services directly — plus a low-pressure "not sure what
+ * you need?" route to a call.
  */
 const pillars = [
   {
@@ -19,61 +17,38 @@ const pillars = [
     cta: "See what we make",
   },
   {
-    icon: Compass,
-    title: "The Media Directory",
-    text: "Find and hire Scotland's creative and media businesses — filter by service and place, see them on the map, enquire direct.",
-    href: "/directory",
-    cta: "Browse the directory",
+    icon: ShoppingBag,
+    title: "Buy from us",
+    text: "Shop Plistic Media's packages, items and services directly — pick what you need and check out online.",
+    href: "/marketplace",
+    cta: "Visit the shop",
   },
   {
-    icon: Sparkles,
-    title: "Scotland's Showcase",
-    text: "The best of Scotland's creative scene — standout work, films, events and stories worth celebrating. Submit your own to feature.",
-    href: "/showcase",
-    cta: "Explore the showcase",
+    icon: Store,
+    title: "Our profile",
+    text: "See Plistic Media's full profile — our packages, work, items for sale and client reviews, all in one place.",
+    href: "/directory/plistic-media",
+    cta: "See our profile",
   },
 ];
 
-export async function PlatformSignpost() {
-  const viewer = await getSessionProfile();
-  const directoryLocked = !directoryPublic() && !viewer?.betaAccess;
-
+export function PlatformSignpost() {
   return (
     <section className={`p-section ${styles.section}`} aria-labelledby="platform-title">
       <div className="p-container">
         <div className={styles.head}>
-          <p className="p-eyebrow">One company, three ways in</p>
+          <p className="p-eyebrow">One studio, everything you need</p>
           <h2 id="platform-title" className={`p-h2 ${styles.title}`}>
-            Plistic makes media — and is building its <span className="azu">home in Scotland</span>.
+            Plistic makes media — and makes it <span className="azu">easy to buy</span>.
           </h2>
           <p className={`p-lead ${styles.lead}`}>
-            We&apos;re a production studio, a directory for finding creative talent, and a showcase celebrating the
-            country&apos;s best work — all under one roof.
+            We&apos;re a Glasgow production studio you can hire end to end, or shop directly for packages, items and
+            services — all under one roof.
           </p>
         </div>
 
         <div className={styles.grid}>
           {pillars.map((p) => {
-            const locked = p.href === "/directory" && directoryLocked;
-            if (locked) {
-              return (
-                <div className={`${styles.card} p-vf ${styles.cardLocked}`} key={p.title} aria-disabled="true">
-                  <span className="p-vfc" aria-hidden="true" />
-                  <span className={styles.comingSoon}>Coming soon</span>
-                  <span className={styles.icon} aria-hidden="true"><p.icon size={24} /></span>
-                  <h3 className={styles.cardTitle}>{p.title}</h3>
-                  <p className={styles.cardText}>{p.text}</p>
-                  <div className={styles.lockedLinks}>
-                    <Link href="/list-your-business" className={styles.link}>
-                      List your business <ArrowRight aria-hidden="true" size={16} />
-                    </Link>
-                    <Link href="/coming-soon" className={styles.link}>
-                      Become a beta tester <ArrowRight aria-hidden="true" size={16} />
-                    </Link>
-                  </div>
-                </div>
-              );
-            }
             return (
               <Link href={p.href} className={`${styles.card} p-vf`} key={p.title}>
                 <span className="p-vfc" aria-hidden="true" />

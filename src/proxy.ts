@@ -20,6 +20,10 @@ const publicPaths = new Set([
   "/api/submit-listing",
   // Password reset must always resolve, even without the coming-soon cookie.
   "/reset-password",
+  // Shop mockup: Plistic Media's own storefront is public, while the wider
+  // directory/compare stay gated. (The marketplace + Plistic's profile page.)
+  "/marketplace",
+  "/directory/plistic-media",
 ]);
 // Prefixes always allowed: framework assets, static assets, the auth
 // callback/confirm routes (so magic-link sign-in resolves even before the gate
