@@ -127,6 +127,12 @@ export const prefixWords = ["pod", "vid", "song", "ad", "doc", "sim"];
 export const testimonials = [
   {
     quote:
+      "Ross and Podplistic were really straight forward to work with - the quote was clear and reasonable, the set up was effortless, and production turnaround was quick. Ross paid attention to detail and was responsive; easy-going yet professional. We're looking forward to doing more with Podplistic over the coming months.",
+    name: "Abi Hird",
+    org: "Defankle Innovation Consultancy",
+  },
+  {
+    quote:
       "From the outset, Plistic Media created a warm, relaxed and supportive environment that immediately put families at ease — especially important given the personal nature of the project. The communication, planning and project management were first class: they understood our vision from day one and consistently delivered with professionalism, reliability and attention to detail. We would wholeheartedly recommend Plistic Media to any organisation seeking a creative, professional and compassionate media production team.",
     name: "Sharon Lane",
     org: "Dyspraxia DCD Ireland",
