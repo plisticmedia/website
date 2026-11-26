@@ -97,7 +97,7 @@ export const testimonials = [
   },
   {
     quote:
-      "Inspire's long relationship with Podplistic has been built on the fact that they are flexible, reliable and collaborative. They've handled everything we've thrown at them, from recording live events and panel sessions, to full day sessions capturing multiple episodes of our Inspiring Entrepreneurs podcast. Their professionalism, adaptability and commitment to quality make them a trusted partner that we would confidently recommend to any organisation looking to create engaging, high-quality podcast content.",
+      "Inspire's long relationship with Plistic Media has been built on the fact that they are flexible, reliable and collaborative. They've handled everything we've thrown at them, from recording live events and panel sessions, to full day sessions capturing multiple episodes of our Inspiring Entrepreneurs podcast. Their professionalism, adaptability and commitment to quality make them a trusted partner that we would confidently recommend to any organisation looking to create engaging, high-quality podcast content.",
     name: "Katy McNair",
     org: "Strathclyde Inspire",
   },
